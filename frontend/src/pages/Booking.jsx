@@ -3,6 +3,7 @@ import { Navigate, useNavigate } from "react-router-dom";
 import { ArrowRight, ArrowLeft, Trash2, Plus, ShieldCheck, CalendarDays, PawPrint } from "lucide-react";
 import { useBooking } from "@/context/BookingContext";
 import { createCheckoutSession } from "@/lib/paw-api";
+import { track, identify } from "@/lib/analytics";
 import SummaryCard from "@/components/paw/SummaryCard";
 
 // PawHaus brand assets — served as optimised webp from /public/brand/
@@ -41,6 +42,13 @@ export default function Booking() {
   const handlePay = async () => {
     setSubmitError("");
     setSubmitting(true);
+    identify(guests.email, { full_name: guests.full_name, tier });
+    track("checkout_initiated", {
+      tier,
+      room_id: roomId,
+      stay_id: stayId,
+      pets_count: guests.pets.filter((p) => p.name.trim()).length,
+    });
     try {
       const payload = {
         room_id: roomId,
@@ -52,11 +60,13 @@ export default function Booking() {
           pets: guests.pets.filter((p) => p.name.trim()),
         },
       };
-      const { url } = await createCheckoutSession(payload);
+      const { url, session_id } = await createCheckoutSession(payload);
+      track("checkout_redirect", { session_id, tier });
       window.location.href = url;
     } catch (e) {
       const detail = e?.response?.data?.detail || "Something went wrong. Please try again.";
       setSubmitError(detail);
+      track("checkout_failed", { detail, tier });
       setSubmitting(false);
     }
   };
@@ -170,6 +180,14 @@ export default function Booking() {
 // ---------------------------------------------------------------------------
 
 function StepStay({ catalog, roomId, setRoomId, stayId, setStayId }) {
+  const handleRoomSelect = (id) => {
+    setRoomId(id);
+    track("room_selected", { room_id: id });
+  };
+  const handleStaySelect = (id) => {
+    setStayId(id);
+    track("stay_option_selected", { stay_id: id });
+  };
   return (
     <section data-testid="step-stay">
       <div className="overline mb-3" style={{ color: "var(--paw-muted)" }}>
@@ -189,7 +207,7 @@ function StepStay({ catalog, roomId, setRoomId, stayId, setStayId }) {
             <button
               key={room.id}
               data-testid={`room-card-${room.id}`}
-              onClick={() => setRoomId(room.id)}
+              onClick={() => handleRoomSelect(room.id)}
               className="paw-card w-full text-left grid grid-cols-1 md:grid-cols-12 overflow-hidden"
               style={{
                 background: selected ? "var(--paw-bg-2)" : "var(--paw-bg)",
@@ -244,7 +262,7 @@ function StepStay({ catalog, roomId, setRoomId, stayId, setStayId }) {
             <button
               key={s.id}
               data-testid={`stay-option-${s.id}`}
-              onClick={() => setStayId(s.id)}
+              onClick={() => handleStaySelect(s.id)}
               className="paw-card p-4 text-left"
               style={{
                 background: selected ? "var(--paw-forest)" : "var(--paw-bg)",
@@ -530,3 +548,4 @@ function Reassurance({ icon, heading, body }) {
     </div>
   );
 }
+

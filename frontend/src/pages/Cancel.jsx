@@ -1,8 +1,12 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { track } from "@/lib/analytics";
 
 export default function Cancel() {
   const navigate = useNavigate();
+  useEffect(() => {
+    track("checkout_cancelled");
+  }, []);
   return (
     <div data-testid="cancel-page" className="mx-auto max-w-[900px] px-6 sm:px-10 py-24 text-center">
       <div className="overline" style={{ color: "var(--paw-muted)" }}>

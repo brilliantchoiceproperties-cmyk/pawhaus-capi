@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowRight, Lock, Check, MapPin, BedDouble, Bath, PawPrint, Coffee, Flame, Trees, Wifi, ShoppingBag, Truck } from "lucide-react";
 import { validateCode } from "@/lib/paw-api";
 import { useBooking } from "@/context/BookingContext";
+import { track } from "@/lib/analytics";
 
 // PawHaus brand assets — served as optimised webp from /public/brand/
 const HERO_IMG = "/brand/hero.webp";
@@ -23,16 +24,20 @@ export default function Landing() {
     setCodeError("");
     if (!code.trim()) {
       setCodeError("Please enter your Founders code.");
+      track("vip_code_submitted", { result: "empty" });
       return;
     }
     setCodeLoading(true);
+    track("vip_code_submitted", { code_entered: code.trim().toUpperCase() });
     try {
       const info = await validateCode(code);
       setTierFromValidation(info);
+      track("vip_code_validated", { tier: info.tier, discount_percent: info.discount_percent });
       navigate("/booking");
     } catch (e) {
       const detail = e?.response?.data?.detail || "That code doesn't match any Founders Pass.";
       setCodeError(detail);
+      track("vip_code_invalid", { detail });
     } finally {
       setCodeLoading(false);
     }
@@ -40,6 +45,7 @@ export default function Landing() {
 
   const handlePublic = () => {
     enterPublic();
+    track("public_cta_clicked", { tier: "PUBLIC", discount_percent: 0.2 });
     navigate("/booking");
   };
 

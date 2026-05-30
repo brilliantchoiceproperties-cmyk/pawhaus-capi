@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
 import "@/App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { BookingProvider } from "@/context/BookingContext";
 import Header from "@/components/paw/Header";
 import Footer from "@/components/paw/Footer";
@@ -8,12 +8,26 @@ import Landing from "@/pages/Landing";
 import Booking from "@/pages/Booking";
 import Success from "@/pages/Success";
 import Cancel from "@/pages/Cancel";
+import { initAnalytics, pageview } from "@/lib/analytics";
+
+function RouteTracker() {
+  const loc = useLocation();
+  useEffect(() => {
+    pageview(loc.pathname + loc.search);
+  }, [loc.pathname, loc.search]);
+  return null;
+}
 
 function App() {
+  useEffect(() => {
+    initAnalytics();
+  }, []);
+
   return (
     <div className="App">
       <BrowserRouter>
         <BookingProvider>
+          <RouteTracker />
           <Header />
           <Routes>
             <Route path="/" element={<Landing />} />
