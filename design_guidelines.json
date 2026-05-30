@@ -1,0 +1,144 @@
+{
+  "project_name": "PawHaus Resort VIP Portal - A/B Test Variant",
+  "theme": "LIGHT",
+  "archetype": "1 (Organic & Earthy)",
+  "design_philosophy": {
+    "vibe": "High-end editorial, Aman/Six Senses tier luxury, warm minimalism.",
+    "core_principles": [
+      "Editorial Pacing: Generous white space, sparse copy, cinematic imagery.",
+      "Organic Warmth: Contrast the original 'dark forest' variant with bright, sunlit linen textures and deep green typography.",
+      "Clear Duality: The A/B test centers on a two-lane offer (VIP vs Public). These must feel structurally equal but experientially distinct.",
+      "Dog-First Luxury: Emphasize pets as equal VIP guests through layout and imagery, not just fine print."
+    ]
+  },
+  "colors": {
+    "background": {
+      "primary": "#FAF9F6",
+      "secondary": "#EBE8E0",
+      "tertiary": "#DDE0D9",
+      "glass": "rgba(250, 249, 246, 0.75)"
+    },
+    "text": {
+      "primary": "#1A231C",
+      "secondary": "#4A564D",
+      "muted": "#758077",
+      "inverse": "#FAF9F6"
+    },
+    "brand": {
+      "primary": "#2C4C3B",
+      "primary_hover": "#1E3529",
+      "accent": "#A85A43",
+      "accent_hover": "#8C4A36"
+    },
+    "status": {
+      "sold_out": "#1A231C",
+      "discount": "#A85A43"
+    },
+    "borders": {
+      "subtle": "rgba(44, 76, 59, 0.15)",
+      "strong": "rgba(44, 76, 59, 0.4)"
+    }
+  },
+  "typography": {
+    "fonts": {
+      "heading": "'Cormorant Garamond', serif",
+      "body": "'Outfit', sans-serif"
+    },
+    "scale": {
+      "h1": "text-5xl sm:text-6xl tracking-tighter leading-none font-medium",
+      "h2": "text-3xl sm:text-4xl tracking-tight leading-tight",
+      "h3": "text-2xl font-medium",
+      "h4": "text-lg uppercase tracking-[0.2em] font-medium",
+      "body_lg": "text-lg leading-relaxed",
+      "body": "text-base leading-relaxed",
+      "small_label": "text-xs uppercase tracking-[0.15em] font-medium"
+    },
+    "rules": [
+      "Never use default bold for headings; use font-medium or font-light.",
+      "Overlines and small labels MUST be uppercase with wide tracking.",
+      "Ensure hierarchy gap: H1 to body should feel like a deliberate leap."
+    ]
+  },
+  "spacing_and_layout": {
+    "philosophy": "Generous Spacing (Tailwind p-8 to p-24). Elements should breathe like a print magazine.",
+    "bento_grid": {
+      "marketing": "Use asymmetric grid (grid-cols-1 md:grid-cols-12) for amenities and gallery. Mix col-span-8 and col-span-4.",
+      "booking_funnel": "Use split layout: col-span-8 for forms/selection, col-span-4 for the Sticky Summary Card."
+    },
+    "surface_styles": {
+      "header": "Crystal Glass style: backdrop-blur-xl bg-[#FAF9F6]/80 with a delicate 1px border-b border-[#2C4C3B]/10.",
+      "offer_cards": "Flat background (primary or secondary), 1px solid border subtle, NO drop shadow. On hover: slight -translate-y-1 and border darkens.",
+      "sticky_summary": "Soft clay background (#EBE8E0) with crisp inner borders separating line items."
+    }
+  },
+  "components_strategy": {
+    "html_tailwind": [
+      "Hero Section: Split layout or overlapping large cards over imagery.",
+      "Two-Lane Funnel: Custom HTML cards. Left (VIP) emphasizes exclusivity. Right (Public) emphasizes ease.",
+      "Amenities/Gallery: Asymmetric bento grids using raw Tailwind for precise artistic control."
+    ],
+    "shadcn_ui": [
+      "Forms: Use Shadcn Input, Select, Checkbox for the 3-step booking flow.",
+      "Calendar: Use Shadcn Datepicker for Stay selection.",
+      "Dialog: For expanded room details or refund policy.",
+      "Note": "Override Shadcn default border-radius to rounded-none or rounded-sm for an architectural, high-end feel."
+    ],
+    "testing": "All interactive elements (buttons, inputs, specific cards) MUST include data-testid attributes (e.g., data-testid='vip-code-input')."
+  },
+  "page_specific_instructions": {
+    "landing_above_fold": {
+      "structure": "Immersive hero image with a semi-transparent warm overlay. The 'Two-Lane Offer' cards sit overlapping the bottom of the hero or directly below it.",
+      "vip_card": "Heading: 'Founders VIP'. Status: 'Sold Out'. Interaction: Input field for code (PAWVIP) + Unlock Button.",
+      "public_card": "Heading: 'Pre-Launch Public'. Status: '20% Off'. Interaction: 'Continue' Button."
+    },
+    "booking_funnel": {
+      "step_1_stay": "List the three rooms (Petite, Standard, Monolith). Large photography, clear capacity (Guests + Pets). 'Select Dates' datepicker.",
+      "step_2_guests": "Dropdowns/counters for Adults, Children, and Dogs. Collect dog names/breeds for personalized luxury.",
+      "step_3_review": "Final review, Stripe payment integration block.",
+      "sticky_summary": "Must be visible on desktop throughout Steps 1-3. Shows Room Base Price, Hot Tub Premium (if applicable), Active Discount (20% or VIP), and Total."
+    },
+    "marketing_sections": {
+      "vip_benefits": "Icon list or text grid detailing what Founders get.",
+      "amenities": "Grid showing 'Included in every unit' (e.g., Dog beds, treats) and 'On-site'.",
+      "transparency": "A classy, muted section explaining construction transparency and refund policies."
+    }
+  },
+  "media": {
+    "image_urls": [
+      {
+        "url": "https://static.prod-images.emergentagent.com/jobs/ad3bb002-ccc4-4764-80ff-f0fdf6283d98/images/6a5e512f17e013048a0016559c831f8f0dea51608104e1ff11c2c2e68ee34512.png",
+        "category": "hero",
+        "description": "Wide architectural photography of a minimalist glass cabin in a pine forest, warm sunlight."
+      },
+      {
+        "url": "https://static.prod-images.emergentagent.com/jobs/ad3bb002-ccc4-4764-80ff-f0fdf6283d98/images/5f1e3fa517e0baa79a177fc1415d221d1f2ce4de0d9c2123e874bdc5bad79c74.png",
+        "category": "room_showcase",
+        "description": "Close up interior of a luxury minimalist hotel room, dog sleeping."
+      },
+      {
+        "url": "https://static.prod-images.emergentagent.com/jobs/ad3bb002-ccc4-4764-80ff-f0fdf6283d98/images/183913f9b494ad06e3679a7d41fbf9d688b73dbee76558d9dff6a9bc0506d6e6.png",
+        "category": "background_texture",
+        "description": "Minimalist abstract warm linen texture for section backgrounds."
+      },
+      {
+        "url": "https://images.pexels.com/photos/13533740/pexels-photo-13533740.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "category": "lifestyle",
+        "description": "Golden Retriever enjoying nature. Use for VIP or Pets section."
+      },
+      {
+        "url": "https://images.pexels.com/photos/9211814/pexels-photo-9211814.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "category": "exterior_alternative",
+        "description": "Stunning A-frame cabin surrounded by tall trees. Use for specific room type (e.g. Monolith)."
+      },
+      {
+        "url": "https://images.pexels.com/photos/29823635/pexels-photo-29823635.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "category": "lifestyle_secondary",
+        "description": "Golden Retriever sitting peacefully on white moss."
+      }
+    ],
+    "icons": {
+      "library": "lucide-react",
+      "style": "Thin, minimalist stroke (strokeWidth={1.5}), consistent sizing."
+    }
+  }
+}
