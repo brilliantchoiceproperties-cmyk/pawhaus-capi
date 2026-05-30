@@ -2,114 +2,250 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-    margin: 0;
-    font-family:
-        -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
-        "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-        sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-}
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Outfit:wght@300;400;500;600&display=swap');
 
-code {
-    font-family:
-        source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
+:root {
+    /* Brand */
+    --paw-bg: #FAF9F6;
+    --paw-bg-2: #EBE8E0;
+    --paw-bg-3: #DDE0D9;
+    --paw-ink: #1A231C;
+    --paw-ink-2: #4A564D;
+    --paw-muted: #758077;
+    --paw-forest: #2C4C3B;
+    --paw-forest-2: #1E3529;
+    --paw-clay: #A85A43;
+    --paw-clay-2: #8C4A36;
+    --paw-line: rgba(44, 76, 59, 0.15);
+    --paw-line-strong: rgba(44, 76, 59, 0.4);
 }
 
 @layer base {
     :root {
-        --background: 0 0% 100%;
-        --foreground: 0 0% 3.9%;
+        --background: 48 30% 97%;
+        --foreground: 130 14% 11%;
         --card: 0 0% 100%;
-        --card-foreground: 0 0% 3.9%;
+        --card-foreground: 130 14% 11%;
         --popover: 0 0% 100%;
-        --popover-foreground: 0 0% 3.9%;
-        --primary: 0 0% 9%;
-        --primary-foreground: 0 0% 98%;
-        --secondary: 0 0% 96.1%;
-        --secondary-foreground: 0 0% 9%;
-        --muted: 0 0% 96.1%;
-        --muted-foreground: 0 0% 45.1%;
-        --accent: 0 0% 96.1%;
-        --accent-foreground: 0 0% 9%;
-        --destructive: 0 84.2% 60.2%;
+        --popover-foreground: 130 14% 11%;
+        --primary: 142 27% 23%;
+        --primary-foreground: 48 30% 97%;
+        --secondary: 43 14% 90%;
+        --secondary-foreground: 130 14% 11%;
+        --muted: 43 14% 90%;
+        --muted-foreground: 130 6% 48%;
+        --accent: 14 42% 46%;
+        --accent-foreground: 48 30% 97%;
+        --destructive: 0 70% 45%;
         --destructive-foreground: 0 0% 98%;
-        --border: 0 0% 89.8%;
-        --input: 0 0% 89.8%;
-        --ring: 0 0% 3.9%;
-        --chart-1: 12 76% 61%;
-        --chart-2: 173 58% 39%;
-        --chart-3: 197 37% 24%;
-        --chart-4: 43 74% 66%;
-        --chart-5: 27 87% 67%;
-        --radius: 0.5rem;
-    }
-    .dark {
-        --background: 0 0% 3.9%;
-        --foreground: 0 0% 98%;
-        --card: 0 0% 3.9%;
-        --card-foreground: 0 0% 98%;
-        --popover: 0 0% 3.9%;
-        --popover-foreground: 0 0% 98%;
-        --primary: 0 0% 98%;
-        --primary-foreground: 0 0% 9%;
-        --secondary: 0 0% 14.9%;
-        --secondary-foreground: 0 0% 98%;
-        --muted: 0 0% 14.9%;
-        --muted-foreground: 0 0% 63.9%;
-        --accent: 0 0% 14.9%;
-        --accent-foreground: 0 0% 98%;
-        --destructive: 0 62.8% 30.6%;
-        --destructive-foreground: 0 0% 98%;
-        --border: 0 0% 14.9%;
-        --input: 0 0% 14.9%;
-        --ring: 0 0% 83.1%;
-        --chart-1: 220 70% 50%;
-        --chart-2: 160 60% 45%;
-        --chart-3: 30 80% 55%;
-        --chart-4: 280 65% 60%;
-        --chart-5: 340 75% 55%;
+        --border: 142 27% 23% / 0.15;
+        --input: 142 27% 23% / 0.2;
+        --ring: 142 27% 23%;
+        --radius: 0.125rem;
     }
 }
 
-@layer base {
-    * {
-        @apply border-border;
+* {
+    border-color: var(--paw-line);
+}
+
+html, body, #root {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+    background: var(--paw-bg);
+    color: var(--paw-ink);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 300;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+.font-display {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+}
+
+.font-body {
+    font-family: 'Outfit', sans-serif;
+}
+
+.overline {
+    font-size: 0.7rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    font-weight: 500;
+}
+
+.paw-card {
+    background: var(--paw-bg);
+    border: 1px solid var(--paw-line);
+    transition: border-color 0.3s ease, transform 0.3s ease;
+}
+
+.paw-card:hover {
+    border-color: var(--paw-line-strong);
+}
+
+.paw-btn-primary {
+    background: var(--paw-forest);
+    color: var(--paw-bg);
+    padding: 0.95rem 1.6rem;
+    font-size: 0.78rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-weight: 500;
+    border: 1px solid var(--paw-forest);
+    transition: background 0.25s ease, color 0.25s ease, transform 0.25s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    cursor: pointer;
+}
+
+.paw-btn-primary:hover {
+    background: var(--paw-forest-2);
+    transform: translateY(-1px);
+}
+
+.paw-btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.paw-btn-secondary {
+    background: transparent;
+    color: var(--paw-forest);
+    padding: 0.95rem 1.6rem;
+    font-size: 0.78rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-weight: 500;
+    border: 1px solid var(--paw-forest);
+    transition: background 0.25s ease, color 0.25s ease;
+    cursor: pointer;
+}
+
+.paw-btn-secondary:hover {
+    background: var(--paw-forest);
+    color: var(--paw-bg);
+}
+
+.paw-input {
+    background: transparent;
+    border: 1px solid var(--paw-line-strong);
+    padding: 0.85rem 1rem;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.95rem;
+    color: var(--paw-ink);
+    width: 100%;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.paw-input:focus {
+    border-color: var(--paw-forest);
+}
+
+.paw-input::placeholder {
+    color: var(--paw-muted);
+    letter-spacing: 0.1em;
+    font-size: 0.85rem;
+}
+
+.divider {
+    height: 1px;
+    background: var(--paw-line);
+    width: 100%;
+}
+
+/* Discount badge */
+.discount-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid var(--paw-clay);
+    color: var(--paw-clay);
+    padding: 0.35rem 0.75rem;
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-weight: 500;
+    background: rgba(168, 90, 67, 0.06);
+}
+
+.discount-badge.vip {
+    border-color: var(--paw-forest);
+    color: var(--paw-forest);
+    background: rgba(44, 76, 59, 0.06);
+}
+
+/* Hero overlay */
+.hero-overlay {
+    background: linear-gradient(180deg, rgba(26,35,28,0.35) 0%, rgba(26,35,28,0.55) 65%, rgba(250,249,246,1) 100%);
+}
+
+.fade-in {
+    animation: fadeUp 0.8s ease forwards;
+    opacity: 0;
+    transform: translateY(12px);
+}
+
+@keyframes fadeUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
-    body {
-        @apply bg-background text-foreground;
-    }
+}
+
+.stagger-1 { animation-delay: 0.05s; }
+.stagger-2 { animation-delay: 0.18s; }
+.stagger-3 { animation-delay: 0.32s; }
+.stagger-4 { animation-delay: 0.46s; }
+
+/* Step tracker */
+.step-dot {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+}
+
+.step-dot .num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.15rem;
+    color: var(--paw-muted);
+}
+
+.step-dot.active .num {
+    color: var(--paw-forest);
+}
+
+.step-dot.active {
+    color: var(--paw-ink);
+}
+
+.step-dot:not(.active) {
+    color: var(--paw-muted);
+}
+
+/* Hide scrollbar but keep functionality */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }
 
 @layer base {
     [data-debug-wrapper="true"] {
         display: contents !important;
-    }
-
-    [data-debug-wrapper="true"] > * {
-        margin-left: inherit;
-        margin-right: inherit;
-        margin-top: inherit;
-        margin-bottom: inherit;
-        padding-left: inherit;
-        padding-right: inherit;
-        padding-top: inherit;
-        padding-bottom: inherit;
-        column-gap: inherit;
-        row-gap: inherit;
-        gap: inherit;
-        border-left-width: inherit;
-        border-right-width: inherit;
-        border-top-width: inherit;
-        border-bottom-width: inherit;
-        border-left-style: inherit;
-        border-right-style: inherit;
-        border-top-style: inherit;
-        border-bottom-style: inherit;
-        border-left-color: inherit;
-        border-right-color: inherit;
-        border-top-color: inherit;
-        border-bottom-color: inherit;
     }
 }
