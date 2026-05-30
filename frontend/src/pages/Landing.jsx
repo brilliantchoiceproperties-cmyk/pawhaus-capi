@@ -4,17 +4,12 @@ import { ArrowRight, Lock, Check, MapPin, BedDouble, Bath, PawPrint, Coffee, Fla
 import { validateCode } from "@/lib/paw-api";
 import { useBooking } from "@/context/BookingContext";
 
-// PawHaus brand assets
-const HERO_IMG =
-  "https://customer-assets.emergentagent.com/job_experiment-forge/artifacts/nwi7onph_PawHaus%20Render%20.png";
-const ROOM_INTERIOR =
-  "https://customer-assets.emergentagent.com/job_experiment-forge/artifacts/z8k48nx5_PawHaus%20Render%203.png";
-const LIFESTYLE_DOG =
-  "https://customer-assets.emergentagent.com/job_experiment-forge/artifacts/mtnfbkq0_DSC01494.jpg";
-const AFRAME =
-  "https://customer-assets.emergentagent.com/job_experiment-forge/artifacts/6s3pcvw6_DJI_0698.jpg";
-const DOG_MOSS =
-  "https://customer-assets.emergentagent.com/job_experiment-forge/artifacts/nxgc0s05_DJI_0688.jpg";
+// PawHaus brand assets — served as optimised webp from /public/brand/
+const HERO_IMG = "/brand/hero.webp";
+const ROOM_INTERIOR = "/brand/render3.webp";
+const LIFESTYLE_DOG = "/brand/dsc.webp";
+const AFRAME = "/brand/dji698.webp";
+const DOG_MOSS = "/brand/dji688.webp";
 
 export default function Landing() {
   const navigate = useNavigate();

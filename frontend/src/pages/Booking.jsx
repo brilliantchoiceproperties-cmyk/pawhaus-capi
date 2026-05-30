@@ -5,14 +5,11 @@ import { useBooking } from "@/context/BookingContext";
 import { createCheckoutSession } from "@/lib/paw-api";
 import SummaryCard from "@/components/paw/SummaryCard";
 
-// PawHaus brand assets
+// PawHaus brand assets — served as optimised webp from /public/brand/
 const ROOM_IMAGES = {
-  petite:
-    "https://customer-assets.emergentagent.com/job_experiment-forge/artifacts/nwi7onph_PawHaus%20Render%20.png",
-  standard:
-    "https://customer-assets.emergentagent.com/job_experiment-forge/artifacts/mtnfbkq0_DSC01494.jpg",
-  monolith:
-    "https://customer-assets.emergentagent.com/job_experiment-forge/artifacts/z8k48nx5_PawHaus%20Render%203.png",
+  petite: "/brand/hero.webp",
+  standard: "/brand/dsc.webp",
+  monolith: "/brand/render3.webp",
 };
 
 export default function Booking() {
