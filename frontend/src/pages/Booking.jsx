@@ -10,7 +10,7 @@ import SummaryCard from "@/components/paw/SummaryCard";
 const ROOM_IMAGES = {
   petite: "/brand/hero.webp",
   standard: "/brand/dsc.webp",
-  monolith: "/brand/render3.webp",
+  monolith: "/brand/bedroom.webp",
 };
 
 export default function Booking() {
