@@ -16,6 +16,7 @@ from emergentintegrations.payments.stripe.checkout import (
     CheckoutSessionResponse,
     CheckoutStatusResponse,
 )
+import stripe
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / ".env")
@@ -26,6 +27,8 @@ client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ["DB_NAME"]]
 
 STRIPE_API_KEY = os.environ["STRIPE_API_KEY"]
+STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET", "")
+stripe.api_key = STRIPE_API_KEY
 
 app = FastAPI(title="PawHaus VIP Portal A/B")
 api_router = APIRouter(prefix="/api")
@@ -324,6 +327,43 @@ async def get_payment_status(session_id: str, http_request: Request):
 async def stripe_webhook(request: Request):
     body = await request.body()
     signature = request.headers.get("Stripe-Signature", "")
+
+    # Verify signature with the official Stripe library + the webhook signing secret.
+    # Falls back to the emergentintegrations helper only if no signing secret is configured (dev / preview).
+    if STRIPE_WEBHOOK_SECRET:
+        try:
+            event = stripe.Webhook.construct_event(body, signature, STRIPE_WEBHOOK_SECRET)
+        except (stripe.error.SignatureVerificationError, ValueError) as e:
+            logger.warning("Stripe webhook signature verification failed: %s", e)
+            raise HTTPException(status_code=400, detail="Invalid signature.")
+
+        event_type = event["type"]
+        data_object = event["data"]["object"]
+        session_id = data_object.get("id") if event_type.startswith("checkout.session.") else None
+        payment_status = data_object.get("payment_status") if session_id else None
+        metadata = data_object.get("metadata") or {}
+
+        if session_id:
+            await db.payment_transactions.update_one(
+                {"session_id": session_id},
+                {
+                    "$set": {
+                        "payment_status": payment_status or "",
+                        "updated_at": datetime.now(timezone.utc).isoformat(),
+                        "last_event_type": event_type,
+                    }
+                },
+            )
+            if payment_status == "paid" or event_type == "checkout.session.completed":
+                booking_id = metadata.get("booking_id")
+                if booking_id:
+                    await db.bookings.update_one(
+                        {"id": booking_id},
+                        {"$set": {"status": "confirmed", "paid_at": datetime.now(timezone.utc).isoformat()}},
+                    )
+        return {"received": True}
+
+    # No signing secret configured — fall back to the integration helper (dev only).
     host_url = str(request.base_url)
     webhook_url = f"{host_url.rstrip('/')}/api/webhook/stripe"
     stripe_checkout = StripeCheckout(api_key=STRIPE_API_KEY, webhook_url=webhook_url)
