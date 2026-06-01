@@ -320,7 +320,16 @@ function StepGuests({ guests, setGuests, stayId, catalog }) {
   const addPet = () =>
     setGuests({
       ...guests,
-      pets: [...guests.pets, { name: "", breed: "", size: "Medium (25-60 lb)", special_needs: "" }],
+      pets: [
+        ...guests.pets,
+        {
+          id: typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : `pet-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+          name: "",
+          breed: "",
+          size: "Medium (25-60 lb)",
+          special_needs: "",
+        },
+      ],
     });
   const removePet = (i) => setGuests({ ...guests, pets: guests.pets.filter((_, idx) => idx !== i) });
 
@@ -387,7 +396,7 @@ function StepGuests({ guests, setGuests, stayId, catalog }) {
 
         <div className="space-y-5">
           {guests.pets.map((p, i) => (
-            <div key={i} className="paw-card p-5" data-testid={`pet-card-${i}`}>
+            <div key={p.id || `pet-${i}`} className="paw-card p-5" data-testid={`pet-card-${i}`}>
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <PawPrint size={14} strokeWidth={1.5} style={{ color: "var(--paw-forest)" }} />

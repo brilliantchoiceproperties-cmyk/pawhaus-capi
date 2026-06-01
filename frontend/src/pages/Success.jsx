@@ -63,6 +63,8 @@ export default function Success() {
     return () => {
       cancelled = true;
     };
+    // reset is a stable callback from context; intentionally omitted to avoid re-polling on re-renders
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessionId]);
 
   return (

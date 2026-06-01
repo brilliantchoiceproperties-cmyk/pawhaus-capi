@@ -387,13 +387,15 @@ export default function Landing() {
             ["12 modular units", "Built in Houston, drop on site September"],
             ["Common areas", "Built — full photos coming soon"],
             ["Dog park, salon, massage home", "Active renovation"],
-            ["Final reveal &amp; first stays", "December 1, 2027"],
+            ["Final reveal & first stays", "December 1, 2027"],
           ].map(([title, status]) => (
             <div key={title} className="paw-card p-6" style={{ background: "var(--paw-bg)" }}>
               <div className="overline mb-2" style={{ color: "var(--paw-clay)" }}>
                 {title}
               </div>
-              <p className="text-base" style={{ color: "var(--paw-ink)" }} dangerouslySetInnerHTML={{ __html: status }} />
+              <p className="text-base" style={{ color: "var(--paw-ink)" }}>
+                {status}
+              </p>
             </div>
           ))}
         </div>
