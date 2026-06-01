@@ -15,6 +15,7 @@ const COFFEE = "/brand/coffee.webp";
 const RENDER3 = "/brand/render3.webp";
 const DJI_AERIAL = "/brand/dji698.webp";
 const DJI_AERIAL2 = "/brand/dji688.webp";
+const HOT_TUB = "/brand/dsc.webp";
 
 export default function Landing() {
   const navigate = useNavigate();
@@ -120,7 +121,7 @@ export default function Landing() {
                   Unlock your <em className="not-italic" style={{ color: "var(--paw-forest)" }}>50%</em> Founder stay.
                 </h2>
                 <p className="text-sm leading-relaxed mt-3" style={{ color: "var(--paw-ink-2)" }}>
-                  All 100 Founders Passes sold in 2024 — new passes are no longer available. Enter your code below to unlock first-stay pricing and pick your dates.
+                  All 100 Founders Passes sold in 2026 — new passes are no longer available. Enter your code below to unlock first-stay pricing and pick your dates.
                 </p>
               </div>
 
@@ -366,7 +367,7 @@ export default function Landing() {
       <section className="mx-auto max-w-[1400px] px-6 sm:px-10 pt-32 grid grid-cols-1 md:grid-cols-12 gap-5">
         <img src={MIRROR_CABIN} alt="A mirrored cabin disappears into the pines" className="md:col-span-7 w-full h-[560px] object-cover" />
         <div className="md:col-span-5 flex flex-col gap-5">
-          <img src={RENDER3} alt="On-site at PawHaus Resort" className="w-full h-[270px] object-cover" />
+          <img src={HOT_TUB} alt="Private wood-fire hot tub at sunset" className="w-full h-[270px] object-cover" />
           <img src={DJI_AERIAL} alt="The lake from above" className="w-full h-[270px] object-cover" />
         </div>
       </section>
