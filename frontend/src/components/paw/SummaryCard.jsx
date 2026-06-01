@@ -14,7 +14,7 @@ export default function SummaryCard({ roomId, stayId, tier, catalog }) {
     setLoading(true);
     getQuote({ room_id: roomId, stay_id: stayId, tier })
       .then((q) => active && setQuote(q))
-      .catch(() => active && setQuote(null))
+      .catch(() => {})
       .finally(() => active && setLoading(false));
     return () => {
       active = false;

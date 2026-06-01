@@ -89,7 +89,7 @@ export default function Landing() {
                 at <em className="not-italic" style={{ color: "#E8D9C8" }}>PawHaus Resort.</em>
               </h1>
               <p className="mt-7 text-lg max-w-xl leading-relaxed" style={{ color: "rgba(250,249,246,0.92)" }}>
-                Twelve glass-and-pine cabins. A private yard at every door. The USA's first dog-first luxury nature hotel — opening October.
+                Twelve glass-and-pine cabins. A private yard at every door. The USA's first dog-first luxury nature hotel — opening December 1, 2027.
               </p>
             </div>
           </div>
@@ -193,7 +193,7 @@ export default function Landing() {
                 </div>
               </div>
               <p className="text-sm leading-relaxed mb-6" style={{ color: "var(--paw-ink-2)" }}>
-                Founders had first dibs — now the rest of the kennel can book. Pre-launch pricing for the public until we open in October. After that, rates return to standard.
+                Open to everyone for pre-launch. 20% off any cabin, any night — no code, no waitlist, no membership. Just pick your dates. After we open December 1, 2027, rates return to standard.
               </p>
 
               <button
@@ -201,17 +201,17 @@ export default function Landing() {
                 onClick={handlePublic}
                 className="paw-btn-secondary w-full sm:w-auto"
               >
-                Reserve with 20% off
+                Reserve with 20% off — no code
                 <ArrowRight size={14} strokeWidth={1.5} className="inline ml-2 -mt-0.5" />
               </button>
 
               <div className="divider my-7" style={{ background: "var(--paw-line)" }} />
               <ul className="space-y-2.5">
                 {[
-                  "20% off every booking during pre-launch",
+                  "20% off every booking — no code, no email signup",
                   "All taxes & fees included",
                   "Free reschedule or refund up to 14 days before stay",
-                  "First reveal photos & dates emailed to you in October",
+                  "Final preview photos & arrival details sent before launch",
                 ].map((t) => (
                   <li key={t} className="flex items-start gap-3 text-sm" style={{ color: "var(--paw-ink-2)" }}>
                     <Check size={15} strokeWidth={1.5} style={{ color: "var(--paw-clay)", marginTop: 3 }} />
@@ -244,7 +244,7 @@ export default function Landing() {
             {[
               ["12", "Glass cabins"],
               ["100", "Founders, period"],
-              ["Oct", "Doors open"],
+              ["Dec '27", "Doors open"],
             ].map(([n, l]) => (
               <div key={l}>
                 <div className="font-display text-4xl" style={{ color: "var(--paw-forest)" }}>
@@ -387,7 +387,7 @@ export default function Landing() {
             ["12 modular units", "Built in Houston, drop on site September"],
             ["Common areas", "Built — full photos coming soon"],
             ["Dog park, salon, massage home", "Active renovation"],
-            ["Final reveal &amp; first stays", "October"],
+            ["Final reveal &amp; first stays", "December 1, 2027"],
           ].map(([title, status]) => (
             <div key={title} className="paw-card p-6" style={{ background: "var(--paw-bg)" }}>
               <div className="overline mb-2" style={{ color: "var(--paw-clay)" }}>
@@ -398,7 +398,7 @@ export default function Landing() {
           ))}
         </div>
         <p className="mt-8 text-sm leading-relaxed max-w-2xl" style={{ color: "var(--paw-ink-2)" }}>
-          Once the final reveal is set up in October, if for any reason you're not happy with the result — you get a full refund. No questions asked.
+          Once the final reveal is set up ahead of our December 1, 2027 opening, if for any reason you're not happy with the result — you get a full refund. No questions asked.
         </p>
       </section>
 
@@ -431,7 +431,7 @@ export default function Landing() {
                 className="paw-btn-primary"
                 style={{ background: "var(--paw-clay)", borderColor: "var(--paw-clay)" }}
               >
-                Continue with 20% off
+                Continue with 20% off — no code
                 <ArrowRight size={14} strokeWidth={1.5} />
               </button>
             </div>

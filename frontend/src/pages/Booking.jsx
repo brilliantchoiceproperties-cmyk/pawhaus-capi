@@ -112,7 +112,7 @@ export default function Booking() {
             />
           )}
           {step === 2 && (
-            <StepGuests guests={guests} setGuests={setGuests} />
+            <StepGuests guests={guests} setGuests={setGuests} stayId={stayId} catalog={catalog} />
           )}
           {step === 3 && (
             <StepReview
@@ -294,8 +294,24 @@ function StepStay({ catalog, roomId, setRoomId, stayId, setStayId }) {
 // STEP 2
 // ---------------------------------------------------------------------------
 
-function StepGuests({ guests, setGuests }) {
+function StepGuests({ guests, setGuests, stayId, catalog }) {
   const update = (k, v) => setGuests({ ...guests, [k]: v });
+  const stay = catalog?.stay_options?.find((s) => s.id === stayId);
+  const nights = stay?.nights || 1;
+
+  // Auto-derive check_out from check_in + nights
+  useEffect(() => {
+    if (!guests.check_in) return;
+    const d = new Date(guests.check_in + "T00:00:00");
+    if (isNaN(d.getTime())) return;
+    d.setDate(d.getDate() + nights);
+    const iso = d.toISOString().slice(0, 10);
+    if (iso !== guests.check_out) {
+      setGuests({ ...guests, check_out: iso });
+    }
+    // eslint-disable-next-line
+  }, [guests.check_in, nights]);
+
   const updatePet = (i, k, v) => {
     const pets = [...guests.pets];
     pets[i] = { ...pets[i], [k]: v };
@@ -326,7 +342,18 @@ function StepGuests({ guests, setGuests }) {
         <Field label="Phone" testid="guest-phone-input" value={guests.phone} onChange={(v) => update("phone", v)} />
         <Field label="Guests" type="number" testid="guest-count-input" value={guests.guests} onChange={(v) => update("guests", parseInt(v) || 1)} />
         <Field label="Check-In" type="date" testid="guest-checkin-input" value={guests.check_in} onChange={(v) => update("check_in", v)} />
-        <Field label="Check-Out" type="date" testid="guest-checkout-input" value={guests.check_out} onChange={(v) => update("check_out", v)} />
+        <label className="block">
+          <span className="overline block mb-2" style={{ color: "var(--paw-muted)" }}>
+            Check-Out (auto • {nights} {nights === 1 ? "night" : "nights"})
+          </span>
+          <div
+            data-testid="guest-checkout-display"
+            className="paw-input"
+            style={{ background: "var(--paw-bg-2)", color: guests.check_out ? "var(--paw-ink)" : "var(--paw-muted)", cursor: "not-allowed" }}
+          >
+            {guests.check_out || "Pick a check-in date"}
+          </div>
+        </label>
       </div>
 
       <div className="mt-10">
@@ -481,8 +508,8 @@ function StepReview({ catalog, roomId, stayId, tier, tierLabel, discountPercent,
           <ReviewRow label="Email" value={guests.email || "—"} />
           <ReviewRow label="Phone" value={guests.phone || "—"} />
           <ReviewRow label="Guests" value={String(guests.guests || 2)} />
-          <ReviewRow label="Check-in" value={guests.check_in || "—"} />
-          <ReviewRow label="Check-out" value={guests.check_out || "—"} />
+          <ReviewRow label="Check-in" value={fmtDate(guests.check_in)} />
+          <ReviewRow label="Check-out" value={fmtDate(guests.check_out)} />
           <ReviewRow
             label="The pack"
             value={
@@ -500,7 +527,7 @@ function StepReview({ catalog, roomId, stayId, tier, tierLabel, discountPercent,
         <Reassurance
           icon={<CalendarDays size={16} strokeWidth={1.5} />}
           heading="Your dates aren't locked in"
-          body="If anything changes, you'll have plenty of chances to switch dates. We'll reach out before October to confirm."
+          body="If anything changes, you'll have plenty of chances to switch dates. We'll reach out before our December 1, 2027 opening to confirm."
         />
         <Reassurance
           icon={<ShieldCheck size={16} strokeWidth={1.5} />}
@@ -533,6 +560,13 @@ function ReviewRow({ label, value }) {
       </div>
     </div>
   );
+}
+
+function fmtDate(iso) {
+  if (!iso) return "—";
+  const d = new Date(iso + "T00:00:00");
+  if (isNaN(d.getTime())) return iso;
+  return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" });
 }
 
 function Reassurance({ icon, heading, body }) {

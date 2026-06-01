@@ -37,6 +37,12 @@ export default function Header() {
               <span>{tierLabel}</span>
               <span style={{ opacity: 0.7 }}>•</span>
               <span>{Math.round(discountPercent * 100)}% off</span>
+              {tier === "PUBLIC" && (
+                <>
+                  <span style={{ opacity: 0.7 }}>•</span>
+                  <span>No code needed</span>
+                </>
+              )}
             </span>
           )}
         </div>
