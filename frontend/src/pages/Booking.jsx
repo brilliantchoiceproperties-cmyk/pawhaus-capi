@@ -9,6 +9,7 @@ import SummaryCard from "@/components/paw/SummaryCard";
 // PawHaus brand assets — multi-image galleries per room (served from /public/brand/)
 const ROOM_GALLERIES = {
   petite: [
+    "/brand/petite-0.webp",
     "/brand/petite-1.webp",
     "/brand/petite-2.webp",
     "/brand/petite-3.webp",
