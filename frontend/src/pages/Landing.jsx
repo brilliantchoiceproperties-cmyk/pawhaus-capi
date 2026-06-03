@@ -90,7 +90,7 @@ export default function Landing() {
                 at <em className="not-italic" style={{ color: "#E8D9C8" }}>PawHaus Resort.</em>
               </h1>
               <p className="mt-7 text-lg max-w-xl leading-relaxed" style={{ color: "rgba(250,249,246,0.92)" }}>
-                Twelve glass-and-pine cabins. A private yard at every door. The USA's first dog-first luxury nature hotel — opening December 1, 2027.
+                Twelve glass-and-pine cabins. A private yard at every door. The USA's first dog-first luxury nature hotel — opening December 1, 2026.
               </p>
             </div>
           </div>
@@ -194,7 +194,7 @@ export default function Landing() {
                 </div>
               </div>
               <p className="text-sm leading-relaxed mb-6" style={{ color: "var(--paw-ink-2)" }}>
-                Open to everyone for pre-launch. 25% off any cabin, any night — no code, no waitlist, no membership. Just pick your dates. After we open December 1, 2027, rates return to standard.
+                Open to everyone for pre-launch. 25% off any cabin, any night — no code, no waitlist, no membership. Just pick your dates. After we open December 1, 2026, rates return to standard.
               </p>
 
               <button
@@ -245,7 +245,7 @@ export default function Landing() {
             {[
               ["12", "Glass cabins"],
               ["100", "Founders, period"],
-              ["Dec '27", "Doors open"],
+              ["Dec '26", "Doors open"],
             ].map(([n, l]) => (
               <div key={l}>
                 <div className="font-display text-4xl" style={{ color: "var(--paw-forest)" }}>
@@ -399,7 +399,7 @@ export default function Landing() {
             ["12 modular units", "Built in Houston, drop on site September"],
             ["Common areas", "Built — full photos coming soon"],
             ["Dog park, salon, massage home", "Active renovation"],
-            ["Final reveal & first stays", "December 1, 2027"],
+            ["Final reveal & first stays", "December 1, 2026"],
           ].map(([title, status]) => (
             <div key={title} className="paw-card p-6" style={{ background: "var(--paw-bg)" }}>
               <div className="overline mb-2" style={{ color: "var(--paw-clay)" }}>
@@ -412,7 +412,7 @@ export default function Landing() {
           ))}
         </div>
         <p className="mt-8 text-sm leading-relaxed max-w-2xl" style={{ color: "var(--paw-ink-2)" }}>
-          Once the final reveal is set up ahead of our December 1, 2027 opening, if for any reason you're not happy with the result — you get a full refund. No questions asked.
+          Once the final reveal is set up ahead of our December 1, 2026 opening, if for any reason you're not happy with the result — you get a full refund. No questions asked.
         </p>
       </section>
 

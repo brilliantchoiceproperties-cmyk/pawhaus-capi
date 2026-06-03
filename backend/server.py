@@ -78,7 +78,7 @@ STAY_OPTIONS = [
 ]
 
 # Date constraints
-MIN_CHECKIN = "2027-12-01"  # doors open Dec 1, 2027
+MIN_CHECKIN = "2026-12-01"  # doors open Dec 1, 2026
 BLACKOUT_MONTH_DAYS = {"12-24", "12-25", "12-31"}  # Christmas Eve, Christmas, NYE — recurring annually
 
 
@@ -93,7 +93,7 @@ def _validate_dates(check_in: Optional[str], nights: int) -> None:
         raise HTTPException(status_code=400, detail="Invalid check-in date format.")
     min_date = date.fromisoformat(MIN_CHECKIN)
     if d < min_date:
-        raise HTTPException(status_code=400, detail="Check-in must be on or after December 1, 2027.")
+        raise HTTPException(status_code=400, detail="Check-in must be on or after December 1, 2026.")
     for i in range(nights):
         night = d + timedelta(days=i)
         md = f"{night.month:02d}-{night.day:02d}"

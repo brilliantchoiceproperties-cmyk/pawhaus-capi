@@ -7,7 +7,7 @@ import { track, identify } from "@/lib/analytics";
 import SummaryCard from "@/components/paw/SummaryCard";
 
 // Date constraints
-const MIN_CHECKIN = "2027-12-01"; // doors open Dec 1, 2027
+const MIN_CHECKIN = "2026-12-01"; // doors open Dec 1, 2026
 const BLACKOUT_MONTH_DAYS = ["12-24", "12-25", "12-31"]; // Christmas Eve, Christmas, NYE — annual
 
 // PawHaus brand assets — multi-image galleries per room (served from /public/brand/)
@@ -478,7 +478,7 @@ function StepGuests({ guests, setGuests, stayId, catalog }) {
   const dateError = useMemo(() => {
     if (!guests.check_in) return "";
     if (guests.check_in < MIN_CHECKIN) {
-      return "We open December 1, 2027. Please pick a check-in date on or after Dec 1, 2027.";
+      return "We open December 1, 2026. Please pick a check-in date on or after Dec 1, 2026.";
     }
     const d = new Date(guests.check_in + "T00:00:00");
     if (isNaN(d.getTime())) return "";
@@ -542,7 +542,7 @@ function StepGuests({ guests, setGuests, stayId, catalog }) {
         <div>
           <Field label="Check-In" type="date" testid="guest-checkin-input" value={guests.check_in} onChange={(v) => update("check_in", v)} min={MIN_CHECKIN} />
           <p className="mt-2 text-xs" style={{ color: "var(--paw-muted)" }}>
-            Earliest check-in: Dec 1, 2027 • Blackout dates: Dec 24, 25 & 31
+            Earliest check-in: Dec 1, 2026 • Blackout dates: Dec 24, 25 & 31
           </p>
           {dateError && (
             <p
@@ -741,7 +741,7 @@ function StepReview({ catalog, roomId, stayId, tier, tierLabel, discountPercent,
         <Reassurance
           icon={<CalendarDays size={16} strokeWidth={1.5} />}
           heading="Your dates aren't locked in"
-          body="If anything changes, you'll have plenty of chances to switch dates. We'll reach out before our December 1, 2027 opening to confirm."
+          body="If anything changes, you'll have plenty of chances to switch dates. We'll reach out before our December 1, 2026 opening to confirm."
         />
         <Reassurance
           icon={<ShieldCheck size={16} strokeWidth={1.5} />}
