@@ -20,7 +20,12 @@ const ROOM_GALLERIES = {
     "/brand/standard-2.webp",
     "/brand/standard-3.webp",
   ],
-  monolith: ["/brand/bedroom.webp"],
+  monolith: [
+    "/brand/monolith-0.webp",
+    "/brand/bedroom.webp",
+    "/brand/monolith-2.webp",
+    "/brand/monolith-3.webp",
+  ],
 };
 
 const ROOM_DETAILS = [
