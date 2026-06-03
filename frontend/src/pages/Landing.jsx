@@ -16,6 +16,7 @@ const RENDER3 = "/brand/render3.webp";
 const DJI_AERIAL = "/brand/dji698.webp";
 const DJI_AERIAL2 = "/brand/dji688.webp";
 const HOT_TUB = "/brand/dsc.webp";
+const CAMERON_RANCH = "/brand/cameron-ranch.webp";
 
 export default function Landing() {
   const navigate = useNavigate();
@@ -264,19 +265,30 @@ export default function Landing() {
 
       {/* CAMERON RANCH CREDIBILITY */}
       <section className="mx-auto max-w-[1400px] px-6 sm:px-10 pt-24">
-        <div
-          className="border-l-2 pl-8 sm:pl-12 py-8 max-w-3xl"
-          style={{ borderColor: "var(--paw-clay)" }}
-        >
-          <div className="overline mb-3" style={{ color: "var(--paw-clay)" }}>
-            Built by the team behind
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-10 items-center">
+          <div className="md:col-span-6 order-2 md:order-1">
+            <div
+              className="border-l-2 pl-8 sm:pl-10"
+              style={{ borderColor: "var(--paw-clay)" }}
+            >
+              <div className="overline mb-3" style={{ color: "var(--paw-clay)" }}>
+                Built by the team behind
+              </div>
+              <h3 className="font-display text-3xl sm:text-4xl leading-tight" style={{ color: "var(--paw-ink)" }}>
+                Cameron Ranch Glamping.
+              </h3>
+              <p className="mt-4 text-base leading-relaxed" style={{ color: "var(--paw-ink-2)" }}>
+                We founded Cameron Ranch Glamping — one of the most viral and highly acclaimed glamping properties in the USA. PawHaus Resort is the next chapter, built for the one guest the original couldn't fully serve: your dog.
+              </p>
+            </div>
           </div>
-          <h3 className="font-display text-3xl sm:text-4xl leading-tight" style={{ color: "var(--paw-ink)" }}>
-            Cameron Ranch Glamping.
-          </h3>
-          <p className="mt-4 text-base leading-relaxed" style={{ color: "var(--paw-ink-2)" }}>
-            We founded Cameron Ranch Glamping — one of the most viral and highly acclaimed glamping properties in the USA. PawHaus Resort is the next chapter, built for the one guest the original couldn't fully serve: your dog.
-          </p>
+          <div className="md:col-span-6 order-1 md:order-2">
+            <img
+              src={CAMERON_RANCH}
+              alt="Cameron Ranch Glamping — mirror cabin in the trees"
+              className="w-full h-[480px] object-cover"
+            />
+          </div>
         </div>
       </section>
 
