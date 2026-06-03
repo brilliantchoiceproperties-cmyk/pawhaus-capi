@@ -223,6 +223,8 @@ function StepStay({ catalog, roomId, setRoomId, stayId, setStayId, discountPerce
             selected={roomId === room.id}
             onSelect={() => handleRoomSelect(room.id)}
             discountPercent={discountPercent}
+            stayId={stayId}
+            catalog={catalog}
           />
         ))}
       </div>
@@ -266,13 +268,17 @@ function StepStay({ catalog, roomId, setRoomId, stayId, setStayId, discountPerce
 }
 
 // Room card with image carousel + slashed pricing + "more details" dropdown
-function RoomCard({ room, selected, onSelect, discountPercent }) {
+function RoomCard({ room, selected, onSelect, discountPercent, stayId, catalog }) {
   const gallery = ROOM_GALLERIES[room.id] || ["/brand/hero.webp"];
   const [imgIdx, setImgIdx] = useState(0);
   const [expanded, setExpanded] = useState(false);
 
-  const basePrice = room.nightly_rates.WEEKDAY;
+  // Use the rate that matches the currently selected stay (weekday vs weekend)
+  const stay = catalog?.stay_options?.find((s) => s.id === stayId);
+  const stayType = stay?.type || "WEEKDAY";
+  const basePrice = room.nightly_rates[stayType] ?? room.nightly_rates.WEEKDAY;
   const discounted = Math.round(basePrice * (1 - (discountPercent || 0)));
+  const stayLabel = stayType === "WEEKEND" ? "weekend night" : "weekday night";
 
   const nextImg = (e) => {
     e.stopPropagation();
@@ -374,7 +380,7 @@ function RoomCard({ room, selected, onSelect, discountPercent }) {
             ${discounted}
           </span>
           <span className="text-sm" style={{ color: "var(--paw-muted)" }}>
-            /night
+            /{stayLabel}
           </span>
         </div>
 
