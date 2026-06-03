@@ -1,10 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
-import { ArrowRight, ArrowLeft, Trash2, Plus, ShieldCheck, CalendarDays, PawPrint, ChevronDown, ChevronLeft, ChevronRight, Bath, ChefHat, Waves, TreePine, Coffee, Wifi } from "lucide-react";
+import { ArrowRight, ArrowLeft, Trash2, Plus, ShieldCheck, CalendarDays, PawPrint, ChevronDown, ChevronLeft, ChevronRight, Bath, ChefHat, Waves, TreePine, Coffee, Wifi, AlertCircle } from "lucide-react";
 import { useBooking } from "@/context/BookingContext";
 import { createCheckoutSession } from "@/lib/paw-api";
 import { track, identify } from "@/lib/analytics";
 import SummaryCard from "@/components/paw/SummaryCard";
+
+// Date constraints
+const MIN_CHECKIN = "2027-12-01"; // doors open Dec 1, 2027
+const BLACKOUT_MONTH_DAYS = ["12-24", "12-25", "12-31"]; // Christmas Eve, Christmas, NYE — annual
 
 // PawHaus brand assets — multi-image galleries per room (served from /public/brand/)
 const ROOM_GALLERIES = {
@@ -61,7 +65,7 @@ export default function Booking() {
 
   const canContinueFromStep1 = !!roomId && !!stayId;
   const canContinueFromStep2 =
-    guests.full_name.trim() && guests.email.trim() && guests.phone.trim() && guests.check_in;
+    guests.full_name.trim() && guests.email.trim() && guests.phone.trim() && guests.check_in && !guests.date_error;
 
   const handlePay = async () => {
     setSubmitError("");
@@ -470,6 +474,33 @@ function StepGuests({ guests, setGuests, stayId, catalog }) {
     // eslint-disable-next-line
   }, [guests.check_in, nights]);
 
+  // Date validation: must be ≥ launch date AND no night during stay falls on a blackout
+  const dateError = useMemo(() => {
+    if (!guests.check_in) return "";
+    if (guests.check_in < MIN_CHECKIN) {
+      return "We open December 1, 2027. Please pick a check-in date on or after Dec 1, 2027.";
+    }
+    const d = new Date(guests.check_in + "T00:00:00");
+    if (isNaN(d.getTime())) return "";
+    for (let i = 0; i < nights; i++) {
+      const md = `${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+      if (BLACKOUT_MONTH_DAYS.includes(md)) {
+        const label = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+        return `${label} is a holiday blackout date (Christmas Eve, Christmas Day, or NYE). Please pick different dates.`;
+      }
+      d.setDate(d.getDate() + 1);
+    }
+    return "";
+  }, [guests.check_in, nights]);
+
+  // Expose to parent so the Next button can be disabled
+  useEffect(() => {
+    if (guests.date_error !== dateError) {
+      setGuests({ ...guests, date_error: dateError });
+    }
+    // eslint-disable-next-line
+  }, [dateError]);
+
   const updatePet = (i, k, v) => {
     const pets = [...guests.pets];
     pets[i] = { ...pets[i], [k]: v };
@@ -508,7 +539,22 @@ function StepGuests({ guests, setGuests, stayId, catalog }) {
         <Field label="Email" type="email" testid="guest-email-input" value={guests.email} onChange={(v) => update("email", v)} />
         <Field label="Phone" testid="guest-phone-input" value={guests.phone} onChange={(v) => update("phone", v)} />
         <Field label="Guests" type="number" testid="guest-count-input" value={guests.guests} onChange={(v) => update("guests", parseInt(v) || 1)} />
-        <Field label="Check-In" type="date" testid="guest-checkin-input" value={guests.check_in} onChange={(v) => update("check_in", v)} />
+        <div>
+          <Field label="Check-In" type="date" testid="guest-checkin-input" value={guests.check_in} onChange={(v) => update("check_in", v)} min={MIN_CHECKIN} />
+          <p className="mt-2 text-xs" style={{ color: "var(--paw-muted)" }}>
+            Earliest check-in: Dec 1, 2027 • Blackout dates: Dec 24, 25 & 31
+          </p>
+          {dateError && (
+            <p
+              data-testid="guest-checkin-error"
+              className="mt-2 text-xs flex items-start gap-1.5"
+              style={{ color: "var(--paw-clay)" }}
+            >
+              <AlertCircle size={13} strokeWidth={1.8} style={{ marginTop: 1 }} />
+              {dateError}
+            </p>
+          )}
+        </div>
         <label className="block">
           <span className="overline block mb-2" style={{ color: "var(--paw-muted)" }}>
             Check-Out (auto • {nights} {nights === 1 ? "night" : "nights"})
@@ -607,7 +653,7 @@ function StepGuests({ guests, setGuests, stayId, catalog }) {
   );
 }
 
-function Field({ label, value, onChange, type = "text", testid }) {
+function Field({ label, value, onChange, type = "text", testid, min }) {
   return (
     <label className="block">
       <span className="overline block mb-2" style={{ color: "var(--paw-muted)" }}>
@@ -619,6 +665,7 @@ function Field({ label, value, onChange, type = "text", testid }) {
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className="paw-input"
+        min={min}
       />
     </label>
   );

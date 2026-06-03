@@ -77,6 +77,33 @@ STAY_OPTIONS = [
     {"id": "WEEKEND_2N", "label": "Weekend • 2 Nights", "type": "WEEKEND", "nights": 2},
 ]
 
+# Date constraints
+MIN_CHECKIN = "2027-12-01"  # doors open Dec 1, 2027
+BLACKOUT_MONTH_DAYS = {"12-24", "12-25", "12-31"}  # Christmas Eve, Christmas, NYE — recurring annually
+
+
+def _validate_dates(check_in: Optional[str], nights: int) -> None:
+    """Raise HTTPException if check-in or any night of the stay is invalid."""
+    from datetime import date, timedelta
+    if not check_in:
+        return  # frontend already required it; backend stays permissive for partial drafts
+    try:
+        d = date.fromisoformat(check_in)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid check-in date format.")
+    min_date = date.fromisoformat(MIN_CHECKIN)
+    if d < min_date:
+        raise HTTPException(status_code=400, detail="Check-in must be on or after December 1, 2027.")
+    for i in range(nights):
+        night = d + timedelta(days=i)
+        md = f"{night.month:02d}-{night.day:02d}"
+        if md in BLACKOUT_MONTH_DAYS:
+            raise HTTPException(
+                status_code=400,
+                detail=f"{night.strftime('%b %-d')} is a holiday blackout date. Please pick different dates.",
+            )
+
+
 # Discount tiers
 VIP_CODE = "PAWVIP"
 INSIDER_CODE = "PAW40"
@@ -211,6 +238,11 @@ async def quote(req: QuoteRequest):
 async def create_checkout_session(req: CheckoutRequest, http_request: Request):
     # Server-side computed amount (NEVER trust frontend)
     quote_data = calculate_quote(req.room_id, req.stay_id, req.tier)
+
+    # Server-side date guard
+    stay = next((s for s in STAY_OPTIONS if s["id"] == req.stay_id), None)
+    if stay:
+        _validate_dates(req.booking.check_in, stay["nights"])
 
     # Anti-abuse: VIP and INSIDER first-stay discounts are one-time per email
     if req.tier in ("VIP", "INSIDER"):
