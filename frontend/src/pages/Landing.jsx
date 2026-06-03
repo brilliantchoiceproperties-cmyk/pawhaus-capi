@@ -51,7 +51,7 @@ export default function Landing() {
 
   const handlePublic = () => {
     enterPublic();
-    track("public_cta_clicked", { tier: "PUBLIC", discount_percent: 0.2 });
+    track("public_cta_clicked", { tier: "PUBLIC", discount_percent: 0.25 });
     navigate("/booking");
   };
 
@@ -154,7 +154,7 @@ export default function Landing() {
                     className="underline ml-1"
                     style={{ color: "var(--paw-forest)" }}
                   >
-                    Continue with 20% off →
+                    Continue with 25% off →
                   </button>
                 </p>
               )}
@@ -189,12 +189,12 @@ export default function Landing() {
                     Public Pre-Launch • No Code Needed
                   </div>
                   <h2 className="font-display text-3xl sm:text-4xl mt-2 leading-tight" style={{ color: "var(--paw-ink)" }}>
-                    <em className="not-italic" style={{ color: "var(--paw-clay)" }}>20% off</em> every booking.
+                    <em className="not-italic" style={{ color: "var(--paw-clay)" }}>25% off</em> every booking.
                   </h2>
                 </div>
               </div>
               <p className="text-sm leading-relaxed mb-6" style={{ color: "var(--paw-ink-2)" }}>
-                Open to everyone for pre-launch. 20% off any cabin, any night — no code, no waitlist, no membership. Just pick your dates. After we open December 1, 2027, rates return to standard.
+                Open to everyone for pre-launch. 25% off any cabin, any night — no code, no waitlist, no membership. Just pick your dates. After we open December 1, 2027, rates return to standard.
               </p>
 
               <button
@@ -202,14 +202,14 @@ export default function Landing() {
                 onClick={handlePublic}
                 className="paw-btn-secondary w-full sm:w-auto"
               >
-                Reserve with 20% off — no code
+                Reserve with 25% off — no code
                 <ArrowRight size={14} strokeWidth={1.5} className="inline ml-2 -mt-0.5" />
               </button>
 
               <div className="divider my-7" style={{ background: "var(--paw-line)" }} />
               <ul className="space-y-2.5">
                 {[
-                  "20% off every booking — no code, no email signup",
+                  "25% off every booking — no code, no email signup",
                   "All taxes & fees included",
                   "Free reschedule or refund up to 14 days before stay",
                   "Final preview photos & arrival details sent before launch",
@@ -445,7 +445,7 @@ export default function Landing() {
                 className="paw-btn-primary"
                 style={{ background: "var(--paw-clay)", borderColor: "var(--paw-clay)" }}
               >
-                Continue with 20% off — no code
+                Continue with 25% off — no code
                 <ArrowRight size={14} strokeWidth={1.5} />
               </button>
             </div>

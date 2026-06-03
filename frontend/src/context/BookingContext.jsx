@@ -78,7 +78,7 @@ export function BookingProvider({ children }) {
   const enterPublic = useCallback(() => {
     setTier("PUBLIC");
     setTierLabel("Pre-Launch Guest");
-    setDiscountPercent(0.2);
+    setDiscountPercent(0.25);
   }, []);
 
   return (

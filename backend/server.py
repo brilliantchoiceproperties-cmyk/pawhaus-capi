@@ -79,9 +79,11 @@ STAY_OPTIONS = [
 
 # Discount tiers
 VIP_CODE = "PAWVIP"
+INSIDER_CODE = "PAW40"
 DISCOUNTS = {
     "VIP": {"label": "Founders Pass", "percent": 0.50},
-    "PUBLIC": {"label": "Pre-Launch Guest", "percent": 0.20},
+    "INSIDER": {"label": "Insider Pass", "percent": 0.40},
+    "PUBLIC": {"label": "Pre-Launch Guest", "percent": 0.25},
 }
 
 
@@ -178,8 +180,6 @@ async def validate_code(req: CodeValidateRequest):
     if not code:
         raise HTTPException(status_code=400, detail="Please enter a code.")
     if code == VIP_CODE:
-        # Check if this VIP code has already been used for a paid first stay (one-time per code)
-        # Founders codes are unique per user in reality; here PAWVIP is a demo code we keep usable.
         return {
             "valid": True,
             "tier": "VIP",
@@ -187,7 +187,15 @@ async def validate_code(req: CodeValidateRequest):
             "discount_percent": DISCOUNTS["VIP"]["percent"],
             "message": "Welcome, Founder. 50% off your first stay is unlocked.",
         }
-    raise HTTPException(status_code=400, detail="That code doesn't match any Founders Pass. Continue with 20% off pre-launch pricing.")
+    if code == INSIDER_CODE:
+        return {
+            "valid": True,
+            "tier": "INSIDER",
+            "tier_label": DISCOUNTS["INSIDER"]["label"],
+            "discount_percent": DISCOUNTS["INSIDER"]["percent"],
+            "message": "Code unlocked. 40% off your first stay.",
+        }
+    raise HTTPException(status_code=400, detail="That code doesn't match any active discount. Continue with 25% off pre-launch pricing.")
 
 
 @api_router.post("/quote")
@@ -204,16 +212,16 @@ async def create_checkout_session(req: CheckoutRequest, http_request: Request):
     # Server-side computed amount (NEVER trust frontend)
     quote_data = calculate_quote(req.room_id, req.stay_id, req.tier)
 
-    # Anti-abuse: for VIP tier require the booking email hasn't already paid with VIP
-    if req.tier == "VIP":
+    # Anti-abuse: VIP and INSIDER first-stay discounts are one-time per email
+    if req.tier in ("VIP", "INSIDER"):
         existing = await db.payment_transactions.find_one(
-            {"metadata.tier": "VIP", "metadata.email": req.booking.email.lower(), "payment_status": "paid"},
+            {"metadata.tier": req.tier, "metadata.email": req.booking.email.lower(), "payment_status": "paid"},
             {"_id": 0},
         )
         if existing:
             raise HTTPException(
                 status_code=400,
-                detail="The Founders 50% first-stay discount has already been used for this email.",
+                detail=f"That discount has already been used for this email.",
             )
 
     booking_id = str(uuid.uuid4())
