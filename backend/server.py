@@ -43,7 +43,7 @@ ROOMS: Dict[str, Dict[str, Any]] = {
         "name": "Petite Room",
         "bed": "Queen Bed",
         "capacity": "Sleeps 2 + Pets",
-        "description": "Intimate glass cabin tucked in the pines. Queen bed, private yard, fire pit.",
+        "description": "Intimate glass cabin tucked in the pines. Queen bed, private yard, fire pit, in-cabin shower and bathroom, small kitchenette, lake & dog park access.",
         "has_hot_tub": False,
         "nightly_rates": {"WEEKDAY": 558.0, "WEEKEND": 558.0},
     },
@@ -52,7 +52,7 @@ ROOMS: Dict[str, Dict[str, Any]] = {
         "name": "Standard Room",
         "bed": "King Bed",
         "capacity": "Sleeps 2 + Pets",
-        "description": "Upgraded suite with private wood-fire hot tub, king bed, and forest-facing deck.",
+        "description": "Upgraded suite with private wood-fire hot tub included, king bed, forest-facing deck, in-cabin shower and bathroom, small kitchenette.",
         "has_hot_tub": True,
         "nightly_rates": {"WEEKDAY": 658.0, "WEEKEND": 658.0},
     },
@@ -60,15 +60,16 @@ ROOMS: Dict[str, Dict[str, Any]] = {
         "id": "monolith",
         "name": "Monolith Room",
         "bed": "King Bed",
-        "capacity": "Sleeps 4 + Pets",
-        "description": "Our flagship architectural suite. Double-height glass, fireplace, dog spa nook, hot tub.",
+        "capacity": "Sleeps 4 + up to 3 pets",
+        "description": "Our largest unit. Double-height glass, king bed, in-cabin shower and bathroom, small kitchenette, private wood-fire hot tub included. Sleeps four humans plus up to three dogs.",
         "has_hot_tub": True,
         # Monolith has a slight weekend differential per spec ($849 nightly on weekend)
         "nightly_rates": {"WEEKDAY": 858.0, "WEEKEND": 849.0},
     },
 }
 
-HOT_TUB_PREMIUM_PER_NIGHT = 20.0
+# Hot tub is now included in the Standard & Monolith room rate — no extra charge.
+HOT_TUB_PREMIUM_PER_NIGHT = 0.0
 
 STAY_OPTIONS = [
     {"id": "WEEKDAY_1N", "label": "Weekday • 1 Night", "type": "WEEKDAY", "nights": 1},

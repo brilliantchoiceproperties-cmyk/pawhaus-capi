@@ -166,7 +166,7 @@ export default function Landing() {
                   "First choice of dates — Founders pick first",
                   "Early check-in & VIP welcome bag",
                   "10% off everything, for life",
-                  "Name etched on the Honorary Founders Wall",
+                  "All taxes & fees included",
                 ].map((t) => (
                   <li key={t} className="flex items-start gap-3 text-sm" style={{ color: "var(--paw-ink-2)" }}>
                     <Check size={15} strokeWidth={1.5} style={{ color: "var(--paw-forest)", marginTop: 3 }} />
@@ -238,7 +238,7 @@ export default function Landing() {
             A dog-first luxury nature hotel — glass cabins in the pines.
           </h2>
           <p className="mt-7 text-lg leading-relaxed max-w-xl" style={{ color: "var(--paw-ink-2)" }}>
-            Located in Goodrich, TX. A private fenced yard at every door. A dog concierge on staff. Food trucks under the trees, a coffee window with free Pup Cups, and a dog park that's just yours and the pack's. Bring your humans, bring your dogs — leave the rest behind.
+            Located in Goodrich, TX. A private fenced yard at every door. A dog concierge on staff. Food trucks under the trees, free Pup Cups at the camp store, and a dog park that's just yours and the pack's. Bring your humans, bring your dogs — leave the rest behind.
           </p>
           <div className="mt-8 grid grid-cols-3 gap-6 max-w-xl">
             {[
@@ -259,6 +259,24 @@ export default function Landing() {
         </div>
         <div className="md:col-span-5 relative">
           <img src={BANDANA_DOG} alt="A PawHaus pup wandering the pines at sunset" className="w-full h-[560px] object-cover" />
+        </div>
+      </section>
+
+      {/* CAMERON RANCH CREDIBILITY */}
+      <section className="mx-auto max-w-[1400px] px-6 sm:px-10 pt-24">
+        <div
+          className="border-l-2 pl-8 sm:pl-12 py-8 max-w-3xl"
+          style={{ borderColor: "var(--paw-clay)" }}
+        >
+          <div className="overline mb-3" style={{ color: "var(--paw-clay)" }}>
+            Built by the team behind
+          </div>
+          <h3 className="font-display text-3xl sm:text-4xl leading-tight" style={{ color: "var(--paw-ink)" }}>
+            Cameron Ranch Glamping.
+          </h3>
+          <p className="mt-4 text-base leading-relaxed" style={{ color: "var(--paw-ink-2)" }}>
+            We founded Cameron Ranch Glamping — one of the most viral and highly acclaimed glamping properties in the USA. PawHaus Resort is the next chapter, built for the one guest the original couldn't fully serve: your dog.
+          </p>
         </div>
       </section>
 
@@ -309,7 +327,7 @@ export default function Landing() {
           {[
             ["Dog concierge on site daily", "PawPrint", "forest"],
             ["Camp store: firewood, snacks, breakfast", "ShoppingBag", "clay"],
-            ["PawHaus Coffee Co. window — Free Pup Cups always", "Coffee", "forest"],
+            ["Free Pup Cups always in the camp store", "Coffee", "forest"],
             ["Food trucks every lunch &amp; dinner", "ChefHat", "clay"],
             ["Dog groomer Wed–Sun", "Sparkles", "forest"],
             ["Massage therapist by appointment", "Sparkles", "clay"],
@@ -325,40 +343,22 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* COFFEE + YOGA DUO */}
+      {/* SUNRISE PACK YOGA */}
       <section className="mx-auto max-w-[1400px] px-6 sm:px-10 pt-32">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <div className="relative overflow-hidden">
-            <img src={COFFEE} alt="PawHaus Coffee Co. — Free Pup Cups" className="w-full h-[520px] object-cover" />
-            <div
-              className="absolute bottom-0 left-0 right-0 p-7"
-              style={{ background: "linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(26,35,28,0.85) 100%)" }}
-            >
-              <div className="overline mb-2" style={{ color: "rgba(232,217,200,0.95)" }}>
-                <Coffee size={12} strokeWidth={1.8} className="inline -mt-0.5 mr-2" />
-                PawHaus Coffee Co.
-              </div>
-              <h3 className="font-display text-3xl text-white">Free Pup Cups. Always.</h3>
-              <p className="mt-2 text-sm" style={{ color: "rgba(250,249,246,0.88)" }}>
-                Pour-over for you. Whipped cream &amp; a biscuit for them. Window's open all day.
-              </p>
+        <div className="relative overflow-hidden max-w-3xl mx-auto">
+          <img src={YOGA} alt="Sunrise Pack Yoga on the lake deck" className="w-full h-[520px] object-cover" />
+          <div
+            className="absolute bottom-0 left-0 right-0 p-7"
+            style={{ background: "linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(26,35,28,0.85) 100%)" }}
+          >
+            <div className="overline mb-2" style={{ color: "rgba(232,217,200,0.95)" }}>
+              <Sunrise size={12} strokeWidth={1.8} className="inline -mt-0.5 mr-2" />
+              Sunrise Pack Yoga
             </div>
-          </div>
-          <div className="relative overflow-hidden">
-            <img src={YOGA} alt="Sunrise Pack Yoga on the lake deck" className="w-full h-[520px] object-cover" />
-            <div
-              className="absolute bottom-0 left-0 right-0 p-7"
-              style={{ background: "linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(26,35,28,0.85) 100%)" }}
-            >
-              <div className="overline mb-2" style={{ color: "rgba(232,217,200,0.95)" }}>
-                <Sunrise size={12} strokeWidth={1.8} className="inline -mt-0.5 mr-2" />
-                Sunrise Pack Yoga
-              </div>
-              <h3 className="font-display text-3xl text-white">Saturdays on the lake deck.</h3>
-              <p className="mt-2 text-sm" style={{ color: "rgba(250,249,246,0.88)" }}>
-                Bring your mat. Bring your dog. The mist on the water does the rest.
-              </p>
-            </div>
+            <h3 className="font-display text-3xl text-white">Saturdays on the lake deck.</h3>
+            <p className="mt-2 text-sm" style={{ color: "rgba(250,249,246,0.88)" }}>
+              Bring your mat. Bring your dog. The mist on the water does the rest.
+            </p>
           </div>
         </div>
       </section>

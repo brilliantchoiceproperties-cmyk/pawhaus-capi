@@ -53,15 +53,18 @@ export default function SummaryCard({ roomId, stayId, tier, catalog }) {
 
       {quote && (
         <div className="space-y-3 text-sm">
-          <Row label="Base rate" value={fmt(quote.base_rate)} />
-          <Row
-            label={`Discount (${Math.round(quote.discount_percent * 100)}% — ${quote.tier_label})`}
-            value={`-${fmt(quote.discount_amount)}`}
-            accent
-          />
-          {quote.hot_tub_premium > 0 && (
-            <Row label="Hot tub premium" value={`+${fmt(quote.hot_tub_premium)}`} />
-          )}
+          <div className="flex items-baseline justify-between">
+            <span style={{ color: "var(--paw-ink-2)" }}>Base rate</span>
+            <span style={{ color: "var(--paw-muted)", textDecoration: "line-through" }} data-testid="summary-base-strike">
+              {fmt(quote.base_rate)}
+            </span>
+          </div>
+          <div className="flex items-baseline justify-between">
+            <span style={{ color: "var(--paw-clay)" }}>
+              {Math.round(quote.discount_percent * 100)}% off ({quote.tier_label})
+            </span>
+            <span style={{ color: "var(--paw-clay)" }}>−{fmt(quote.discount_amount)}</span>
+          </div>
           <div className="divider my-3" />
           <div className="flex items-baseline justify-between">
             <span className="overline" style={{ color: "var(--paw-muted)" }}>
@@ -91,15 +94,6 @@ export default function SummaryCard({ roomId, stayId, tier, catalog }) {
         </div>
       )}
     </aside>
-  );
-}
-
-function Row({ label, value, accent }) {
-  return (
-    <div className="flex items-baseline justify-between">
-      <span style={{ color: accent ? "var(--paw-clay)" : "var(--paw-ink-2)" }}>{label}</span>
-      <span style={{ color: accent ? "var(--paw-clay)" : "var(--paw-ink)" }}>{value}</span>
-    </div>
   );
 }
 

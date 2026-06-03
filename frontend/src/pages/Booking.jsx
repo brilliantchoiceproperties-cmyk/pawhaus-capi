@@ -1,17 +1,30 @@
 import React, { useEffect, useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
-import { ArrowRight, ArrowLeft, Trash2, Plus, ShieldCheck, CalendarDays, PawPrint } from "lucide-react";
+import { ArrowRight, ArrowLeft, Trash2, Plus, ShieldCheck, CalendarDays, PawPrint, ChevronDown, ChevronLeft, ChevronRight, Bath, ChefHat, Waves, TreePine, Coffee, Wifi } from "lucide-react";
 import { useBooking } from "@/context/BookingContext";
 import { createCheckoutSession } from "@/lib/paw-api";
 import { track, identify } from "@/lib/analytics";
 import SummaryCard from "@/components/paw/SummaryCard";
 
-// PawHaus brand assets — served as optimised webp from /public/brand/
-const ROOM_IMAGES = {
-  petite: "/brand/hero.webp",
-  standard: "/brand/dsc.webp",
-  monolith: "/brand/bedroom.webp",
+// PawHaus brand assets — multi-image galleries per room (served from /public/brand/)
+const ROOM_GALLERIES = {
+  petite: [
+    "/brand/petite-1.webp",
+    "/brand/petite-2.webp",
+    "/brand/petite-3.webp",
+  ],
+  standard: ["/brand/dsc.webp"],
+  monolith: ["/brand/bedroom.webp"],
 };
+
+const ROOM_DETAILS = [
+  { label: "In-cabin shower & private bathroom", icon: Bath },
+  { label: "Small kitchenette", icon: ChefHat },
+  { label: "Lake access", icon: Waves },
+  { label: "Pool, dog park & pine trails", icon: TreePine },
+  { label: "Lobby, camp store & food trucks", icon: Coffee },
+  { label: "WiFi & Netflix included", icon: Wifi },
+];
 
 export default function Booking() {
   const navigate = useNavigate();
@@ -109,6 +122,7 @@ export default function Booking() {
               setRoomId={setRoomId}
               stayId={stayId}
               setStayId={setStayId}
+              discountPercent={discountPercent}
             />
           )}
           {step === 2 && (
@@ -179,7 +193,7 @@ export default function Booking() {
 // STEP 1
 // ---------------------------------------------------------------------------
 
-function StepStay({ catalog, roomId, setRoomId, stayId, setStayId }) {
+function StepStay({ catalog, roomId, setRoomId, stayId, setStayId, discountPercent }) {
   const handleRoomSelect = (id) => {
     setRoomId(id);
     track("room_selected", { room_id: id });
@@ -201,55 +215,15 @@ function StepStay({ catalog, roomId, setRoomId, stayId, setStayId }) {
       </p>
 
       <div className="space-y-5">
-        {catalog.rooms.map((room) => {
-          const selected = roomId === room.id;
-          return (
-            <button
-              key={room.id}
-              data-testid={`room-card-${room.id}`}
-              onClick={() => handleRoomSelect(room.id)}
-              className="paw-card w-full text-left grid grid-cols-1 md:grid-cols-12 overflow-hidden"
-              style={{
-                background: selected ? "var(--paw-bg-2)" : "var(--paw-bg)",
-                borderColor: selected ? "var(--paw-forest)" : "var(--paw-line)",
-              }}
-            >
-              <img
-                src={ROOM_IMAGES[room.id]}
-                alt={room.name}
-                className="md:col-span-5 w-full h-56 md:h-full object-cover"
-              />
-              <div className="md:col-span-7 p-7">
-                <div className="flex items-center gap-3 mb-3 flex-wrap">
-                  <span className="overline" style={{ color: "var(--paw-forest)" }}>
-                    {room.bed}
-                  </span>
-                  {room.has_hot_tub && (
-                    <span className="overline" style={{ color: "var(--paw-clay)" }}>
-                      Hot Tub
-                    </span>
-                  )}
-                  <span className="overline" style={{ color: "var(--paw-muted)" }}>
-                    {room.capacity}
-                  </span>
-                </div>
-                <h3 className="font-display text-3xl mb-3" style={{ color: "var(--paw-ink)" }}>
-                  {room.name}
-                </h3>
-                <p className="text-sm leading-relaxed" style={{ color: "var(--paw-ink-2)" }}>
-                  {room.description}
-                </p>
-                <div className="mt-5 text-sm" style={{ color: "var(--paw-muted)" }}>
-                  From{" "}
-                  <span className="font-display text-lg" style={{ color: "var(--paw-ink)" }}>
-                    ${room.nightly_rates.WEEKDAY.toFixed(0)}
-                  </span>
-                  /night
-                </div>
-              </div>
-            </button>
-          );
-        })}
+        {catalog.rooms.map((room) => (
+          <RoomCard
+            key={room.id}
+            room={room}
+            selected={roomId === room.id}
+            onSelect={() => handleRoomSelect(room.id)}
+            discountPercent={discountPercent}
+          />
+        ))}
       </div>
 
       <h3 className="font-display text-2xl mt-12 mb-5" style={{ color: "var(--paw-ink)" }}>
@@ -287,6 +261,173 @@ function StepStay({ catalog, roomId, setRoomId, stayId, setStayId }) {
         </p>
       )}
     </section>
+  );
+}
+
+// Room card with image carousel + slashed pricing + "more details" dropdown
+function RoomCard({ room, selected, onSelect, discountPercent }) {
+  const gallery = ROOM_GALLERIES[room.id] || ["/brand/hero.webp"];
+  const [imgIdx, setImgIdx] = useState(0);
+  const [expanded, setExpanded] = useState(false);
+
+  const basePrice = room.nightly_rates.WEEKDAY;
+  const discounted = Math.round(basePrice * (1 - (discountPercent || 0)));
+
+  const nextImg = (e) => {
+    e.stopPropagation();
+    setImgIdx((i) => (i + 1) % gallery.length);
+  };
+  const prevImg = (e) => {
+    e.stopPropagation();
+    setImgIdx((i) => (i - 1 + gallery.length) % gallery.length);
+  };
+
+  return (
+    <div
+      data-testid={`room-card-${room.id}`}
+      onClick={onSelect}
+      className="paw-card w-full text-left grid grid-cols-1 md:grid-cols-12 overflow-hidden cursor-pointer"
+      style={{
+        background: selected ? "var(--paw-bg-2)" : "var(--paw-bg)",
+        borderColor: selected ? "var(--paw-forest)" : "var(--paw-line)",
+      }}
+    >
+      <div className="md:col-span-5 relative">
+        <img
+          src={gallery[imgIdx]}
+          alt={`${room.name} ${imgIdx + 1}`}
+          className="w-full h-64 md:h-full object-cover"
+        />
+        {gallery.length > 1 && (
+          <>
+            <button
+              data-testid={`room-${room.id}-prev`}
+              onClick={prevImg}
+              aria-label="Previous photo"
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center"
+              style={{ background: "rgba(250,249,246,0.92)", borderRadius: "50%" }}
+            >
+              <ChevronLeft size={18} strokeWidth={1.5} style={{ color: "var(--paw-ink)" }} />
+            </button>
+            <button
+              data-testid={`room-${room.id}-next`}
+              onClick={nextImg}
+              aria-label="Next photo"
+              className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center"
+              style={{ background: "rgba(250,249,246,0.92)", borderRadius: "50%" }}
+            >
+              <ChevronRight size={18} strokeWidth={1.5} style={{ color: "var(--paw-ink)" }} />
+            </button>
+            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+              {gallery.map((_, i) => (
+                <span
+                  key={i}
+                  className="w-1.5 h-1.5 rounded-full"
+                  style={{ background: i === imgIdx ? "var(--paw-bg)" : "rgba(250,249,246,0.5)" }}
+                />
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+      <div className="md:col-span-7 p-7">
+        <div className="flex items-center gap-3 mb-3 flex-wrap">
+          <span className="overline" style={{ color: "var(--paw-forest)" }}>
+            {room.bed}
+          </span>
+          {room.has_hot_tub && (
+            <span className="overline" style={{ color: "var(--paw-clay)" }}>
+              Hot Tub Included
+            </span>
+          )}
+          <span className="overline" style={{ color: "var(--paw-muted)" }}>
+            {room.capacity}
+          </span>
+        </div>
+        <h3 className="font-display text-3xl mb-3" style={{ color: "var(--paw-ink)" }}>
+          {room.name}
+        </h3>
+        <p className="text-sm leading-relaxed" style={{ color: "var(--paw-ink-2)" }}>
+          {room.description}
+        </p>
+
+        {/* Slashed pricing */}
+        <div className="mt-5 flex items-baseline gap-2.5">
+          <span className="text-sm" style={{ color: "var(--paw-muted)" }}>
+            From
+          </span>
+          {discountPercent > 0 && (
+            <span
+              data-testid={`room-${room.id}-strike-price`}
+              className="text-base line-through"
+              style={{ color: "var(--paw-muted)" }}
+            >
+              ${basePrice.toFixed(0)}
+            </span>
+          )}
+          <span
+            data-testid={`room-${room.id}-discount-price`}
+            className="font-display text-2xl"
+            style={{ color: "var(--paw-clay)" }}
+          >
+            ${discounted}
+          </span>
+          <span className="text-sm" style={{ color: "var(--paw-muted)" }}>
+            /night
+          </span>
+        </div>
+
+        {/* More details dropdown */}
+        <button
+          type="button"
+          data-testid={`room-${room.id}-details-toggle`}
+          onClick={(e) => {
+            e.stopPropagation();
+            setExpanded((v) => !v);
+          }}
+          className="mt-5 inline-flex items-center gap-1.5 text-xs"
+          style={{
+            color: "var(--paw-forest)",
+            letterSpacing: "0.18em",
+            textTransform: "uppercase",
+            fontWeight: 500,
+          }}
+        >
+          {expanded ? "Hide details" : "More details"}
+          <ChevronDown
+            size={14}
+            strokeWidth={1.8}
+            style={{ transform: expanded ? "rotate(180deg)" : "none", transition: "transform 0.2s" }}
+          />
+        </button>
+        {expanded && (
+          <div
+            data-testid={`room-${room.id}-details-panel`}
+            className="mt-4 pt-4 border-t"
+            style={{ borderColor: "var(--paw-line)" }}
+          >
+            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              {ROOM_DETAILS.map(({ label, icon: Icon }) => (
+                <li
+                  key={label}
+                  className="flex items-start gap-2.5 text-sm"
+                  style={{ color: "var(--paw-ink-2)" }}
+                >
+                  <Icon size={14} strokeWidth={1.5} style={{ color: "var(--paw-forest)", marginTop: 3 }} />
+                  {label}
+                </li>
+              ))}
+              {room.has_hot_tub && (
+                <li className="flex items-start gap-2.5 text-sm" style={{ color: "var(--paw-ink-2)" }}>
+                  <PawPrint size={14} strokeWidth={1.5} style={{ color: "var(--paw-clay)", marginTop: 3 }} />
+                  Private wood-fire hot tub (included)
+                </li>
+              )}
+            </ul>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
 
