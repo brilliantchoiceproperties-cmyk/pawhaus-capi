@@ -36,7 +36,7 @@ export default function Footer() {
           <p className="text-sm leading-relaxed" style={{ color: "var(--paw-ink-2)" }}>
             staypawhaus.com
             <br />
-            hello@staypawhaus.com
+            bark@staypawhaus.com
           </p>
         </div>
       </div>
