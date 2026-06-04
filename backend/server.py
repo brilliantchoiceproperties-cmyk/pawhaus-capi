@@ -45,7 +45,7 @@ ROOMS: Dict[str, Dict[str, Any]] = {
         "capacity": "Sleeps 2 + up to 2 pets",
         "description": "Intimate glass cabin tucked in the pines. Queen bed, private yard, fire pit, in-cabin shower and bathroom, small kitchenette, lake & dog park access.",
         "has_hot_tub": False,
-        "nightly_rates": {"WEEKDAY": 500.0, "WEEKEND": 550.0},
+        "nightly_rates": {"WEEKDAY": 475.0, "WEEKEND": 600.0},
     },
     "standard": {
         "id": "standard",
@@ -54,7 +54,7 @@ ROOMS: Dict[str, Dict[str, Any]] = {
         "capacity": "Sleeps 2 + up to 3 pets (snug)",
         "description": "Upgraded suite with private wood-fire hot tub included, king bed, forest-facing deck, in-cabin shower and bathroom, small kitchenette. It's a tiny home — comfortable for two humans with two dogs; snug with three.",
         "has_hot_tub": True,
-        "nightly_rates": {"WEEKDAY": 575.0, "WEEKEND": 675.0},
+        "nightly_rates": {"WEEKDAY": 550.0, "WEEKEND": 725.0},
     },
     "monolith": {
         "id": "monolith",
@@ -63,7 +63,7 @@ ROOMS: Dict[str, Dict[str, Any]] = {
         "capacity": "Sleeps 4 + up to 3 pets",
         "description": "Our largest unit. Double-height glass, king bed, in-cabin shower and bathroom, small kitchenette, private wood-fire hot tub included. Sleeps four humans plus up to three dogs.",
         "has_hot_tub": True,
-        "nightly_rates": {"WEEKDAY": 650.0, "WEEKEND": 750.0},
+        "nightly_rates": {"WEEKDAY": 625.0, "WEEKEND": 800.0},
     },
 }
 
