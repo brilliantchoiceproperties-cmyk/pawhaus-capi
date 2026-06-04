@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { track } from "@/lib/analytics";
+import EmailCTA from "@/components/paw/EmailCTA";
 
 export default function Cancel() {
   const navigate = useNavigate();
@@ -34,6 +35,9 @@ export default function Cancel() {
         >
           Back to landing
         </button>
+      </div>
+      <div className="mt-10 flex justify-center">
+        <EmailCTA variant="inline" />
       </div>
     </div>
   );

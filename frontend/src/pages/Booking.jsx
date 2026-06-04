@@ -5,6 +5,7 @@ import { useBooking } from "@/context/BookingContext";
 import { createCheckoutSession } from "@/lib/paw-api";
 import { track, identify } from "@/lib/analytics";
 import SummaryCard from "@/components/paw/SummaryCard";
+import EmailCTA from "@/components/paw/EmailCTA";
 
 // Date constraints
 const MIN_CHECKIN = "2026-12-01"; // doors open Dec 1, 2026
@@ -103,7 +104,7 @@ export default function Booking() {
     <div data-testid="booking-page" className="mx-auto max-w-[1400px] px-6 sm:px-10 py-12">
       {/* SCARCITY BANNER */}
       <div
-        className="mb-10 border px-5 py-3 text-xs leading-relaxed"
+        className="mb-6 border px-5 py-3 text-xs leading-relaxed"
         style={{ borderColor: "var(--paw-line)", color: "var(--paw-ink-2)", background: "var(--paw-bg-2)" }}
       >
         <span className="overline mr-2" style={{ color: "var(--paw-clay)" }}>
@@ -111,6 +112,10 @@ export default function Booking() {
         </span>
         Only 12 units — 100 Founders Pass holders pick first, then 50,000+ on the
         waitlist. Dates are going fast.
+      </div>
+
+      <div className="mb-10">
+        <EmailCTA variant="inline" />
       </div>
 
       {/* STEP TRACKER */}
@@ -141,7 +146,7 @@ export default function Booking() {
             />
           )}
           {step === 2 && (
-            <StepGuests guests={guests} setGuests={setGuests} stayId={stayId} catalog={catalog} />
+            <StepGuests guests={guests} setGuests={setGuests} stayId={stayId} catalog={catalog} roomId={roomId} />
           )}
           {step === 3 && (
             <StepReview
@@ -459,10 +464,13 @@ function RoomCard({ room, selected, onSelect, discountPercent, stayId, catalog }
 // STEP 2
 // ---------------------------------------------------------------------------
 
-function StepGuests({ guests, setGuests, stayId, catalog }) {
+function StepGuests({ guests, setGuests, stayId, catalog, roomId }) {
   const update = (k, v) => setGuests({ ...guests, [k]: v });
   const stay = catalog?.stay_options?.find((s) => s.id === stayId);
   const nights = stay?.nights || 1;
+  const room = catalog?.rooms?.find((r) => r.id === roomId);
+  const maxPets = room?.max_pets || 2;
+  const atMaxPets = guests.pets.length >= maxPets;
 
   // Auto-derive check_out from check_in + nights
   useEffect(() => {
@@ -595,9 +603,19 @@ function StepGuests({ guests, setGuests, stayId, catalog }) {
             <h3 className="font-display text-2xl" style={{ color: "var(--paw-ink)" }}>
               Tell us about the dogs.
             </h3>
+            <p className="text-xs mt-1" style={{ color: "var(--paw-muted)" }}>
+              {room?.name || "This room"} allows up to {maxPets} pets ({guests.pets.length}/{maxPets} added)
+            </p>
           </div>
-          <button data-testid="add-pet-button" onClick={addPet} className="paw-btn-secondary text-xs">
-            <Plus size={14} strokeWidth={1.5} className="inline mr-2 -mt-0.5" /> Add a pet
+          <button
+            data-testid="add-pet-button"
+            onClick={addPet}
+            disabled={atMaxPets}
+            className="paw-btn-secondary text-xs"
+            style={atMaxPets ? { opacity: 0.4, cursor: "not-allowed" } : {}}
+          >
+            <Plus size={14} strokeWidth={1.5} className="inline mr-2 -mt-0.5" />
+            {atMaxPets ? "Max reached" : "Add a pet"}
           </button>
         </div>
 

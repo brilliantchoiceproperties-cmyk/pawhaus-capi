@@ -43,6 +43,7 @@ ROOMS: Dict[str, Dict[str, Any]] = {
         "name": "Petite Room",
         "bed": "Queen Bed",
         "capacity": "Sleeps 2 + up to 2 pets",
+        "max_pets": 2,
         "description": "Intimate glass cabin tucked in the pines. Queen bed, private yard, fire pit, in-cabin shower and bathroom, small kitchenette, lake & dog park access.",
         "has_hot_tub": False,
         "nightly_rates": {"WEEKDAY": 475.0, "WEEKEND": 600.0},
@@ -52,6 +53,7 @@ ROOMS: Dict[str, Dict[str, Any]] = {
         "name": "Standard Room",
         "bed": "King Bed",
         "capacity": "Sleeps 2 + up to 3 pets (snug)",
+        "max_pets": 3,
         "description": "Upgraded suite with private wood-fire hot tub included, king bed, forest-facing deck, in-cabin shower and bathroom, small kitchenette. It's a tiny home — comfortable for two humans with two dogs; snug with three.",
         "has_hot_tub": True,
         "nightly_rates": {"WEEKDAY": 550.0, "WEEKEND": 725.0},
@@ -61,6 +63,7 @@ ROOMS: Dict[str, Dict[str, Any]] = {
         "name": "Monolith Room",
         "bed": "King Bed",
         "capacity": "Sleeps 4 + up to 3 pets",
+        "max_pets": 3,
         "description": "Our largest unit. Double-height glass, king bed, in-cabin shower and bathroom, small kitchenette, private wood-fire hot tub included. Sleeps four humans plus up to three dogs.",
         "has_hot_tub": True,
         "nightly_rates": {"WEEKDAY": 625.0, "WEEKEND": 800.0},
@@ -247,7 +250,27 @@ async def create_checkout_session(req: CheckoutRequest, http_request: Request):
     if stay:
         _validate_dates(req.booking.check_in, stay["nights"])
 
+    # Enforce max pets per room
+    room = ROOMS.get(req.room_id)
+    if room:
+        pets_count = len([p for p in req.booking.pets if p.name.strip()])
+        if pets_count > room.get("max_pets", 99):
+            raise HTTPException(
+                status_code=400,
+                detail=f"{room['name']} allows up to {room['max_pets']} pets. Please remove some.",
+            )
+
     # Anti-abuse: VIP and INSIDER first-stay discounts are one-time per email
+    if req.tier in ("VIP", "INSIDER"):
+        existing = await db.payment_transactions.find_one(
+            {"metadata.tier": req.tier, "metadata.email": req.booking.email.lower(), "payment_status": "paid"},
+            {"_id": 0},
+        )
+        if existing:
+            raise HTTPException(
+                status_code=400,
+                detail=f"That discount has already been used for this email.",
+            )
     if req.tier in ("VIP", "INSIDER"):
         existing = await db.payment_transactions.find_one(
             {"metadata.tier": req.tier, "metadata.email": req.booking.email.lower(), "payment_status": "paid"},

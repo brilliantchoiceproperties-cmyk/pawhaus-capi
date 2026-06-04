@@ -4,6 +4,7 @@ import { ArrowRight, Lock, Check, MapPin, BedDouble, Coffee, Flame, Trees, Wifi,
 import { validateCode } from "@/lib/paw-api";
 import { useBooking } from "@/context/BookingContext";
 import { track } from "@/lib/analytics";
+import EmailCTA from "@/components/paw/EmailCTA";
 
 // PawHaus brand assets — served as optimised webp from /public/brand/
 const HERO_IMG = "/brand/hero.webp";
@@ -417,6 +418,8 @@ export default function Landing() {
       </section>
 
       {/* CLOSING CTA */}
+      <EmailCTA variant="hero" />
+
       <section className="mx-auto max-w-[1400px] px-6 sm:px-10 pt-32">
         <div className="relative overflow-hidden" style={{ background: "var(--paw-forest)" }}>
           <img src={DJI_AERIAL2} alt="" className="absolute inset-0 w-full h-full object-cover opacity-30" />
