@@ -288,9 +288,12 @@ function RoomCard({ room, selected, onSelect, discountPercent, stayId, catalog }
   const [expanded, setExpanded] = useState(false);
 
   // Use the rate that matches the currently selected stay (weekday vs weekend)
+  // 1-night stays carry a 10% per-night premium (server enforces — mirror it here for display)
   const stay = catalog?.stay_options?.find((s) => s.id === stayId);
   const stayType = stay?.type || "WEEKDAY";
-  const basePrice = room.nightly_rates[stayType] ?? room.nightly_rates.WEEKDAY;
+  const nights = stay?.nights || 1;
+  const baseNightly = room.nightly_rates[stayType] ?? room.nightly_rates.WEEKDAY;
+  const basePrice = nights === 1 ? Math.round(baseNightly * 1.1) : baseNightly;
   const discounted = Math.round(basePrice * (1 - (discountPercent || 0)));
   const stayLabel = stayType === "WEEKEND" ? "weekend night" : "weekday night";
 

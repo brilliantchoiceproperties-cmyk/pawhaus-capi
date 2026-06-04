@@ -123,6 +123,9 @@ def calculate_quote(room_id: str, stay_id: str, tier: str) -> Dict[str, Any]:
         raise HTTPException(status_code=400, detail="Invalid discount tier.")
 
     nightly = room["nightly_rates"][stay["type"]]
+    # 1-night stays are 10% more per night to incentivise the 2-night booking
+    if stay["nights"] == 1:
+        nightly = nightly * 1.10
     base_rate = round(nightly * stay["nights"], 2)
     discount_amount = round(base_rate * DISCOUNTS[tier]["percent"], 2)
     hot_tub_premium = round(HOT_TUB_PREMIUM_PER_NIGHT * stay["nights"], 2) if room["has_hot_tub"] else 0.0
