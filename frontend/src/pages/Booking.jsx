@@ -11,6 +11,14 @@ import EmailCTA from "@/components/paw/EmailCTA";
 const MIN_CHECKIN = "2026-12-01"; // doors open Dec 1, 2026
 const BLACKOUT_MONTH_DAYS = ["12-24", "12-25", "12-31"]; // Christmas Eve, Christmas, NYE — annual
 
+// Check-in / check-out times by tier
+function getStayTimes(tier) {
+  if (tier === "VIP") {
+    return { checkInTime: "3:00 PM", checkInLabel: "3:00 PM (Founders early check-in)", checkOutTime: "11:00 AM" };
+  }
+  return { checkInTime: "4:00 PM", checkInLabel: "4:00 PM", checkOutTime: "11:00 AM" };
+}
+
 // PawHaus brand assets — multi-image galleries per room (served from /public/brand/)
 const ROOM_GALLERIES = {
   petite: [
@@ -146,7 +154,7 @@ export default function Booking() {
             />
           )}
           {step === 2 && (
-            <StepGuests guests={guests} setGuests={setGuests} stayId={stayId} catalog={catalog} roomId={roomId} />
+            <StepGuests guests={guests} setGuests={setGuests} stayId={stayId} catalog={catalog} roomId={roomId} tier={tier} />
           )}
           {step === 3 && (
             <StepReview
@@ -464,13 +472,15 @@ function RoomCard({ room, selected, onSelect, discountPercent, stayId, catalog }
 // STEP 2
 // ---------------------------------------------------------------------------
 
-function StepGuests({ guests, setGuests, stayId, catalog, roomId }) {
+function StepGuests({ guests, setGuests, stayId, catalog, roomId, tier }) {
   const update = (k, v) => setGuests({ ...guests, [k]: v });
   const stay = catalog?.stay_options?.find((s) => s.id === stayId);
   const nights = stay?.nights || 1;
   const room = catalog?.rooms?.find((r) => r.id === roomId);
   const maxPets = room?.max_pets || 2;
   const atMaxPets = guests.pets.length >= maxPets;
+  const { checkInTime, checkOutTime } = getStayTimes(tier);
+  const isVip = tier === "VIP";
 
   // Auto-derive check_out from check_in + nights
   useEffect(() => {
@@ -554,6 +564,9 @@ function StepGuests({ guests, setGuests, stayId, catalog, roomId }) {
           <Field label="Check-In" type="date" testid="guest-checkin-input" value={guests.check_in} onChange={(v) => update("check_in", v)} min={MIN_CHECKIN} />
           <p className="mt-2 text-xs" style={{ color: "var(--paw-muted)" }}>
             Earliest check-in: Dec 1, 2026 • Blackout dates: Dec 24, 25 & 31
+          </p>
+          <p className="mt-1 text-xs" style={{ color: isVip ? "var(--paw-forest)" : "var(--paw-muted)" }}>
+            Check-in {checkInTime}{isVip ? " (Founders early)" : ""} • Check-out {checkOutTime}
           </p>
           {dateError && (
             <p
@@ -719,6 +732,7 @@ function SelectField({ label, value, onChange, options, testid }) {
 function StepReview({ catalog, roomId, stayId, tier, tierLabel, discountPercent, guests }) {
   const room = catalog.rooms.find((r) => r.id === roomId);
   const stay = catalog.stay_options.find((s) => s.id === stayId);
+  const { checkInLabel, checkOutTime } = getStayTimes(tier);
 
   return (
     <section data-testid="step-review">
