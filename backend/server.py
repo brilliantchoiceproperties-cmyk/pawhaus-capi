@@ -17,6 +17,7 @@ from emergentintegrations.payments.stripe.checkout import (
     CheckoutStatusResponse,
 )
 import stripe
+import httpx
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / ".env")
@@ -28,6 +29,7 @@ db = client[os.environ["DB_NAME"]]
 
 STRIPE_API_KEY = os.environ["STRIPE_API_KEY"]
 STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET", "")
+GHL_WEBHOOK_URL = os.environ.get("GHL_WEBHOOK_URL", "")
 stripe.api_key = STRIPE_API_KEY
 
 app = FastAPI(title="PawHaus VIP Portal A/B")
@@ -269,7 +271,7 @@ async def create_checkout_session(req: CheckoutRequest, http_request: Request):
         if existing:
             raise HTTPException(
                 status_code=400,
-                detail=f"That discount has already been used for this email.",
+                detail="That discount has already been used for this email.",
             )
     if req.tier in ("VIP", "INSIDER"):
         existing = await db.payment_transactions.find_one(
@@ -279,7 +281,7 @@ async def create_checkout_session(req: CheckoutRequest, http_request: Request):
         if existing:
             raise HTTPException(
                 status_code=400,
-                detail=f"That discount has already been used for this email.",
+                detail="That discount has already been used for this email.",
             )
 
     booking_id = str(uuid.uuid4())
@@ -378,6 +380,7 @@ async def get_payment_status(session_id: str, http_request: Request):
         await db.bookings.update_one(
             {"id": txn.get("booking_id")}, {"$set": {"status": "confirmed", "paid_at": datetime.now(timezone.utc).isoformat()}}
         )
+        await notify_ghl_payment_success(txn.get("booking_id"))
 
     booking = await db.bookings.find_one({"id": txn.get("booking_id")}, {"_id": 0})
     return {
@@ -387,6 +390,72 @@ async def get_payment_status(session_id: str, http_request: Request):
         "currency": status.currency,
         "booking": booking,
     }
+
+
+async def notify_ghl_payment_success(booking_id: str) -> None:
+    """
+    Forward a confirmed booking to the GoHighLevel inbound webhook.
+    Idempotent: only fires once per booking (guarded by `ghl_notified_at`).
+    Failures are logged but never raised — GHL must not block payment flow.
+    """
+    if not GHL_WEBHOOK_URL:
+        return
+
+    booking = await db.bookings.find_one({"id": booking_id}, {"_id": 0})
+    if not booking or booking.get("ghl_notified_at"):
+        return
+
+    details = booking.get("booking") or {}
+    quote = booking.get("quote") or {}
+    full_name = (details.get("full_name") or "").strip()
+    name_parts = full_name.split(" ", 1)
+    first_name = name_parts[0] if name_parts else ""
+    last_name = name_parts[1] if len(name_parts) > 1 else ""
+    pets = details.get("pets") or []
+
+    payload = {
+        "event": "payment_success",
+        "booking_id": booking.get("id"),
+        "stripe_session_id": booking.get("stripe_session_id"),
+        "tier": booking.get("tier"),
+        "tier_label": booking.get("tier_label"),
+        "room_id": booking.get("room_id"),
+        "room_name": booking.get("room_name"),
+        "stay_id": booking.get("stay_id"),
+        "stay_label": booking.get("stay_label"),
+        "email": details.get("email"),
+        "full_name": full_name,
+        "first_name": first_name,
+        "last_name": last_name,
+        "phone": details.get("phone"),
+        "guests": details.get("guests"),
+        "check_in": details.get("check_in"),
+        "check_out": details.get("check_out"),
+        "backup_date_1": details.get("backup_date_1"),
+        "backup_date_2": details.get("backup_date_2"),
+        "notes": details.get("notes"),
+        "pet_count": len(pets),
+        "pet_names": ", ".join([p.get("name", "") for p in pets if p.get("name")]),
+        "pets": pets,
+        "total_amount": quote.get("total"),
+        "base_price": quote.get("base"),
+        "discount_amount": quote.get("discount"),
+        "hot_tub_premium": quote.get("hot_tub"),
+        "currency": "usd",
+        "paid_at": booking.get("paid_at") or datetime.now(timezone.utc).isoformat(),
+    }
+
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as ghl:
+            resp = await ghl.post(GHL_WEBHOOK_URL, json=payload)
+            resp.raise_for_status()
+        await db.bookings.update_one(
+            {"id": booking_id},
+            {"$set": {"ghl_notified_at": datetime.now(timezone.utc).isoformat()}},
+        )
+        logger.info("GHL notified for booking %s", booking_id)
+    except Exception as e:
+        logger.exception("GHL notification failed for booking %s: %s", booking_id, e)
 
 
 @api_router.post("/webhook/stripe")
@@ -427,6 +496,7 @@ async def stripe_webhook(request: Request):
                         {"id": booking_id},
                         {"$set": {"status": "confirmed", "paid_at": datetime.now(timezone.utc).isoformat()}},
                     )
+                    await notify_ghl_payment_success(booking_id)
         return {"received": True}
 
     # No signing secret configured — fall back to the integration helper (dev only).
@@ -457,6 +527,7 @@ async def stripe_webhook(request: Request):
                     {"id": booking_id},
                     {"$set": {"status": "confirmed", "paid_at": datetime.now(timezone.utc).isoformat()}},
                 )
+                await notify_ghl_payment_success(booking_id)
 
     return {"received": True}
 
