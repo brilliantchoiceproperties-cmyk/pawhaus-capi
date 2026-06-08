@@ -60,21 +60,34 @@ Verified examples from spec:
 - ✅ Persistence in localStorage across reloads
 - ✅ 17/17 backend pytest cases passing; full e2e Stripe redirect verified
 
+## Additional Updates (2026-02)
+- ✅ Stripe upgraded to **LIVE MODE** + HMAC-verified webhook (`/api/webhook/stripe`)
+- ✅ Dynamic pricing engine: weekday vs weekend rates + 1-night 10% surcharge
+- ✅ Three discount tiers locked in: Founders (PAWVIP -50%) / Insider (PAW40 -40%) / Public (-25%)
+- ✅ Date validation: blocks check-ins before Dec 1, 2026 + holiday blackouts
+- ✅ Pet capacity enforcement per room (Petite: 2, Standard/Monolith: 3) — server + UI
+- ✅ Cameron Ranch Glamping credibility section + Email CTAs (bark@staypawhaus.com)
+- ✅ Unified analytics tracker: PostHog + GA4 + Meta Pixel (`analytics.js`)
+- ✅ Property photo galleries powered by optimized webp assets in `/public/brand/`
+- ✅ Tier-based check-in/out times in funnel (VIP: 3PM in / Public+Insider: 4PM in / All: 11AM out) — user confirmed good to go
+
 ## Personas
 - **Founders Pass holder** — paid $47 for early access; wants exclusive 50% off + perks; enters PAWVIP
 - **Pre-launch public visitor** — no code; wants 20% off pre-launch pricing; high intent dog owner
 
 ## Prioritized Backlog
-- **P1** — Add address autocomplete for check-in confirmation emails
+- **P1** — Add a 2nd Stripe webhook endpoint for the production domain (`experiment-forge.emergent.host`)
+- **P1** — Lock backend CORS from `*` down to the live production domain
 - **P1** — Confirmation email via Resend/SendGrid after successful payment
-- **P2** — Admin dashboard to view bookings + payment transactions
-- **P2** — Calendar availability check (blackout dates: Christmas, NYE, July 4th ±2)
+- **P2** — Admin dashboard at `/admin` to view bookings + payment transactions
+- **P2** — Visual calendar showing blackout dates on Step 1 of booking
 - **P2** — Founders Pass purchase flow (currently shown as "Sold Out" per user choice)
+- **P3** — Refactor `Booking.jsx` (800+ lines) into `StepStay`, `StepGuests`, `StepReview` files
+- **P3** — `?v=light` A/B variant URL routing
 - **P3** — Wishlist / save-for-later for visitors not ready to pay
-- **P3** — Analytics events (offer-card click, step abandonment) for the A/B comparison
 - **P3** — Optional crypto payment method (Stripe supports it for US accounts)
 
 ## Next Tasks (suggested)
-1. Wire confirmation emails on payment success
-2. Add admin/booking-list view at `/admin` (gated)
-3. Add Plausible/PostHog event tracking for A/B funnel comparison vs. original
+1. Production-domain Stripe webhook + CORS lockdown (post-deploy hardening)
+2. Wire confirmation emails on payment success
+3. Add `/admin` booking-list view (gated)
