@@ -42,7 +42,6 @@ const ROOM_GALLERIES = {
 };
 
 const ROOM_DETAILS = [
-  { label: "Check-in 4:00 PM • Check-out 11:00 AM (VIPs check in early at 3:00 PM)", icon: CalendarDays },
   { label: "In-cabin shower & private bathroom", icon: Bath },
   { label: "Small kitchenette", icon: ChefHat },
   { label: "Lake access", icon: Waves },
@@ -152,6 +151,7 @@ export default function Booking() {
               stayId={stayId}
               setStayId={setStayId}
               discountPercent={discountPercent}
+              tier={tier}
             />
           )}
           {step === 2 && (
@@ -222,7 +222,7 @@ export default function Booking() {
 // STEP 1
 // ---------------------------------------------------------------------------
 
-function StepStay({ catalog, roomId, setRoomId, stayId, setStayId, discountPercent }) {
+function StepStay({ catalog, roomId, setRoomId, stayId, setStayId, discountPercent, tier }) {
   const handleRoomSelect = (id) => {
     setRoomId(id);
     track("room_selected", { room_id: id });
@@ -253,6 +253,7 @@ function StepStay({ catalog, roomId, setRoomId, stayId, setStayId, discountPerce
             discountPercent={discountPercent}
             stayId={stayId}
             catalog={catalog}
+            tier={tier}
           />
         ))}
       </div>
@@ -296,7 +297,7 @@ function StepStay({ catalog, roomId, setRoomId, stayId, setStayId, discountPerce
 }
 
 // Room card with image carousel + slashed pricing + "more details" dropdown
-function RoomCard({ room, selected, onSelect, discountPercent, stayId, catalog }) {
+function RoomCard({ room, selected, onSelect, discountPercent, stayId, catalog, tier }) {
   const gallery = ROOM_GALLERIES[room.id] || ["/brand/hero.webp"];
   const [imgIdx, setImgIdx] = useState(0);
   const [expanded, setExpanded] = useState(false);
@@ -445,6 +446,15 @@ function RoomCard({ room, selected, onSelect, discountPercent, stayId, catalog }
             style={{ borderColor: "var(--paw-line)" }}
           >
             <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <li
+                className="flex items-start gap-2.5 text-sm"
+                style={{ color: "var(--paw-ink-2)" }}
+              >
+                <CalendarDays size={14} strokeWidth={1.5} style={{ color: tier === "VIP" ? "var(--paw-clay)" : "var(--paw-forest)", marginTop: 3 }} />
+                {tier === "VIP"
+                  ? "Check-in 3:00 PM (Founders early) • Check-out 11:00 AM"
+                  : "Check-in 4:00 PM • Check-out 11:00 AM"}
+              </li>
               {ROOM_DETAILS.map(({ label, icon: Icon }) => (
                 <li
                   key={label}
