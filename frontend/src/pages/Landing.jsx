@@ -315,7 +315,7 @@ export default function Landing() {
                 ["Bath", "Rainfall shower in a private bathroom"],
                 ["ChefHat", "Small kitchenette + charcoal grill at every unit"],
                 ["Flame", "Private wood fire pit + wood-fire hot tub (Standard & Monolith)"],
-                ["Wifi", "WiFi & Netflix included"],
+                ["Wifi", "WiFi included"],
                 ["PawPrint", "2–3 dog beds, food & water bowls, towel station"],
               ].map(([_, label]) => (
                 <li key={label} className="flex items-start gap-3 text-sm" style={{ color: "var(--paw-ink-2)" }}>

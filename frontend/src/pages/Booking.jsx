@@ -42,12 +42,13 @@ const ROOM_GALLERIES = {
 };
 
 const ROOM_DETAILS = [
+  { label: "Check-in 4:00 PM • Check-out 11:00 AM (VIPs check in early at 3:00 PM)", icon: CalendarDays },
   { label: "In-cabin shower & private bathroom", icon: Bath },
   { label: "Small kitchenette", icon: ChefHat },
   { label: "Lake access", icon: Waves },
   { label: "Pool, dog park & pine trails", icon: TreePine },
   { label: "Lobby, camp store & food trucks", icon: Coffee },
-  { label: "WiFi & Netflix included", icon: Wifi },
+  { label: "WiFi included", icon: Wifi },
 ];
 
 export default function Booking() {
