@@ -295,15 +295,13 @@ function RoomCard({ room, selected, onSelect, discountPercent, stayId, catalog, 
   const [imgIdx, setImgIdx] = useState(0);
   const [expanded, setExpanded] = useState(false);
 
-  // Use the rate that matches the currently selected stay (weekday vs weekend)
-  // 1-night stays carry a 10% per-night premium (server enforces — mirror it here for display)
+  // Use the total that matches the currently selected stay
   const stay = catalog?.stay_options?.find((s) => s.id === stayId);
   const stayType = stay?.type || "WEEKDAY";
   const nights = stay?.nights || 1;
-  const baseNightly = room.nightly_rates[stayType] ?? room.nightly_rates.WEEKDAY;
-  const basePrice = nights === 1 ? Math.round(baseNightly * 1.1) : baseNightly;
+  const basePrice = room.stay_totals?.[stayId] ?? 0;
   const discounted = Math.round(basePrice * (1 - (discountPercent || 0)));
-  const stayLabel = stayType === "WEEKEND" ? "weekend night" : "weekday night";
+  const stayLabel = `${stayType === "WEEKEND" ? "weekend" : "weekday"} • ${nights}n`;
 
   const nextImg = (e) => {
     e.stopPropagation();
@@ -738,7 +736,7 @@ function StepReview({ catalog, roomId, stayId, tierLabel, discountPercent, guest
     "Vaccines verified before check-in (Rabies, DHPP; Bordetella if using grooming or the dog park)",
     "Quiet hours 10:00 PM – 8:00 AM",
     "Do not exceed your cabin's pet capacity",
-    "$250 refundable damage deposit pre-authorised at check-in",
+    "$250 refundable damage deposit pre-authorised at check-in (released within 24 hours of check-out if no damage occurs)",
     "Dogs may never be left in the cabin unattended",
   ];
 
@@ -829,7 +827,7 @@ function StepReview({ catalog, roomId, stayId, tierLabel, discountPercent, guest
         <Reassurance
           icon={<PawPrint size={16} strokeWidth={1.5} />}
           heading="$250 damage deposit"
-          body="Pre-authorised on your card at check-in. Released within 7 days of check-out if the cabin is left as you found it."
+          body="Pre-authorised on your card at check-in. Released within 24 hours of check-out if no damage occurs."
         />
       </div>
 

@@ -91,7 +91,7 @@ export default function Success() {
             Welcome to the pack.
           </h1>
           <p className="mt-5 text-base max-w-xl mx-auto leading-relaxed" style={{ color: "var(--paw-ink-2)" }}>
-            {booking?.room_name} • {booking?.stay_label}. We'll reach out 30 days before
+            {booking?.room_name} • {booking?.stay_label}. We&apos;ll reach out 30 days before
             check-in to confirm your dates, and final preview photos & arrival details
             will be sent before our December 1, 2026 opening.
           </p>
@@ -124,7 +124,7 @@ export default function Success() {
             Still processing…
           </h1>
           <p className="mt-4 max-w-xl mx-auto" style={{ color: "var(--paw-ink-2)" }}>
-            Your bank is taking a little longer than usual. We'll email you the moment
+            Your bank is taking a little longer than usual. We&apos;ll email you the moment
             it confirms.
           </p>
         </div>
@@ -132,10 +132,10 @@ export default function Success() {
       {status === "error" && (
         <div data-testid="success-error">
           <h1 className="font-display text-4xl" style={{ color: "var(--paw-ink)" }}>
-            We couldn't confirm that session.
+            We couldn&apos;t confirm that session.
           </h1>
           <p className="mt-4" style={{ color: "var(--paw-ink-2)" }}>
-            If you completed payment, please contact us and we'll sort it out.
+            If you completed payment, please contact us and we&apos;ll sort it out.
           </p>
           <button onClick={() => navigate("/")} className="paw-btn-primary mt-7">
             Return home

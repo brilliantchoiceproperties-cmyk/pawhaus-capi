@@ -226,7 +226,7 @@ export default function Landing() {
             ["Dog concierge on site daily", "forest"],
             ["Camp store: firewood, snacks, breakfast", "clay"],
             ["Free Pup Cups always in the camp store", "forest"],
-            ["Food trucks every lunch &amp; dinner", "clay"],
+            ["Food trucks Wed–Sun", "clay"],
             ["Dog groomer Wed–Sun", "forest"],
             ["Massage therapist by appointment", "clay"],
             ["Therapist (for you &amp; your dog) by appointment", "forest"],
@@ -300,7 +300,7 @@ export default function Landing() {
               {
                 icon: <DollarSign size={18} strokeWidth={1.5} />,
                 title: "$250 refundable damage deposit",
-                body: "Pre-authorised at check-in. Released within 7 days of check-out if the cabin is left as you found it.",
+                body: "Pre-authorised at check-in. Released within 24 hours of check-out if no damage occurs.",
               },
               {
                 icon: <AlertCircle size={18} strokeWidth={1.5} />,

@@ -48,7 +48,13 @@ ROOMS: Dict[str, Dict[str, Any]] = {
         "max_pets": 2,
         "description": "Intimate glass cabin tucked in the pines. Queen bed, private yard, fire pit, in-cabin shower and bathroom, small kitchenette, lake & dog park access.",
         "has_hot_tub": False,
-        "nightly_rates": {"WEEKDAY": 475.0, "WEEKEND": 600.0},
+        # base totals BEFORE the public 25% discount, per stay
+        "stay_totals": {
+            "WEEKDAY_1N": 558.0,
+            "WEEKDAY_2N": 1116.0,
+            "WEEKEND_1N": 798.0,
+            "WEEKEND_2N": 1474.0,
+        },
     },
     "standard": {
         "id": "standard",
@@ -58,7 +64,12 @@ ROOMS: Dict[str, Dict[str, Any]] = {
         "max_pets": 3,
         "description": "Upgraded suite with private wood-fire hot tub included, king bed, forest-facing deck, in-cabin shower and bathroom, small kitchenette. It's a tiny home — comfortable for two humans with two dogs; snug with three.",
         "has_hot_tub": True,
-        "nightly_rates": {"WEEKDAY": 550.0, "WEEKEND": 725.0},
+        "stay_totals": {
+            "WEEKDAY_1N": 698.0,
+            "WEEKDAY_2N": 1278.0,
+            "WEEKEND_1N": 938.0,
+            "WEEKEND_2N": 1692.0,
+        },
     },
     "monolith": {
         "id": "monolith",
@@ -68,7 +79,12 @@ ROOMS: Dict[str, Dict[str, Any]] = {
         "max_pets": 3,
         "description": "Our largest unit. Double-height glass, king bed, in-cabin shower and bathroom, small kitchenette, private wood-fire hot tub included. Sleeps four humans plus up to three dogs.",
         "has_hot_tub": True,
-        "nightly_rates": {"WEEKDAY": 625.0, "WEEKEND": 800.0},
+        "stay_totals": {
+            "WEEKDAY_1N": 898.0,
+            "WEEKDAY_2N": 1478.0,
+            "WEEKEND_1N": 1138.0,
+            "WEEKEND_2N": 1952.0,
+        },
     },
 }
 
@@ -123,11 +139,10 @@ def calculate_quote(room_id: str, stay_id: str, tier: str) -> Dict[str, Any]:
     # Always PUBLIC tier on this site
     tier = "PUBLIC"
 
-    nightly = room["nightly_rates"][stay["type"]]
-    # 1-night stays are 10% more per night to incentivise the 2-night booking
-    if stay["nights"] == 1:
-        nightly = nightly * 1.10
-    base_rate = round(nightly * stay["nights"], 2)
+    base_rate = room["stay_totals"].get(stay_id)
+    if base_rate is None:
+        raise HTTPException(status_code=400, detail="No price configured for that room/stay combination.")
+    base_rate = round(base_rate, 2)
     discount_amount = round(base_rate * DISCOUNTS[tier]["percent"], 2)
     hot_tub_premium = round(HOT_TUB_PREMIUM_PER_NIGHT * stay["nights"], 2) if room["has_hot_tub"] else 0.0
     total = round(base_rate - discount_amount + hot_tub_premium, 2)
