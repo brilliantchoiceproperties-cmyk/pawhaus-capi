@@ -229,13 +229,13 @@ export default function Landing() {
             ["Food trucks Wed–Sun", "clay"],
             ["Dog groomer Wed–Sun", "forest"],
             ["Massage therapist by appointment", "clay"],
-            ["Therapist (for you &amp; your dog) by appointment", "forest"],
+            ["Therapist (for you & your dog) by appointment", "forest"],
             ["Sunrise Pack Yoga — Saturday mornings", "clay"],
-            ["Dog park, pickleball court &amp; pine-trails", "forest"],
+            ["Dog park, pickleball court & pine-trails", "forest"],
           ].map(([t, tone]) => (
             <div key={t} className="flex items-start gap-3 text-sm pb-4 border-b" style={{ color: "var(--paw-ink-2)", borderColor: "var(--paw-line)" }}>
               <PawPrint size={14} strokeWidth={1.5} style={{ color: tone === "clay" ? "var(--paw-clay)" : "var(--paw-forest)", marginTop: 3 }} />
-              <span dangerouslySetInnerHTML={{ __html: t }} />
+              <span>{t}</span>
             </div>
           ))}
         </div>

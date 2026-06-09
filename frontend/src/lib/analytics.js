@@ -30,11 +30,15 @@ function getDistinctId() {
       distinctId = stored;
       return distinctId;
     }
-  } catch (e) {}
+  } catch (e) {
+    console.warn("[analytics] localStorage read failed:", e);
+  }
   distinctId = uuidv4();
   try {
     localStorage.setItem(STORAGE_KEY, distinctId);
-  } catch (e) {}
+  } catch (e) {
+    console.warn("[analytics] localStorage write failed:", e);
+  }
   return distinctId;
 }
 
@@ -72,7 +76,9 @@ async function sendPosthog(event, properties = {}) {
       keepalive: true,
       mode: "cors",
     });
-  } catch (e) {}
+  } catch (e) {
+    console.warn("[analytics] posthog send failed:", e);
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -174,12 +180,16 @@ function fireGA4AndMeta(event, props) {
 
 export function track(event, props = {}) {
   sendPosthog(event, props);
-  try { fireGA4AndMeta(event, props); } catch (e) {}
+  try { fireGA4AndMeta(event, props); } catch (e) {
+    console.warn("[analytics] GA4/Meta track failed:", e);
+  }
 }
 
 export function pageview(path) {
   sendPosthog("$pageview", { $current_url: path });
-  try { fireGA4AndMeta("$pageview", { $current_url: path }); } catch (e) {}
+  try { fireGA4AndMeta("$pageview", { $current_url: path }); } catch (e) {
+    console.warn("[analytics] GA4/Meta pageview failed:", e);
+  }
 }
 
 export function identify(email, traits = {}) {
@@ -194,7 +204,9 @@ export function identify(email, traits = {}) {
   distinctId = email;
   try {
     localStorage.setItem(STORAGE_KEY, email);
-  } catch (e) {}
+  } catch (e) {
+    console.warn("[analytics] localStorage identify write failed:", e);
+  }
   // GA4 user_id (hash on server in production; safe here as it's PII-free hash-ready)
   const gtag = gtagSafe();
   if (gtag && GA4_ID) {

@@ -38,7 +38,7 @@ export function BookingProvider({ children }) {
         if (data.guests) setGuests({ ...defaultGuests, ...data.guests });
       }
     } catch (e) {
-      // ignore
+      console.warn("[booking] failed to restore from localStorage:", e);
     }
   }, []);
 
@@ -48,7 +48,7 @@ export function BookingProvider({ children }) {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     } catch (e) {
-      // ignore
+      console.warn("[booking] failed to persist to localStorage:", e);
     }
   }, [roomId, stayId, guests]);
 

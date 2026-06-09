@@ -349,9 +349,9 @@ function RoomCard({ room, selected, onSelect, discountPercent, stayId, catalog, 
               <ChevronRight size={18} strokeWidth={1.5} style={{ color: "var(--paw-ink)" }} />
             </button>
             <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
-              {gallery.map((_, i) => (
+              {gallery.map((src, i) => (
                 <span
-                  key={i}
+                  key={src}
                   className="w-1.5 h-1.5 rounded-full"
                   style={{ background: i === imgIdx ? "var(--paw-bg)" : "rgba(250,249,246,0.5)" }}
                 />
