@@ -11,14 +11,6 @@ import EmailCTA from "@/components/paw/EmailCTA";
 const MIN_CHECKIN = "2026-12-01"; // doors open Dec 1, 2026
 const BLACKOUT_MONTH_DAYS = ["12-24", "12-25", "12-31"]; // Christmas Eve, Christmas, NYE — annual
 
-// Check-in / check-out times by tier
-function getStayTimes(tier) {
-  if (tier === "VIP") {
-    return { checkInTime: "3:00 PM", checkInLabel: "3:00 PM (Founders early check-in)", checkOutTime: "11:00 AM" };
-  }
-  return { checkInTime: "4:00 PM", checkInLabel: "4:00 PM", checkOutTime: "11:00 AM" };
-}
-
 // PawHaus brand assets — multi-image galleries per room (served from /public/brand/)
 const ROOM_GALLERIES = {
   petite: [
@@ -56,6 +48,7 @@ export default function Booking() {
   const [step, setStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
+  const [rulesAccepted, setRulesAccepted] = useState(false);
 
   // Guard: must have a tier to be here
   if (!tier) {
@@ -118,8 +111,7 @@ export default function Booking() {
         <span className="overline mr-2" style={{ color: "var(--paw-clay)" }}>
           Phase 1
         </span>
-        Only 12 units — 100 Founders Pass holders pick first, then 50,000+ on the
-        waitlist. Dates are going fast.
+        Only 12 cabins. Pre-launch pricing — 25% off every booking. Once a date is taken, it&apos;s gone.
       </div>
 
       <div className="mb-10">
@@ -155,17 +147,18 @@ export default function Booking() {
             />
           )}
           {step === 2 && (
-            <StepGuests guests={guests} setGuests={setGuests} stayId={stayId} catalog={catalog} roomId={roomId} tier={tier} />
+            <StepGuests guests={guests} setGuests={setGuests} stayId={stayId} catalog={catalog} roomId={roomId} />
           )}
           {step === 3 && (
             <StepReview
               catalog={catalog}
               roomId={roomId}
               stayId={stayId}
-              tier={tier}
               tierLabel={tierLabel}
               discountPercent={discountPercent}
               guests={guests}
+              rulesAccepted={rulesAccepted}
+              setRulesAccepted={setRulesAccepted}
             />
           )}
 
@@ -194,7 +187,7 @@ export default function Booking() {
               <button
                 data-testid="booking-pay-button"
                 onClick={handlePay}
-                disabled={submitting}
+                disabled={submitting || !rulesAccepted}
                 className="paw-btn-primary"
                 style={{ background: "var(--paw-clay)", borderColor: "var(--paw-clay)" }}
               >
@@ -450,10 +443,8 @@ function RoomCard({ room, selected, onSelect, discountPercent, stayId, catalog, 
                 className="flex items-start gap-2.5 text-sm"
                 style={{ color: "var(--paw-ink-2)" }}
               >
-                <CalendarDays size={14} strokeWidth={1.5} style={{ color: tier === "VIP" ? "var(--paw-clay)" : "var(--paw-forest)", marginTop: 3 }} />
-                {tier === "VIP"
-                  ? "Check-in 3:00 PM (Founders early) • Check-out 11:00 AM"
-                  : "Check-in 4:00 PM • Check-out 11:00 AM"}
+                <CalendarDays size={14} strokeWidth={1.5} style={{ color: "var(--paw-forest)", marginTop: 3 }} />
+                Check-in 4:00 PM • Check-out 11:00 AM
               </li>
               {ROOM_DETAILS.map(({ label, icon: Icon }) => (
                 <li
@@ -483,15 +474,13 @@ function RoomCard({ room, selected, onSelect, discountPercent, stayId, catalog, 
 // STEP 2
 // ---------------------------------------------------------------------------
 
-function StepGuests({ guests, setGuests, stayId, catalog, roomId, tier }) {
+function StepGuests({ guests, setGuests, stayId, catalog, roomId }) {
   const update = (k, v) => setGuests({ ...guests, [k]: v });
   const stay = catalog?.stay_options?.find((s) => s.id === stayId);
   const nights = stay?.nights || 1;
   const room = catalog?.rooms?.find((r) => r.id === roomId);
   const maxPets = room?.max_pets || 2;
   const atMaxPets = guests.pets.length >= maxPets;
-  const { checkInTime, checkOutTime } = getStayTimes(tier);
-  const isVip = tier === "VIP";
 
   // Auto-derive check_out from check_in + nights
   useEffect(() => {
@@ -563,7 +552,7 @@ function StepGuests({ guests, setGuests, stayId, catalog, roomId, tier }) {
         Who is joining us?
       </h2>
       <p className="text-base leading-relaxed mb-10 max-w-xl" style={{ color: "var(--paw-ink-2)" }}>
-        We'll need a few details to prepare your suite and welcome your pack.
+        We&apos;ll need a few details to prepare your suite and welcome your pack.
       </p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -576,8 +565,8 @@ function StepGuests({ guests, setGuests, stayId, catalog, roomId, tier }) {
           <p className="mt-2 text-xs" style={{ color: "var(--paw-muted)" }}>
             Earliest check-in: Dec 1, 2026 • Blackout dates: Dec 24, 25 & 31
           </p>
-          <p className="mt-1 text-xs" style={{ color: isVip ? "var(--paw-forest)" : "var(--paw-muted)" }}>
-            Check-in {checkInTime}{isVip ? " (Founders early)" : ""} • Check-out {checkOutTime}
+          <p className="mt-1 text-xs" style={{ color: "var(--paw-muted)" }}>
+            Check-in 4:00 PM • Check-out 11:00 AM
           </p>
           {dateError && (
             <p
@@ -609,7 +598,7 @@ function StepGuests({ guests, setGuests, stayId, catalog, roomId, tier }) {
           Backup dates (optional)
         </h3>
         <p className="text-sm mb-4 max-w-xl leading-relaxed" style={{ color: "var(--paw-ink-2)" }}>
-          Your booking isn't final yet — pick up to two backup arrival dates and we'll
+          Your booking isn&apos;t final yet — pick up to two backup arrival dates and we&apos;ll
           do our best to honor your first pick.
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -740,10 +729,18 @@ function SelectField({ label, value, onChange, options, testid }) {
 // STEP 3
 // ---------------------------------------------------------------------------
 
-function StepReview({ catalog, roomId, stayId, tier, tierLabel, discountPercent, guests }) {
+function StepReview({ catalog, roomId, stayId, tierLabel, discountPercent, guests, rulesAccepted, setRulesAccepted }) {
   const room = catalog.rooms.find((r) => r.id === roomId);
   const stay = catalog.stay_options.find((s) => s.id === stayId);
-  const { checkInLabel, checkOutTime } = getStayTimes(tier);
+
+  const rules = [
+    "All dogs are temperament tested on arrival",
+    "Vaccines verified before check-in (Rabies, DHPP; Bordetella if using grooming or the dog park)",
+    "Quiet hours 10:00 PM – 8:00 AM",
+    "Do not exceed your cabin's pet capacity",
+    "$250 refundable damage deposit pre-authorised at check-in",
+    "Dogs may never be left in the cabin unattended",
+  ];
 
   return (
     <section data-testid="step-review">
@@ -754,22 +751,22 @@ function StepReview({ catalog, roomId, stayId, tier, tierLabel, discountPercent,
         Almost there.
       </h2>
       <p className="text-base leading-relaxed mb-10 max-w-xl" style={{ color: "var(--paw-ink-2)" }}>
-        Review your reservation and continue to secure payment.
+        Review your reservation, agree to the house rules, and continue to secure payment.
       </p>
 
       <div className="paw-card p-7" style={{ background: "var(--paw-bg-2)" }}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-7">
           <ReviewRow label="Retreat" value={`${room?.name} • ${stay?.label}`} />
           <ReviewRow
-            label="Discount tier"
+            label="Pre-launch discount"
             value={`${tierLabel} • ${Math.round(discountPercent * 100)}% off`}
           />
           <ReviewRow label="Guest" value={guests.full_name || "—"} />
           <ReviewRow label="Email" value={guests.email || "—"} />
           <ReviewRow label="Phone" value={guests.phone || "—"} />
           <ReviewRow label="Guests" value={String(guests.guests || 2)} />
-          <ReviewRow label="Check-in" value={fmtDate(guests.check_in)} />
-          <ReviewRow label="Check-out" value={fmtDate(guests.check_out)} />
+          <ReviewRow label="Check-in" value={`${fmtDate(guests.check_in)} • 4:00 PM`} />
+          <ReviewRow label="Check-out" value={`${fmtDate(guests.check_out)} • 11:00 AM`} />
           <ReviewRow
             label="The pack"
             value={
@@ -781,6 +778,41 @@ function StepReview({ catalog, roomId, stayId, tier, tierLabel, discountPercent,
           />
           {guests.notes && <ReviewRow label="Notes" value={guests.notes} />}
         </div>
+      </div>
+
+      {/* HOUSE RULES — required agreement */}
+      <div
+        data-testid="review-house-rules"
+        className="paw-card p-7 mt-8"
+        style={{ background: "var(--paw-bg)", borderColor: "var(--paw-clay)", borderWidth: 1, borderStyle: "solid" }}
+      >
+        <div className="overline mb-3" style={{ color: "var(--paw-clay)" }}>
+          House rules • Required
+        </div>
+        <h3 className="font-display text-2xl mb-5" style={{ color: "var(--paw-ink)" }}>
+          Before you book — please agree.
+        </h3>
+        <ul className="space-y-3 mb-6">
+          {rules.map((r) => (
+            <li key={r} className="flex items-start gap-3 text-sm" style={{ color: "var(--paw-ink-2)" }}>
+              <ShieldCheck size={15} strokeWidth={1.5} style={{ color: "var(--paw-forest)", marginTop: 3 }} />
+              <span>{r}</span>
+            </li>
+          ))}
+        </ul>
+        <label className="flex items-start gap-3 cursor-pointer select-none" data-testid="house-rules-checkbox-label">
+          <input
+            type="checkbox"
+            data-testid="house-rules-checkbox"
+            checked={rulesAccepted}
+            onChange={(e) => setRulesAccepted(e.target.checked)}
+            className="mt-1"
+            style={{ accentColor: "var(--paw-clay)" }}
+          />
+          <span className="text-sm leading-relaxed" style={{ color: "var(--paw-ink)" }}>
+            I have read and agree to the house rules above on behalf of every guest and dog in my party.
+          </span>
+        </label>
       </div>
 
       <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-5">
@@ -796,13 +828,13 @@ function StepReview({ catalog, roomId, stayId, tier, tierLabel, discountPercent,
         />
         <Reassurance
           icon={<PawPrint size={16} strokeWidth={1.5} />}
-          heading="Vaccines & temperament"
-          body="Rabies & DHPP for all pets. Bordetella also required for grooming or the public dog park. No breed restrictions — we do screen for temperament."
+          heading="$250 damage deposit"
+          body="Pre-authorised on your card at check-in. Released within 7 days of check-out if the cabin is left as you found it."
         />
       </div>
 
       <p className="mt-8 text-xs" style={{ color: "var(--paw-muted)" }}>
-        Secure payment by Stripe. You will be redirected to Stripe's secure checkout to
+        Secure payment by Stripe. You will be redirected to Stripe&apos;s secure checkout to
         complete your reservation.
       </p>
     </section>

@@ -1,8 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, Lock, Check, MapPin, BedDouble, Coffee, Flame, Trees, Wifi, ShoppingBag, Bath, ChefHat, PawPrint, Dumbbell, Sparkles, KeyRound, Sunrise } from "lucide-react";
-import { validateCode } from "@/lib/paw-api";
-import { useBooking } from "@/context/BookingContext";
+import { ArrowRight, Check, MapPin, Coffee, Flame, Trees, Wifi, ShoppingBag, Bath, ChefHat, PawPrint, Sparkles, Sunrise, ShieldCheck, Syringe, Moon, DollarSign, Users, AlertCircle } from "lucide-react";
 import { track } from "@/lib/analytics";
 import EmailCTA from "@/components/paw/EmailCTA";
 
@@ -12,8 +10,6 @@ const BEDROOM = "/brand/bedroom.webp";
 const MIRROR_CABIN = "/brand/mirror.webp";
 const BANDANA_DOG = "/brand/bandana_dog.webp";
 const YOGA = "/brand/yoga.webp";
-const COFFEE = "/brand/coffee.webp";
-const RENDER3 = "/brand/render3.webp";
 const DJI_AERIAL = "/brand/dji698.webp";
 const DJI_AERIAL2 = "/brand/dji688.webp";
 const HOT_TUB = "/brand/dsc.webp";
@@ -21,51 +17,22 @@ const CAMERON_RANCH = "/brand/cameron-ranch.webp";
 
 export default function Landing() {
   const navigate = useNavigate();
-  const { setTierFromValidation, enterPublic } = useBooking();
-
-  const [code, setCode] = useState("");
-  const [codeError, setCodeError] = useState("");
-  const [codeLoading, setCodeLoading] = useState(false);
-
-  const handleUnlockVip = async () => {
-    setCodeError("");
-    if (!code.trim()) {
-      setCodeError("Please enter your Founders code.");
-      track("vip_code_submitted", { result: "empty" });
-      return;
-    }
-    setCodeLoading(true);
-    track("vip_code_submitted", { code_entered: code.trim().toUpperCase() });
-    try {
-      const info = await validateCode(code);
-      setTierFromValidation(info);
-      track("vip_code_validated", { tier: info.tier, discount_percent: info.discount_percent });
-      navigate("/booking");
-    } catch (e) {
-      const detail = e?.response?.data?.detail || "That code doesn't match any Founders Pass.";
-      setCodeError(detail);
-      track("vip_code_invalid", { detail });
-    } finally {
-      setCodeLoading(false);
-    }
-  };
 
   const handlePublic = () => {
-    enterPublic();
     track("public_cta_clicked", { tier: "PUBLIC", discount_percent: 0.25 });
     navigate("/booking");
   };
 
   return (
     <div data-testid="landing-page" className="w-full">
-      {/* TOP BANNER — Pre-sale closed */}
+      {/* TOP BANNER */}
       <div
-        data-testid="presale-banner"
+        data-testid="prelaunch-banner"
         className="w-full text-center py-2.5 text-xs"
         style={{ background: "var(--paw-forest)", color: "var(--paw-bg)", letterSpacing: "0.18em", textTransform: "uppercase", fontWeight: 500 }}
       >
-        <Lock size={11} strokeWidth={1.8} className="inline -mt-0.5 mr-2" />
-        Founders Pre-Sale Closed — 100/100 Passes Sold • Code-Holders Only
+        <Sparkles size={11} strokeWidth={1.8} className="inline -mt-0.5 mr-2" />
+        Pre-Launch Pricing — 25% off every booking, no code needed
       </div>
 
       {/* HERO */}
@@ -82,7 +49,7 @@ export default function Landing() {
               <div className="flex items-center gap-3 mb-6">
                 <span className="overline" style={{ color: "rgba(250,249,246,0.85)" }}>
                   <MapPin className="inline -mt-1 mr-2" size={14} strokeWidth={1.5} />
-                  Founders Portal • Goodrich, TX
+                  Pre-Launch • Goodrich, TX
                 </span>
               </div>
               <h1 className="font-display text-white text-5xl sm:text-7xl leading-[1.02] tracking-tight" style={{ fontWeight: 400 }}>
@@ -91,123 +58,41 @@ export default function Landing() {
                 at <em className="not-italic" style={{ color: "#E8D9C8" }}>PawHaus Resort.</em>
               </h1>
               <p className="mt-7 text-lg max-w-xl leading-relaxed" style={{ color: "rgba(250,249,246,0.92)" }}>
-                Twelve glass-and-pine cabins. A private yard at every door. The USA's first dog-first luxury nature hotel — opening December 1, 2026.
+                Twelve glass-and-pine cabins. A private yard at every door. The USA&apos;s first dog-first luxury nature hotel — opening December 1, 2026.
               </p>
             </div>
           </div>
         </div>
 
-        {/* TWO-LANE OFFER */}
+        {/* PUBLIC OFFER — single, centered */}
         <div className="mx-auto max-w-[1400px] px-6 sm:px-10 -mt-24 relative z-10">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {/* VIP CARD */}
-            <div
-              data-testid="vip-card"
-              className="paw-card p-9 fade-in stagger-2 relative overflow-hidden"
-              style={{ background: "var(--paw-bg)" }}
-            >
-              <div
-                className="absolute top-5 right-5 overline px-3 py-1.5 border"
-                data-testid="vip-soldout-badge"
-                style={{ borderColor: "var(--paw-clay)", color: "var(--paw-clay)", background: "rgba(168,90,67,0.06)" }}
-              >
-                <Lock size={10} strokeWidth={2} className="inline -mt-0.5 mr-1.5" />
-                Pre-Sale Closed
-              </div>
-
-              <div className="mb-6 mt-1">
-                <div className="overline" style={{ color: "var(--paw-clay)" }}>
-                  Founders Pass Holder
-                </div>
-                <h2 className="font-display text-3xl sm:text-4xl mt-2 leading-tight" style={{ color: "var(--paw-ink)" }}>
-                  Unlock your <em className="not-italic" style={{ color: "var(--paw-forest)" }}>50%</em> Founder stay.
-                </h2>
-                <p className="text-sm leading-relaxed mt-3" style={{ color: "var(--paw-ink-2)" }}>
-                  All 100 Founders Passes sold in 2026 — new passes are no longer available. Enter your code below to unlock first-stay pricing and pick your dates.
-                </p>
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-3">
-                <input
-                  data-testid="vip-code-input"
-                  value={code}
-                  onChange={(e) => setCode(e.target.value.toUpperCase())}
-                  placeholder="ENTER YOUR FOUNDERS CODE"
-                  className="paw-input tracking-widest"
-                  onKeyDown={(e) => e.key === "Enter" && handleUnlockVip()}
-                />
-                <button
-                  data-testid="vip-unlock-button"
-                  onClick={handleUnlockVip}
-                  disabled={codeLoading}
-                  className="paw-btn-primary whitespace-nowrap"
-                >
-                  <KeyRound size={14} strokeWidth={1.5} />
-                  {codeLoading ? "Unlocking…" : "Unlock"}
-                </button>
-              </div>
-              {codeError && (
-                <p data-testid="vip-code-error" className="mt-3 text-xs" style={{ color: "var(--paw-clay)" }}>
-                  {codeError}{" "}
-                  <button
-                    data-testid="vip-error-fallback-public"
-                    onClick={handlePublic}
-                    className="underline ml-1"
-                    style={{ color: "var(--paw-forest)" }}
-                  >
-                    Continue with 25% off →
-                  </button>
-                </p>
-              )}
-
-              <div className="divider my-7" />
-
-              <ul className="space-y-2.5">
-                {[
-                  "50% off your first stay (applied at checkout)",
-                  "First choice of dates — Founders pick first",
-                  "Early check-in & VIP welcome bag",
-                  "10% off everything, for life",
-                  "All taxes & fees included",
-                ].map((t) => (
-                  <li key={t} className="flex items-start gap-3 text-sm" style={{ color: "var(--paw-ink-2)" }}>
-                    <Check size={15} strokeWidth={1.5} style={{ color: "var(--paw-forest)", marginTop: 3 }} />
-                    {t}
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* PUBLIC CARD */}
+          <div className="max-w-3xl mx-auto">
             <div
               data-testid="public-card"
-              className="paw-card p-9 fade-in stagger-3"
-              style={{ background: "var(--paw-bg-2)" }}
+              className="paw-card p-10 fade-in stagger-2"
+              style={{ background: "var(--paw-bg)" }}
             >
-              <div className="flex items-start justify-between mb-6">
-                <div>
-                  <div className="overline" style={{ color: "var(--paw-forest)" }}>
-                    Public Pre-Launch • No Code Needed
-                  </div>
-                  <h2 className="font-display text-3xl sm:text-4xl mt-2 leading-tight" style={{ color: "var(--paw-ink)" }}>
-                    <em className="not-italic" style={{ color: "var(--paw-clay)" }}>25% off</em> every booking.
-                  </h2>
-                </div>
+              <div className="overline mb-3" style={{ color: "var(--paw-clay)" }}>
+                Public Pre-Launch • No Code Needed
               </div>
-              <p className="text-sm leading-relaxed mb-6" style={{ color: "var(--paw-ink-2)" }}>
+              <h2 className="font-display text-4xl sm:text-5xl leading-tight" style={{ color: "var(--paw-ink)" }}>
+                <em className="not-italic" style={{ color: "var(--paw-clay)" }}>25% off</em> every booking.
+              </h2>
+              <p className="text-base leading-relaxed mt-5 mb-8" style={{ color: "var(--paw-ink-2)" }}>
                 Open to everyone for pre-launch. 25% off any cabin, any night — no code, no waitlist, no membership. Just pick your dates. After we open December 1, 2026, rates return to standard.
               </p>
 
               <button
                 data-testid="public-continue-button"
                 onClick={handlePublic}
-                className="paw-btn-secondary w-full sm:w-auto"
+                className="paw-btn-primary w-full sm:w-auto"
+                style={{ background: "var(--paw-clay)", borderColor: "var(--paw-clay)" }}
               >
-                Reserve with 25% off — no code
+                Reserve with 25% off
                 <ArrowRight size={14} strokeWidth={1.5} className="inline ml-2 -mt-0.5" />
               </button>
 
-              <div className="divider my-7" style={{ background: "var(--paw-line)" }} />
+              <div className="divider my-8" style={{ background: "var(--paw-line)" }} />
               <ul className="space-y-2.5">
                 {[
                   "25% off every booking — no code, no email signup",
@@ -225,7 +110,7 @@ export default function Landing() {
           </div>
 
           <p className="mt-6 text-xs text-center" style={{ color: "var(--paw-muted)" }}>
-            Phase 1 • only 12 cabins • Founders pick dates first, then everyone else. Once a date is taken, it's gone.
+            Phase 1 • only 12 cabins • Once a date is taken, it&apos;s gone.
           </p>
         </div>
       </section>
@@ -234,18 +119,18 @@ export default function Landing() {
       <section className="mx-auto max-w-[1400px] px-6 sm:px-10 pt-32 grid grid-cols-1 md:grid-cols-12 gap-10 items-center">
         <div className="md:col-span-7">
           <div className="overline mb-5" style={{ color: "var(--paw-clay)" }}>
-            The USA's first &amp; only
+            The USA&apos;s first &amp; only
           </div>
           <h2 className="font-display text-4xl sm:text-5xl leading-[1.05]" style={{ color: "var(--paw-ink)" }}>
             A dog-first luxury nature hotel — glass cabins in the pines.
           </h2>
           <p className="mt-7 text-lg leading-relaxed max-w-xl" style={{ color: "var(--paw-ink-2)" }}>
-            Located in Goodrich, TX. A private fenced yard at every door. A dog concierge on staff. Food trucks under the trees, free Pup Cups at the camp store, and a dog park that's just yours and the pack's. Bring your humans, bring your dogs — leave the rest behind.
+            Located in Goodrich, TX. A private fenced yard at every door. A dog concierge on staff. Food trucks under the trees, free Pup Cups at the camp store, and a dog park that&apos;s just yours and the pack&apos;s. Bring your humans, bring your dogs — leave the rest behind.
           </p>
           <div className="mt-8 grid grid-cols-3 gap-6 max-w-xl">
             {[
               ["12", "Glass cabins"],
-              ["100", "Founders, period"],
+              ["25%", "Pre-launch off"],
               ["Dec '26", "Doors open"],
             ].map(([n, l]) => (
               <div key={l}>
@@ -279,7 +164,7 @@ export default function Landing() {
                 Cameron Ranch Glamping.
               </h3>
               <p className="mt-4 text-base leading-relaxed" style={{ color: "var(--paw-ink-2)" }}>
-                We founded Cameron Ranch Glamping — one of the most viral and highly acclaimed glamping properties in the USA. PawHaus Resort is the next chapter, built for the one guest the original couldn't fully serve: your dog.
+                We founded Cameron Ranch Glamping — one of the most viral and highly acclaimed glamping properties in the USA. PawHaus Resort is the next chapter, built for the one guest the original couldn&apos;t fully serve: your dog.
               </p>
             </div>
           </div>
@@ -311,13 +196,13 @@ export default function Landing() {
             </p>
             <ul className="mt-8 space-y-3">
               {[
-                ["BedDouble", "King or queen bed on a memory-foam mattress"],
-                ["Bath", "Rainfall shower in a private bathroom"],
-                ["ChefHat", "Small kitchenette + charcoal grill at every unit"],
-                ["Flame", "Private wood fire pit + wood-fire hot tub (Standard & Monolith)"],
-                ["Wifi", "WiFi included"],
-                ["PawPrint", "2–3 dog beds, food & water bowls, towel station"],
-              ].map(([_, label]) => (
+                "King or queen bed on a memory-foam mattress",
+                "Rainfall shower in a private bathroom",
+                "Small kitchenette + charcoal grill at every unit",
+                "Private wood fire pit + wood-fire hot tub (Standard & Monolith)",
+                "WiFi included",
+                "2–3 dog beds, food & water bowls, towel station",
+              ].map((label) => (
                 <li key={label} className="flex items-start gap-3 text-sm" style={{ color: "var(--paw-ink-2)" }}>
                   <Check size={15} strokeWidth={1.5} style={{ color: "var(--paw-forest)", marginTop: 3 }} />
                   {label}
@@ -338,16 +223,16 @@ export default function Landing() {
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-10 gap-y-5">
           {[
-            ["Dog concierge on site daily", "PawPrint", "forest"],
-            ["Camp store: firewood, snacks, breakfast", "ShoppingBag", "clay"],
-            ["Free Pup Cups always in the camp store", "Coffee", "forest"],
-            ["Food trucks every lunch &amp; dinner", "ChefHat", "clay"],
-            ["Dog groomer Wed–Sun", "Sparkles", "forest"],
-            ["Massage therapist by appointment", "Sparkles", "clay"],
-            ["Therapist (for you &amp; your dog) by appointment", "PawPrint", "forest"],
-            ["Sunrise Pack Yoga — Saturday mornings", "Sunrise", "clay"],
-            ["Dog park, pickleball court &amp; pine-trails", "Trees", "forest"],
-          ].map(([t, _icon, tone]) => (
+            ["Dog concierge on site daily", "forest"],
+            ["Camp store: firewood, snacks, breakfast", "clay"],
+            ["Free Pup Cups always in the camp store", "forest"],
+            ["Food trucks every lunch &amp; dinner", "clay"],
+            ["Dog groomer Wed–Sun", "forest"],
+            ["Massage therapist by appointment", "clay"],
+            ["Therapist (for you &amp; your dog) by appointment", "forest"],
+            ["Sunrise Pack Yoga — Saturday mornings", "clay"],
+            ["Dog park, pickleball court &amp; pine-trails", "forest"],
+          ].map(([t, tone]) => (
             <div key={t} className="flex items-start gap-3 text-sm pb-4 border-b" style={{ color: "var(--paw-ink-2)", borderColor: "var(--paw-line)" }}>
               <PawPrint size={14} strokeWidth={1.5} style={{ color: tone === "clay" ? "var(--paw-clay)" : "var(--paw-forest)", marginTop: 3 }} />
               <span dangerouslySetInnerHTML={{ __html: t }} />
@@ -372,6 +257,67 @@ export default function Landing() {
             <p className="mt-2 text-sm" style={{ color: "rgba(250,249,246,0.88)" }}>
               Bring your mat. Bring your dog. The mist on the water does the rest.
             </p>
+          </div>
+        </div>
+      </section>
+
+      {/* HOUSE RULES */}
+      <section className="mx-auto max-w-[1400px] px-6 sm:px-10 pt-32" data-testid="house-rules-section">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-10">
+          <div className="md:col-span-4">
+            <div className="overline mb-4" style={{ color: "var(--paw-clay)" }}>
+              The fine print, in plain English
+            </div>
+            <h3 className="font-display text-4xl sm:text-5xl leading-[1.05]" style={{ color: "var(--paw-ink)" }}>
+              House rules.
+            </h3>
+            <p className="mt-6 text-base leading-relaxed" style={{ color: "var(--paw-ink-2)" }}>
+              We keep PawHaus calm, clean, and safe for every dog on property. Six simple rules — read them before you book.
+            </p>
+          </div>
+          <div className="md:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-5">
+            {[
+              {
+                icon: <ShieldCheck size={18} strokeWidth={1.5} />,
+                title: "Temperament tested",
+                body: "Every dog is briefly screened on arrival. Aggressive or reactive dogs cannot stay — for the safety of the pack.",
+              },
+              {
+                icon: <Syringe size={18} strokeWidth={1.5} />,
+                title: "Vaccines verified",
+                body: "Rabies & DHPP required. Bordetella required if using grooming or the public dog park. Bring records to check-in.",
+              },
+              {
+                icon: <Moon size={18} strokeWidth={1.5} />,
+                title: "Quiet hours 10 PM – 8 AM",
+                body: "Outdoor music off, voices low. Excessive barking after hours may result in being asked to leave.",
+              },
+              {
+                icon: <Users size={18} strokeWidth={1.5} />,
+                title: "Stay within cabin pet limits",
+                body: "Petite: up to 2 pets • Standard & Monolith: up to 3 pets. No exceptions — for everyone's comfort.",
+              },
+              {
+                icon: <DollarSign size={18} strokeWidth={1.5} />,
+                title: "$250 refundable damage deposit",
+                body: "Pre-authorised at check-in. Released within 7 days of check-out if the cabin is left as you found it.",
+              },
+              {
+                icon: <AlertCircle size={18} strokeWidth={1.5} />,
+                title: "Never leave dogs unattended",
+                body: "Dogs may not be left alone in cabins. Use the dog park, on-site daycare or our concierge if you need a break.",
+              },
+            ].map((r) => (
+              <div key={r.title} className="paw-card p-6" style={{ background: "var(--paw-bg)" }}>
+                <div className="flex items-center gap-3 mb-3" style={{ color: "var(--paw-forest)" }}>
+                  {r.icon}
+                  <span className="overline">{r.title}</span>
+                </div>
+                <p className="text-sm leading-relaxed" style={{ color: "var(--paw-ink-2)" }}>
+                  {r.body}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -413,7 +359,7 @@ export default function Landing() {
           ))}
         </div>
         <p className="mt-8 text-sm leading-relaxed max-w-2xl" style={{ color: "var(--paw-ink-2)" }}>
-          Once the final reveal is set up ahead of our December 1, 2026 opening, if for any reason you're not happy with the result — you get a full refund. No questions asked.
+          Once the final reveal is set up ahead of our December 1, 2026 opening, if for any reason you&apos;re not happy with the result — you get a full refund. No questions asked.
         </p>
       </section>
 
@@ -428,27 +374,19 @@ export default function Landing() {
               Reserve a slot
             </div>
             <h3 className="font-display text-4xl sm:text-5xl text-white leading-tight">
-              Founders pick first. Dates won't last.
+              12 cabins. Limited weekends. Dates won&apos;t last.
             </h3>
             <p className="mt-5 text-base max-w-xl" style={{ color: "rgba(250,249,246,0.85)" }}>
-              100 Founders. 12 cabins. Once a weekend is claimed, it's claimed.
+              Once a weekend is claimed, it&apos;s claimed. Lock in 25% off pre-launch pricing today.
             </p>
-            <div className="mt-9 flex flex-col sm:flex-row gap-3">
-              <button
-                data-testid="footer-cta-vip"
-                onClick={() => document.querySelector('[data-testid="vip-code-input"]')?.scrollIntoView({ behavior: "smooth", block: "center" })}
-                className="paw-btn-secondary"
-                style={{ borderColor: "rgba(250,249,246,0.9)", color: "rgba(250,249,246,0.95)", background: "transparent" }}
-              >
-                I have a Founders code
-              </button>
+            <div className="mt-9">
               <button
                 data-testid="footer-cta-public"
                 onClick={handlePublic}
                 className="paw-btn-primary"
                 style={{ background: "var(--paw-clay)", borderColor: "var(--paw-clay)" }}
               >
-                Continue with 25% off — no code
+                Reserve with 25% off
                 <ArrowRight size={14} strokeWidth={1.5} />
               </button>
             </div>

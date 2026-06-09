@@ -109,12 +109,8 @@ def _validate_dates(check_in: Optional[str], nights: int) -> None:
             )
 
 
-# Discount tiers
-VIP_CODE = "PAWVIP"
-INSIDER_CODE = "PAW40"
+# Public discount only (VIP/Insider site moved to its own variant)
 DISCOUNTS = {
-    "VIP": {"label": "Founders Pass", "percent": 0.50},
-    "INSIDER": {"label": "Insider Pass", "percent": 0.40},
     "PUBLIC": {"label": "Pre-Launch Guest", "percent": 0.25},
 }
 
@@ -124,8 +120,8 @@ def calculate_quote(room_id: str, stay_id: str, tier: str) -> Dict[str, Any]:
     stay = next((s for s in STAY_OPTIONS if s["id"] == stay_id), None)
     if not room or not stay:
         raise HTTPException(status_code=400, detail="Invalid room or stay selection.")
-    if tier not in DISCOUNTS:
-        raise HTTPException(status_code=400, detail="Invalid discount tier.")
+    # Always PUBLIC tier on this site
+    tier = "PUBLIC"
 
     nightly = room["nightly_rates"][stay["type"]]
     # 1-night stays are 10% more per night to incentivise the 2-night booking
@@ -165,13 +161,13 @@ class Pet(BaseModel):
 
 
 class CodeValidateRequest(BaseModel):
-    code: str
+    code: str  # deprecated — site is now public-only; kept to avoid import errors elsewhere
 
 
 class QuoteRequest(BaseModel):
     room_id: str
     stay_id: str
-    tier: str  # VIP | PUBLIC
+    tier: str = "PUBLIC"
 
 
 class BookingDetails(BaseModel):
@@ -190,7 +186,7 @@ class BookingDetails(BaseModel):
 class CheckoutRequest(BaseModel):
     room_id: str
     stay_id: str
-    tier: str
+    tier: str = "PUBLIC"
     booking: BookingDetails
     origin_url: str
 
@@ -207,30 +203,6 @@ async def get_catalog():
         "hot_tub_premium_per_night": HOT_TUB_PREMIUM_PER_NIGHT,
         "discounts": DISCOUNTS,
     }
-
-
-@api_router.post("/code/validate")
-async def validate_code(req: CodeValidateRequest):
-    code = (req.code or "").strip().upper()
-    if not code:
-        raise HTTPException(status_code=400, detail="Please enter a code.")
-    if code == VIP_CODE:
-        return {
-            "valid": True,
-            "tier": "VIP",
-            "tier_label": DISCOUNTS["VIP"]["label"],
-            "discount_percent": DISCOUNTS["VIP"]["percent"],
-            "message": "Welcome, Founder. 50% off your first stay is unlocked.",
-        }
-    if code == INSIDER_CODE:
-        return {
-            "valid": True,
-            "tier": "INSIDER",
-            "tier_label": DISCOUNTS["INSIDER"]["label"],
-            "discount_percent": DISCOUNTS["INSIDER"]["percent"],
-            "message": "Code unlocked. 40% off your first stay.",
-        }
-    raise HTTPException(status_code=400, detail="That code doesn't match any active discount. Continue with 25% off pre-launch pricing.")
 
 
 @api_router.post("/quote")
@@ -260,28 +232,6 @@ async def create_checkout_session(req: CheckoutRequest, http_request: Request):
             raise HTTPException(
                 status_code=400,
                 detail=f"{room['name']} allows up to {room['max_pets']} pets. Please remove some.",
-            )
-
-    # Anti-abuse: VIP and INSIDER first-stay discounts are one-time per email
-    if req.tier in ("VIP", "INSIDER"):
-        existing = await db.payment_transactions.find_one(
-            {"metadata.tier": req.tier, "metadata.email": req.booking.email.lower(), "payment_status": "paid"},
-            {"_id": 0},
-        )
-        if existing:
-            raise HTTPException(
-                status_code=400,
-                detail="That discount has already been used for this email.",
-            )
-    if req.tier in ("VIP", "INSIDER"):
-        existing = await db.payment_transactions.find_one(
-            {"metadata.tier": req.tier, "metadata.email": req.booking.email.lower(), "payment_status": "paid"},
-            {"_id": 0},
-        )
-        if existing:
-            raise HTTPException(
-                status_code=400,
-                detail="That discount has already been used for this email.",
             )
 
     booking_id = str(uuid.uuid4())

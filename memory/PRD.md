@@ -60,16 +60,17 @@ Verified examples from spec:
 - ✅ Persistence in localStorage across reloads
 - ✅ 17/17 backend pytest cases passing; full e2e Stripe redirect verified
 
-## Additional Updates (2026-02)
+## Additional Updates (2026-02 → 2026-06)
 - ✅ Stripe upgraded to **LIVE MODE** + HMAC-verified webhook (`/api/webhook/stripe`)
 - ✅ Dynamic pricing engine: weekday vs weekend rates + 1-night 10% surcharge
-- ✅ Three discount tiers locked in: Founders (PAWVIP -50%) / Insider (PAW40 -40%) / Public (-25%)
 - ✅ Date validation: blocks check-ins before Dec 1, 2026 + holiday blackouts
 - ✅ Pet capacity enforcement per room (Petite: 2, Standard/Monolith: 3) — server + UI
 - ✅ Cameron Ranch Glamping credibility section + Email CTAs (bark@staypawhaus.com)
 - ✅ Unified analytics tracker: PostHog + GA4 + Meta Pixel (`analytics.js`)
 - ✅ Property photo galleries powered by optimized webp assets in `/public/brand/`
-- ✅ Tier-based check-in/out times in funnel (VIP: 3PM in / Public+Insider: 4PM in / All: 11AM out) — user confirmed good to go
+- ✅ **GoHighLevel integration** — `GHL_WEBHOOK_URL` env. `notify_ghl_payment_success()` fires on Stripe webhook + status polling. Idempotent via `ghl_notified_at`. Full booking payload (contact + booking + pets + monetary) POSTed for GHL workflow to map.
+- ✅ **Public-only pivot (2026-06)**: This A/B variant is now Public 25%-only. All VIP/Insider/Founders code paths stripped from backend (`/api/code/validate` removed; DISCOUNTS dict reduced to PUBLIC) and frontend (Landing two-lane → single Public CTA; tier auto-defaults to PUBLIC in BookingContext; check-in fixed at 4PM). User maintains a separate site for VIP audience.
+- ✅ **House Rules** — 6 rules added: temperament tested, vaccines verified (Rabies/DHPP/Bordetella), quiet hours 10PM–8AM, cabin pet capacity enforcement, $250 refundable damage deposit, no dogs left unattended. Visible on landing page + required agreement checkbox on Review step (blocks Pay button until checked).
 
 ## Personas
 - **Founders Pass holder** — paid $47 for early access; wants exclusive 50% off + perks; enters PAWVIP

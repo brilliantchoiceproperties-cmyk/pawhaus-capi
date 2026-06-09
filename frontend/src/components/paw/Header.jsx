@@ -27,22 +27,18 @@ export default function Header() {
 
         <div className="hidden md:flex items-center gap-8">
           <span className="overline" style={{ color: "var(--paw-muted)" }}>
-            By Invitation • Founders Pre-Booking
+            Pre-Launch Booking
           </span>
           {onBooking && tier && (
             <span
               data-testid="active-discount-badge"
-              className={`discount-badge ${tier === "VIP" ? "vip" : ""}`}
+              className="discount-badge"
             >
               <span>{tierLabel}</span>
               <span style={{ opacity: 0.7 }}>•</span>
               <span>{Math.round(discountPercent * 100)}% off</span>
-              {tier === "PUBLIC" && (
-                <>
-                  <span style={{ opacity: 0.7 }}>•</span>
-                  <span>No code needed</span>
-                </>
-              )}
+              <span style={{ opacity: 0.7 }}>•</span>
+              <span>No code needed</span>
             </span>
           )}
         </div>

@@ -9,7 +9,6 @@ export const api = axios.create({
 });
 
 export const fetchCatalog = () => api.get("/catalog").then((r) => r.data);
-export const validateCode = (code) => api.post("/code/validate", { code }).then((r) => r.data);
 export const getQuote = (payload) => api.post("/quote", payload).then((r) => r.data);
 export const createCheckoutSession = (payload) =>
   api.post("/payments/checkout/session", payload).then((r) => r.data);
