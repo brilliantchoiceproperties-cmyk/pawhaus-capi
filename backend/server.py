@@ -48,7 +48,7 @@ ROOMS: Dict[str, Dict[str, Any]] = {
         "max_pets": 2,
         "description": "Intimate glass cabin tucked in the pines. Queen bed, private yard, fire pit, in-cabin shower and bathroom, small kitchenette, lake & dog park access.",
         "has_hot_tub": False,
-        # base totals BEFORE the public 25% discount, per stay
+        # base totals BEFORE the public 30% discount, per stay
         "stay_totals": {
             "WEEKDAY_1N": 558.0,
             "WEEKDAY_2N": 1116.0,
@@ -127,7 +127,7 @@ def _validate_dates(check_in: Optional[str], nights: int) -> None:
 
 # Public discount only (VIP/Insider site moved to its own variant)
 DISCOUNTS = {
-    "PUBLIC": {"label": "Pre-Launch Guest", "percent": 0.25},
+    "PUBLIC": {"label": "Pre-Launch Guest", "percent": 0.30},
 }
 
 

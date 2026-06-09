@@ -111,7 +111,7 @@ export default function Booking() {
         <span className="overline mr-2" style={{ color: "var(--paw-clay)" }}>
           Phase 1
         </span>
-        Only 12 cabins. Pre-launch pricing — 25% off every booking. Once a date is taken, it&apos;s gone.
+        Only 12 cabins. Pre-launch pricing — 30% off every booking. Once a date is taken, it&apos;s gone.
       </div>
 
       <div className="mb-10">

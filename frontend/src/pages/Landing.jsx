@@ -32,7 +32,7 @@ export default function Landing() {
         style={{ background: "var(--paw-forest)", color: "var(--paw-bg)", letterSpacing: "0.18em", textTransform: "uppercase", fontWeight: 500 }}
       >
         <Sparkles size={11} strokeWidth={1.8} className="inline -mt-0.5 mr-2" />
-        Pre-Launch Pricing — 25% off every booking, no code needed
+        Pre-Launch Pricing — 30% off every booking, no code needed
       </div>
 
       {/* HERO */}
@@ -76,10 +76,10 @@ export default function Landing() {
                 Public Pre-Launch • No Code Needed
               </div>
               <h2 className="font-display text-4xl sm:text-5xl leading-tight" style={{ color: "var(--paw-ink)" }}>
-                <em className="not-italic" style={{ color: "var(--paw-clay)" }}>25% off</em> every booking.
+                <em className="not-italic" style={{ color: "var(--paw-clay)" }}>30% off</em> every booking.
               </h2>
               <p className="text-base leading-relaxed mt-5 mb-8" style={{ color: "var(--paw-ink-2)" }}>
-                Open to everyone for pre-launch. 25% off any cabin, any night — no code, no waitlist, no membership. Just pick your dates. After we open December 1, 2026, rates return to standard.
+                Open to everyone for pre-launch. 30% off any cabin, any night — no code, no waitlist, no membership. Just pick your dates. After we open December 1, 2026, rates return to standard.
               </p>
 
               <button
@@ -88,14 +88,14 @@ export default function Landing() {
                 className="paw-btn-primary w-full sm:w-auto"
                 style={{ background: "var(--paw-clay)", borderColor: "var(--paw-clay)" }}
               >
-                Reserve with 25% off
+                Reserve with 30% off
                 <ArrowRight size={14} strokeWidth={1.5} className="inline ml-2 -mt-0.5" />
               </button>
 
               <div className="divider my-8" style={{ background: "var(--paw-line)" }} />
               <ul className="space-y-2.5">
                 {[
-                  "25% off every booking — no code, no email signup",
+                  "30% off every booking — no code, no email signup",
                   "All taxes & fees included",
                   "Free reschedule or refund up to 14 days before stay",
                   "Final preview photos & arrival details sent before launch",
@@ -130,7 +130,7 @@ export default function Landing() {
           <div className="mt-8 grid grid-cols-3 gap-6 max-w-xl">
             {[
               ["12", "Glass cabins"],
-              ["25%", "Pre-launch off"],
+              ["30%", "Pre-launch off"],
               ["Dec '26", "Doors open"],
             ].map(([n, l]) => (
               <div key={l}>
@@ -377,7 +377,7 @@ export default function Landing() {
               12 cabins. Limited weekends. Dates won&apos;t last.
             </h3>
             <p className="mt-5 text-base max-w-xl" style={{ color: "rgba(250,249,246,0.85)" }}>
-              Once a weekend is claimed, it&apos;s claimed. Lock in 25% off pre-launch pricing today.
+              Once a weekend is claimed, it&apos;s claimed. Lock in 30% off pre-launch pricing today.
             </p>
             <div className="mt-9">
               <button
@@ -386,7 +386,7 @@ export default function Landing() {
                 className="paw-btn-primary"
                 style={{ background: "var(--paw-clay)", borderColor: "var(--paw-clay)" }}
               >
-                Reserve with 25% off
+                Reserve with 30% off
                 <ArrowRight size={14} strokeWidth={1.5} />
               </button>
             </div>

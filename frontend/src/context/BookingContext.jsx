@@ -22,7 +22,7 @@ export function BookingProvider({ children }) {
   const [catalog, setCatalog] = useState(null);
   const [tier] = useState("PUBLIC");
   const [tierLabel] = useState("Pre-Launch Guest");
-  const [discountPercent] = useState(0.25);
+  const [discountPercent] = useState(0.30);
   const [roomId, setRoomId] = useState(null);
   const [stayId, setStayId] = useState("WEEKDAY_1N");
   const [guests, setGuests] = useState(defaultGuests);
