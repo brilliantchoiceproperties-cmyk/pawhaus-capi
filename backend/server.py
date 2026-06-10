@@ -54,7 +54,7 @@ ROOMS: Dict[str, Dict[str, Any]] = {
             "WEEKDAY_2N": 1116.0,
             "WEEKEND_1N": 798.0,
             "WEEKEND_2N": 1474.0,
-            "LONG_3N": 1599.0,
+            "LONG_3N": 1759.0,
         },
     },
     "standard": {
@@ -70,7 +70,7 @@ ROOMS: Dict[str, Dict[str, Any]] = {
             "WEEKDAY_2N": 1278.0,
             "WEEKEND_1N": 938.0,
             "WEEKEND_2N": 1692.0,
-            "LONG_3N": 1899.0,
+            "LONG_3N": 2089.0,
         },
     },
     "monolith": {
@@ -86,7 +86,7 @@ ROOMS: Dict[str, Dict[str, Any]] = {
             "WEEKDAY_2N": 1478.0,
             "WEEKEND_1N": 1138.0,
             "WEEKEND_2N": 1952.0,
-            "LONG_3N": 2199.0,
+            "LONG_3N": 2419.0,
         },
     },
 }
