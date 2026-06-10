@@ -254,7 +254,7 @@ function StepStay({ catalog, roomId, setRoomId, stayId, setStayId, discountPerce
       <h3 className="font-display text-2xl mt-12 mb-5" style={{ color: "var(--paw-ink)" }}>
         Pick your stay.
       </h3>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
         {catalog.stay_options.map((s) => {
           const selected = stayId === s.id;
           return (
@@ -273,7 +273,7 @@ function StepStay({ catalog, roomId, setRoomId, stayId, setStayId, discountPerce
                 className="overline mb-2"
                 style={{ color: selected ? "rgba(250,249,246,0.7)" : "var(--paw-muted)" }}
               >
-                {s.type}
+                {s.type === "MIXED" ? "Long Weekend" : s.type}
               </div>
               <div className="font-display text-xl">{s.nights} {s.nights === 1 ? "Night" : "Nights"}</div>
             </button>
@@ -283,6 +283,11 @@ function StepStay({ catalog, roomId, setRoomId, stayId, setStayId, discountPerce
       {stayId === "WEEKEND_2N" && (
         <p className="mt-3 text-xs" style={{ color: "var(--paw-muted)" }}>
           Weekend 2 Nights • Arrive Thu, Fri, or Sat. Blackout: Christmas, NYE, July 4th (±2 days).
+        </p>
+      )}
+      {stayId === "LONG_3N" && (
+        <p className="mt-3 text-xs" style={{ color: "var(--paw-clay)" }}>
+          Long Weekend • Best per-night value. Any 3 consecutive nights. Blackout: Christmas, NYE, July 4th (±2 days).
         </p>
       )}
     </section>
@@ -301,7 +306,10 @@ function RoomCard({ room, selected, onSelect, discountPercent, stayId, catalog, 
   const nights = stay?.nights || 1;
   const basePrice = room.stay_totals?.[stayId] ?? 0;
   const discounted = Math.round(basePrice * (1 - (discountPercent || 0)));
-  const stayLabel = `${stayType === "WEEKEND" ? "weekend" : "weekday"} • ${nights}n`;
+  const stayLabel =
+    stayType === "MIXED"
+      ? `long weekend • ${nights}n`
+      : `${stayType === "WEEKEND" ? "weekend" : "weekday"} • ${nights}n`;
 
   const nextImg = (e) => {
     e.stopPropagation();

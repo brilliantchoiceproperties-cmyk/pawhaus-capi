@@ -54,6 +54,7 @@ ROOMS: Dict[str, Dict[str, Any]] = {
             "WEEKDAY_2N": 1116.0,
             "WEEKEND_1N": 798.0,
             "WEEKEND_2N": 1474.0,
+            "LONG_3N": 1599.0,
         },
     },
     "standard": {
@@ -69,6 +70,7 @@ ROOMS: Dict[str, Dict[str, Any]] = {
             "WEEKDAY_2N": 1278.0,
             "WEEKEND_1N": 938.0,
             "WEEKEND_2N": 1692.0,
+            "LONG_3N": 1899.0,
         },
     },
     "monolith": {
@@ -84,6 +86,7 @@ ROOMS: Dict[str, Dict[str, Any]] = {
             "WEEKDAY_2N": 1478.0,
             "WEEKEND_1N": 1138.0,
             "WEEKEND_2N": 1952.0,
+            "LONG_3N": 2199.0,
         },
     },
 }
@@ -96,6 +99,7 @@ STAY_OPTIONS = [
     {"id": "WEEKDAY_2N", "label": "Weekday • 2 Nights", "type": "WEEKDAY", "nights": 2},
     {"id": "WEEKEND_1N", "label": "Weekend • 1 Night", "type": "WEEKEND", "nights": 1},
     {"id": "WEEKEND_2N", "label": "Weekend • 2 Nights", "type": "WEEKEND", "nights": 2},
+    {"id": "LONG_3N", "label": "Long Weekend • 3 Nights", "type": "MIXED", "nights": 3},
 ]
 
 # Date constraints
