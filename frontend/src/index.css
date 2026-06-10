@@ -184,9 +184,9 @@ html, body, #root {
     background: rgba(44, 76, 59, 0.06);
 }
 
-/* Hero overlay */
+/* Hero overlay — lighter so the photo stays prominent, with a darker base for text legibility */
 .hero-overlay {
-    background: linear-gradient(180deg, rgba(26,35,28,0.35) 0%, rgba(26,35,28,0.55) 65%, rgba(250,249,246,1) 100%);
+    background: linear-gradient(180deg, rgba(26,35,28,0.10) 0%, rgba(26,35,28,0.18) 55%, rgba(26,35,28,0.55) 85%, rgba(250,249,246,0.95) 100%);
 }
 
 .fade-in {
