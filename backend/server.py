@@ -310,6 +310,10 @@ async def create_checkout_session(req: CheckoutRequest, http_request: Request):
     }
     await db.payment_transactions.insert_one(transaction_doc)
 
+    # Fire "checkout_started" to GHL — seeds the abandoned-cart workflow.
+    # If the customer pays, "payment_success" fires later and GHL workflow removes the abandoned tag.
+    await notify_ghl("checkout_started", booking_id)
+
     return {"url": session.url, "session_id": session.session_id, "booking_id": booking_id}
 
 
@@ -361,17 +365,23 @@ async def get_payment_status(session_id: str, http_request: Request):
     }
 
 
-async def notify_ghl_payment_success(booking_id: str) -> None:
+SITE_SOURCE = "pawhaus-public-30"  # distinguishes this A/B variant from any future VIP-only site
+
+
+async def notify_ghl(event: str, booking_id: str) -> None:
     """
-    Forward a confirmed booking to the GoHighLevel inbound webhook.
-    Idempotent: only fires once per booking (guarded by `ghl_notified_at`).
-    Failures are logged but never raised — GHL must not block payment flow.
+    Forward a booking lifecycle event to the GoHighLevel inbound webhook.
+    Supported events: "checkout_started" (abandoned-cart seed) and "payment_success".
+    Idempotent per event — each event fires at most once per booking (guarded by
+    `ghl_{event}_at` timestamp on the booking doc).
+    Failures are logged but never raised — GHL must not block the user flow.
     """
     if not GHL_WEBHOOK_URL:
         return
 
+    guard_field = f"ghl_{event}_at"
     booking = await db.bookings.find_one({"id": booking_id}, {"_id": 0})
-    if not booking or booking.get("ghl_notified_at"):
+    if not booking or booking.get(guard_field):
         return
 
     details = booking.get("booking") or {}
@@ -383,7 +393,8 @@ async def notify_ghl_payment_success(booking_id: str) -> None:
     pets = details.get("pets") or []
 
     payload = {
-        "event": "payment_success",
+        "event": event,
+        "source": SITE_SOURCE,
         "booking_id": booking.get("id"),
         "stripe_session_id": booking.get("stripe_session_id"),
         "tier": booking.get("tier"),
@@ -411,7 +422,8 @@ async def notify_ghl_payment_success(booking_id: str) -> None:
         "discount_amount": quote.get("discount"),
         "hot_tub_premium": quote.get("hot_tub"),
         "currency": "usd",
-        "paid_at": booking.get("paid_at") or datetime.now(timezone.utc).isoformat(),
+        "occurred_at": datetime.now(timezone.utc).isoformat(),
+        "paid_at": booking.get("paid_at"),
     }
 
     try:
@@ -420,11 +432,16 @@ async def notify_ghl_payment_success(booking_id: str) -> None:
             resp.raise_for_status()
         await db.bookings.update_one(
             {"id": booking_id},
-            {"$set": {"ghl_notified_at": datetime.now(timezone.utc).isoformat()}},
+            {"$set": {guard_field: datetime.now(timezone.utc).isoformat()}},
         )
-        logger.info("GHL notified for booking %s", booking_id)
+        logger.info("GHL notified [%s] for booking %s", event, booking_id)
     except Exception as e:
-        logger.exception("GHL notification failed for booking %s: %s", booking_id, e)
+        logger.exception("GHL notify [%s] failed for booking %s: %s", event, booking_id, e)
+
+
+# Backwards-compatible alias used in older call sites
+async def notify_ghl_payment_success(booking_id: str) -> None:
+    await notify_ghl("payment_success", booking_id)
 
 
 @api_router.post("/webhook/stripe")
