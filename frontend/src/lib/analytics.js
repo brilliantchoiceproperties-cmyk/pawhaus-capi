@@ -157,7 +157,7 @@ function fireGA4AndMeta(event, props) {
         currency: "USD",
         content_ids: [props.room_id],
         content_type: "product",
-      });
+      }, { eventID: props.booking_id ? `purchase_${props.booking_id}` : undefined });
       break;
     }
     case "checkout_cancelled":

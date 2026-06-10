@@ -38,6 +38,7 @@ export default function Success() {
             room_id: data.booking?.room_id,
             stay_id: data.booking?.stay_id,
             session_id: sessionId,
+            booking_id: data.booking?.id,
           });
           // Clear context after success
           reset();

@@ -19,6 +19,12 @@ from emergentintegrations.payments.stripe.checkout import (
 import stripe
 import httpx
 
+from meta_capi import (
+    send_meta_event,
+    build_purchase_event,
+    build_initiate_checkout_event,
+)
+
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / ".env")
 
@@ -234,6 +240,18 @@ async def quote(req: QuoteRequest):
 # Stripe checkout
 # ---------------------------------------------------------------------------
 
+def _meta_signals_from_request(req: Request) -> Dict[str, Optional[str]]:
+    """Extract Meta CAPI signals from the inbound HTTP request (IP, UA, fbp, fbc cookies)."""
+    fwd = req.headers.get("x-forwarded-for", "")
+    ip = (fwd.split(",")[0].strip() if fwd else (req.client.host if req.client else "")) or None
+    return {
+        "client_ip": ip,
+        "client_ua": req.headers.get("user-agent"),
+        "fbp": req.cookies.get("_fbp"),
+        "fbc": req.cookies.get("_fbc"),
+    }
+
+
 @api_router.post("/payments/checkout/session")
 async def create_checkout_session(req: CheckoutRequest, http_request: Request):
     # Server-side computed amount (NEVER trust frontend)
@@ -281,6 +299,7 @@ async def create_checkout_session(req: CheckoutRequest, http_request: Request):
     )
     session: CheckoutSessionResponse = await stripe_checkout.create_checkout_session(checkout_req)
 
+    sig = _meta_signals_from_request(http_request)
     booking_doc = {
         "id": booking_id,
         "room_id": req.room_id,
@@ -294,6 +313,11 @@ async def create_checkout_session(req: CheckoutRequest, http_request: Request):
         "created_at": datetime.now(timezone.utc).isoformat(),
         "status": "pending_payment",
         "stripe_session_id": session.session_id,
+        "origin_url": origin,
+        "client_ip": sig["client_ip"],
+        "client_ua": sig["client_ua"],
+        "fbp": sig["fbp"],
+        "fbc": sig["fbc"],
     }
     await db.bookings.insert_one(booking_doc)
 
@@ -314,6 +338,23 @@ async def create_checkout_session(req: CheckoutRequest, http_request: Request):
     # Fire "checkout_started" to GHL — seeds the abandoned-cart workflow.
     # If the customer pays, "payment_success" fires later and GHL workflow removes the abandoned tag.
     await notify_ghl("checkout_started", booking_id)
+
+    # Fire Meta InitiateCheckout (server-side, dedupes with browser pixel via event_id = booking_id)
+    meta = build_initiate_checkout_event(
+        booking_doc=booking_doc,
+        event_source_url=origin,
+        client_ip=sig["client_ip"],
+        client_ua=sig["client_ua"],
+        fbp=sig["fbp"],
+        fbc=sig["fbc"],
+    )
+    await send_meta_event(
+        event_name="InitiateCheckout",
+        event_id=f"initiate_{booking_id}",
+        event_source_url=origin,
+        user_data=meta["user_data"],
+        custom_data=meta["custom_data"],
+    )
 
     return {"url": session.url, "session_id": session.session_id, "booking_id": booking_id}
 
@@ -448,6 +489,35 @@ async def notify_ghl(event: str, booking_id: str) -> None:
 # Backwards-compatible alias used in older call sites
 async def notify_ghl_payment_success(booking_id: str) -> None:
     await notify_ghl("payment_success", booking_id)
+    await fire_meta_purchase(booking_id)
+
+
+async def fire_meta_purchase(booking_id: str) -> None:
+    """Fire a Meta CAPI Purchase event for a confirmed booking. Idempotent."""
+    booking = await db.bookings.find_one({"id": booking_id}, {"_id": 0})
+    if not booking or booking.get("meta_purchase_at"):
+        return
+    origin = (booking.get("origin_url") or "https://staypawhaus.com").rstrip("/")
+    meta = build_purchase_event(
+        booking_doc=booking,
+        event_source_url=origin,
+        client_ip=booking.get("client_ip"),
+        client_ua=booking.get("client_ua"),
+        fbp=booking.get("fbp"),
+        fbc=booking.get("fbc"),
+    )
+    ok = await send_meta_event(
+        event_name="Purchase",
+        event_id=f"purchase_{booking_id}",
+        event_source_url=origin,
+        user_data=meta["user_data"],
+        custom_data=meta["custom_data"],
+    )
+    if ok:
+        await db.bookings.update_one(
+            {"id": booking_id},
+            {"$set": {"meta_purchase_at": datetime.now(timezone.utc).isoformat()}},
+        )
 
 
 @api_router.post("/webhook/stripe")
