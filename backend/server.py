@@ -288,16 +288,35 @@ async def create_checkout_session(req: CheckoutRequest, http_request: Request):
 
     host_url = str(http_request.base_url)
     webhook_url = f"{host_url.rstrip('/')}/api/webhook/stripe"
-    stripe_checkout = StripeCheckout(api_key=STRIPE_API_KEY, webhook_url=webhook_url)
 
-    checkout_req = CheckoutSessionRequest(
-        amount=float(quote_data["total"]),
-        currency="usd",
+    # Direct Stripe SDK call so we can enable Apple Pay, Google Pay, and Link.
+    # Stripe Checkout auto-renders the relevant wallets on supported devices.
+    session = stripe.checkout.Session.create(
+        mode="payment",
         success_url=success_url,
         cancel_url=cancel_url,
+        payment_method_types=["card", "link"],
+        line_items=[{
+            "price_data": {
+                "currency": "usd",
+                "unit_amount": int(round(float(quote_data["total"]) * 100)),
+                "product_data": {
+                    "name": quote_data["room_name"],
+                    "description": f"{quote_data['stay_label']} • {quote_data['tier_label']} ({int(quote_data['discount_percent'] * 100)}% off applied)",
+                },
+            },
+            "quantity": 1,
+        }],
         metadata=metadata,
+        customer_email=req.booking.email,
+        allow_promotion_codes=False,
+        phone_number_collection={"enabled": False},
     )
-    session: CheckoutSessionResponse = await stripe_checkout.create_checkout_session(checkout_req)
+    # Adapter object so the rest of the existing code (session.url, session.session_id) keeps working
+    class _SessionView:
+        url = session.url
+        session_id = session.id
+    session = _SessionView()
 
     sig = _meta_signals_from_request(http_request)
     booking_doc = {
