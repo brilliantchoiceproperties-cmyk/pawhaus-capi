@@ -30,6 +30,7 @@ db = client[os.environ["DB_NAME"]]
 STRIPE_API_KEY = os.environ["STRIPE_API_KEY"]
 STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET", "")
 GHL_WEBHOOK_URL = os.environ.get("GHL_WEBHOOK_URL", "")
+GHL_ABANDONED_WEBHOOK_URL = os.environ.get("GHL_ABANDONED_WEBHOOK_URL", "")
 stripe.api_key = STRIPE_API_KEY
 
 app = FastAPI(title="PawHaus VIP Portal A/B")
@@ -372,11 +373,16 @@ async def notify_ghl(event: str, booking_id: str) -> None:
     """
     Forward a booking lifecycle event to the GoHighLevel inbound webhook.
     Supported events: "checkout_started" (abandoned-cart seed) and "payment_success".
-    Idempotent per event — each event fires at most once per booking (guarded by
+    Each event is routed to its dedicated GHL webhook URL.
+    Idempotent per event — each fires at most once per booking (guarded by
     `ghl_{event}_at` timestamp on the booking doc).
     Failures are logged but never raised — GHL must not block the user flow.
     """
-    if not GHL_WEBHOOK_URL:
+    target_url = {
+        "payment_success": GHL_WEBHOOK_URL,
+        "checkout_started": GHL_ABANDONED_WEBHOOK_URL,
+    }.get(event, "")
+    if not target_url:
         return
 
     guard_field = f"ghl_{event}_at"
@@ -428,7 +434,7 @@ async def notify_ghl(event: str, booking_id: str) -> None:
 
     try:
         async with httpx.AsyncClient(timeout=10.0) as ghl:
-            resp = await ghl.post(GHL_WEBHOOK_URL, json=payload)
+            resp = await ghl.post(target_url, json=payload)
             resp.raise_for_status()
         await db.bookings.update_one(
             {"id": booking_id},
