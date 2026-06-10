@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowRight, Check, MapPin, Coffee, Flame, Trees, Wifi, ShoppingBag, Bath, ChefHat, PawPrint, Sparkles, Sunrise, ShieldCheck, Syringe, Moon, DollarSign, Users, AlertCircle } from "lucide-react";
 import { track } from "@/lib/analytics";
 import EmailCTA from "@/components/paw/EmailCTA";
+import FaqSection from "@/components/paw/FaqSection";
 
 // PawHaus brand assets — served as optimised webp from /public/brand/
 const HERO_IMG = "/brand/hero.webp";
@@ -321,6 +322,10 @@ export default function Landing() {
           </div>
         </div>
       </section>
+
+      {/* FAQ */}
+      <FaqSection />
+
 
       {/* MIRROR CABIN + GALLERY */}
       <section className="mx-auto max-w-[1400px] px-6 sm:px-10 pt-32 grid grid-cols-1 md:grid-cols-12 gap-5">
