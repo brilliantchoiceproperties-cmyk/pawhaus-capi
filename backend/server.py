@@ -241,6 +241,91 @@ async def quote(req: QuoteRequest):
 TOTAL_WEEKEND_SLOTS_PER_ROOM = 14
 
 
+
+# ---------------------------------------------------------------------------
+# Admin (token-protected) — funnel stats + booking list
+# ---------------------------------------------------------------------------
+
+ADMIN_TOKEN = os.environ.get("ADMIN_TOKEN", "")
+
+
+def _require_admin(req: Request) -> None:
+    if not ADMIN_TOKEN:
+        raise HTTPException(status_code=503, detail="Admin disabled (no ADMIN_TOKEN set)")
+    token = req.headers.get("x-admin-token") or req.query_params.get("token")
+    if token != ADMIN_TOKEN:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+
+
+@api_router.get("/admin/stats")
+async def admin_stats(request: Request):
+    _require_admin(request)
+    confirmed_q = {"status": "confirmed"}
+    started_count = await db.payment_transactions.count_documents({})
+    confirmed_count = await db.bookings.count_documents(confirmed_q)
+    pending_count = await db.bookings.count_documents({"status": "pending_payment"})
+
+    revenue_cursor = db.bookings.find(confirmed_q, {"_id": 0, "quote.total": 1})
+    revenue = 0.0
+    async for d in revenue_cursor:
+        revenue += float((d.get("quote") or {}).get("total") or 0)
+
+    by_room: Dict[str, int] = {r: 0 for r in ROOMS.keys()}
+    by_stay: Dict[str, int] = {}
+    cur = db.bookings.find(confirmed_q, {"_id": 0, "room_id": 1, "stay_id": 1})
+    async for d in cur:
+        if d.get("room_id"):
+            by_room[d["room_id"]] = by_room.get(d["room_id"], 0) + 1
+        sid = d.get("stay_id")
+        if sid:
+            by_stay[sid] = by_stay.get(sid, 0) + 1
+
+    return {
+        "site": SITE_SOURCE,
+        "funnel": {
+            "checkouts_started": started_count,
+            "bookings_pending": pending_count,
+            "bookings_confirmed": confirmed_count,
+            "conversion_rate": round((confirmed_count / started_count * 100), 1) if started_count else 0,
+        },
+        "revenue": {"total_usd": round(revenue, 2)},
+        "by_room": by_room,
+        "by_stay": by_stay,
+    }
+
+
+@api_router.get("/admin/bookings")
+async def admin_bookings(request: Request, limit: int = 50, status: Optional[str] = None):
+    _require_admin(request)
+    q: Dict[str, Any] = {}
+    if status:
+        q["status"] = status
+    cursor = (
+        db.bookings.find(q, {"_id": 0})
+        .sort("created_at", -1)
+        .limit(min(limit, 200))
+    )
+    items = []
+    async for d in cursor:
+        items.append({
+            "id": d.get("id"),
+            "site": SITE_SOURCE,
+            "status": d.get("status"),
+            "room_name": d.get("room_name"),
+            "stay_label": d.get("stay_label"),
+            "total": (d.get("quote") or {}).get("total"),
+            "full_name": (d.get("booking") or {}).get("full_name"),
+            "email": (d.get("booking") or {}).get("email"),
+            "phone": (d.get("booking") or {}).get("phone"),
+            "check_in": (d.get("booking") or {}).get("check_in"),
+            "check_out": (d.get("booking") or {}).get("check_out"),
+            "pet_count": len([p for p in (d.get("booking") or {}).get("pets") or [] if (p.get("name") or "").strip()]),
+            "created_at": d.get("created_at"),
+            "paid_at": d.get("paid_at"),
+        })
+    return {"site": SITE_SOURCE, "items": items}
+
+
 @api_router.get("/scarcity")
 async def scarcity():
     """

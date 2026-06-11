@@ -8,6 +8,7 @@ import Landing from "@/pages/Landing";
 import Booking from "@/pages/Booking";
 import Success from "@/pages/Success";
 import Cancel from "@/pages/Cancel";
+import Admin from "@/pages/Admin";
 import { initAnalytics, pageview } from "@/lib/analytics";
 
 function RouteTracker() {
@@ -34,6 +35,7 @@ function App() {
             <Route path="/booking" element={<Booking />} />
             <Route path="/booking/success" element={<Success />} />
             <Route path="/booking/cancel" element={<Cancel />} />
+            <Route path="/admin" element={<Admin />} />
           </Routes>
           <Footer />
         </BookingProvider>
