@@ -15,6 +15,7 @@ const defaultGuests = {
   backup_date_1: "",
   backup_date_2: "",
   pets: [{ id: typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : String(Date.now()), name: "", breed: "", size: "Medium (25-60 lb)", special_needs: "" }],
+  no_pets: false,
   notes: "",
 };
 

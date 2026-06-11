@@ -629,21 +629,55 @@ function StepGuests({ guests, setGuests, stayId, catalog, roomId }) {
               Tell us about the dogs.
             </h3>
             <p className="text-xs mt-1" style={{ color: "var(--paw-muted)" }}>
-              {room?.name || "This room"} allows up to {maxPets} pets ({guests.pets.length}/{maxPets} added)
+              {guests.no_pets
+                ? "Coming without a dog — that's totally fine 🐾"
+                : `${room?.name || "This room"} allows up to ${maxPets} pets (${guests.pets.length}/${maxPets} added)`}
             </p>
           </div>
-          <button
-            data-testid="add-pet-button"
-            onClick={addPet}
-            disabled={atMaxPets}
-            className="paw-btn-secondary text-xs"
-            style={atMaxPets ? { opacity: 0.4, cursor: "not-allowed" } : {}}
-          >
-            <Plus size={14} strokeWidth={1.5} className="inline mr-2 -mt-0.5" />
-            {atMaxPets ? "Max reached" : "Add a pet"}
-          </button>
+          {!guests.no_pets && (
+            <button
+              data-testid="add-pet-button"
+              onClick={addPet}
+              disabled={atMaxPets}
+              className="paw-btn-secondary text-xs"
+              style={atMaxPets ? { opacity: 0.4, cursor: "not-allowed" } : {}}
+            >
+              <Plus size={14} strokeWidth={1.5} className="inline mr-2 -mt-0.5" />
+              {atMaxPets ? "Max reached" : "Add a pet"}
+            </button>
+          )}
         </div>
 
+        {/* "Coming without a dog" toggle */}
+        <label
+          data-testid="no-pets-toggle-label"
+          className="flex items-start gap-3 cursor-pointer select-none mb-5 paw-card p-4"
+          style={{ background: "var(--paw-bg-2)" }}
+        >
+          <input
+            type="checkbox"
+            data-testid="no-pets-toggle"
+            checked={!!guests.no_pets}
+            onChange={(e) => {
+              const checked = e.target.checked;
+              setGuests({
+                ...guests,
+                no_pets: checked,
+                pets: checked ? [] : (guests.pets.length === 0 ? [{ id: `pet-${Date.now()}`, name: "", breed: "", size: "Medium (25-60 lb)", special_needs: "" }] : guests.pets),
+              });
+            }}
+            className="mt-1"
+            style={{ accentColor: "var(--paw-clay)" }}
+          />
+          <span className="text-sm leading-relaxed" style={{ color: "var(--paw-ink)" }}>
+            <strong>I&apos;m coming without a dog.</strong>{" "}
+            <span style={{ color: "var(--paw-ink-2)" }}>
+              You&apos;re still welcome — we partner with local shelters so you can spend the day with a dog who needs one, or just enjoy the property dog-free.
+            </span>
+          </span>
+        </label>
+
+        {!guests.no_pets && (
         <div className="space-y-5">
           {guests.pets.map((p, i) => (
             <div key={p.id || `pet-${i}`} className="paw-card p-5" data-testid={`pet-card-${i}`}>
@@ -685,6 +719,7 @@ function StepGuests({ guests, setGuests, stayId, catalog, roomId }) {
             </div>
           ))}
         </div>
+        )}
 
         <div className="mt-7">
           <Field
@@ -782,10 +817,12 @@ function StepReview({ catalog, roomId, stayId, tierLabel, discountPercent, guest
           <ReviewRow
             label="The pack"
             value={
-              guests.pets
-                .filter((p) => p.name.trim())
-                .map((p) => `${p.name}${p.breed ? ` (${p.breed})` : ""}`)
-                .join(", ") || "—"
+              guests.no_pets
+                ? "No dog this stay"
+                : guests.pets
+                    .filter((p) => p.name.trim())
+                    .map((p) => `${p.name}${p.breed ? ` (${p.breed})` : ""}`)
+                    .join(", ") || "—"
             }
           />
           {guests.notes && <ReviewRow label="Notes" value={guests.notes} />}
