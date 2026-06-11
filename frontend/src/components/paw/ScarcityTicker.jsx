@@ -15,7 +15,7 @@ export default function ScarcityTicker() {
         const r = await axios.get(`${API}/scarcity`);
         if (!cancelled) setData(r.data);
       } catch (e) {
-        // silent fail — ticker is non-critical
+        console.warn("[scarcity] api unreachable:", e);
       }
     };
     load();

@@ -16,7 +16,7 @@ function loadStoredSites() {
     const raw = localStorage.getItem(LS_SITES);
     if (raw) return JSON.parse(raw);
   } catch (e) {
-    // ignore
+    console.warn("[admin] failed to read connected sites:", e);
   }
   return [];
 }
@@ -25,7 +25,7 @@ function saveSites(sites) {
   try {
     localStorage.setItem(LS_SITES, JSON.stringify(sites));
   } catch (e) {
-    // ignore
+    console.warn("[admin] failed to persist connected sites:", e);
   }
 }
 
