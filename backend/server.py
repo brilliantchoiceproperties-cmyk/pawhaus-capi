@@ -326,6 +326,21 @@ async def admin_bookings(request: Request, limit: int = 50, status: Optional[str
     return {"site": SITE_SOURCE, "items": items}
 
 
+@api_router.delete("/admin/bookings/all")
+async def admin_wipe_all(request: Request, confirm: str = ""):
+    """One-shot wipe of ALL bookings + payment_transactions. Requires admin token AND confirm=YES."""
+    _require_admin(request)
+    if confirm != "YES":
+        raise HTTPException(status_code=400, detail="Add ?confirm=YES to confirm wipe.")
+    r1 = await db.bookings.delete_many({})
+    r2 = await db.payment_transactions.delete_many({})
+    return {
+        "site": SITE_SOURCE,
+        "bookings_deleted": r1.deleted_count,
+        "payment_transactions_deleted": r2.deleted_count,
+    }
+
+
 @api_router.get("/scarcity")
 async def scarcity():
     """
