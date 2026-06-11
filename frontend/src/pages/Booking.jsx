@@ -7,6 +7,7 @@ import { track, identify } from "@/lib/analytics";
 import SummaryCard from "@/components/paw/SummaryCard";
 import EmailCTA from "@/components/paw/EmailCTA";
 import ScarcityTicker from "@/components/paw/ScarcityTicker";
+import TrustStrip from "@/components/paw/TrustStrip";
 
 // Date constraints
 const MIN_CHECKIN = "2026-12-01"; // doors open Dec 1, 2026
@@ -167,6 +168,9 @@ export default function Booking() {
               setRulesAccepted={setRulesAccepted}
             />
           )}
+
+          {/* TRUST STRIP — shown on Step 3 just before the Pay button */}
+          {step === 3 && <TrustStrip />}
 
           {/* NAV */}
           <div className="mt-12 flex items-center justify-between">
