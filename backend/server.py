@@ -236,6 +236,67 @@ async def quote(req: QuoteRequest):
     return calculate_quote(req.room_id, req.stay_id, req.tier)
 
 
+# Total weekend slots we're treating as "prime launch window" (Dec 2026 + Q1 2027).
+# Tighter number = more visible scarcity. As real bookings come in, this naturally compresses further.
+TOTAL_WEEKEND_SLOTS_PER_ROOM = 14
+
+
+@api_router.get("/scarcity")
+async def scarcity():
+    """
+    Returns live availability counts (per cabin) and recent confirmed bookings
+    for the on-page scarcity ticker. Fast, no-auth, safe to call frequently.
+    """
+    # Per-room weekend stays already booked
+    confirmed_filter = {"status": "confirmed", "stay_id": {"$in": ["WEEKEND_1N", "WEEKEND_2N", "LONG_3N"]}}
+    weekends_left = {}
+    for room_id in ROOMS.keys():
+        booked = await db.bookings.count_documents({**confirmed_filter, "room_id": room_id})
+        left = max(1, TOTAL_WEEKEND_SLOTS_PER_ROOM - booked)
+        weekends_left[room_id] = left
+
+    # Last 5 confirmed bookings — anonymized (first name only)
+    cursor = (
+        db.bookings.find({"status": "confirmed"}, {"_id": 0, "booking.full_name": 1, "room_name": 1, "paid_at": 1, "stay_label": 1})
+        .sort("paid_at", -1)
+        .limit(5)
+    )
+    recent = []
+    now = datetime.now(timezone.utc)
+    async for doc in cursor:
+        paid_at_raw = doc.get("paid_at")
+        if not paid_at_raw:
+            continue
+        try:
+            paid_at_dt = datetime.fromisoformat(paid_at_raw.replace("Z", "+00:00"))
+        except Exception:
+            continue
+        delta = now - paid_at_dt
+        seconds = int(delta.total_seconds())
+        if seconds < 60:
+            ago = "just now"
+        elif seconds < 3600:
+            ago = f"{seconds // 60} min ago"
+        elif seconds < 86400:
+            ago = f"{seconds // 3600} hr ago"
+        else:
+            ago = f"{seconds // 86400} day{'s' if seconds // 86400 > 1 else ''} ago"
+        full_name = (doc.get("booking") or {}).get("full_name") or "A guest"
+        first_name = full_name.split(" ")[0]
+        recent.append({
+            "first_name": first_name,
+            "room_name": doc.get("room_name"),
+            "stay_label": doc.get("stay_label"),
+            "ago": ago,
+        })
+
+    return {
+        "weekends_left": weekends_left,
+        "total_bookings": await db.bookings.count_documents({"status": "confirmed"}),
+        "recent": recent,
+    }
+
+
 # ---------------------------------------------------------------------------
 # Stripe checkout
 # ---------------------------------------------------------------------------

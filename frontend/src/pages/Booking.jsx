@@ -6,6 +6,7 @@ import { createCheckoutSession } from "@/lib/paw-api";
 import { track, identify } from "@/lib/analytics";
 import SummaryCard from "@/components/paw/SummaryCard";
 import EmailCTA from "@/components/paw/EmailCTA";
+import ScarcityTicker from "@/components/paw/ScarcityTicker";
 
 // Date constraints
 const MIN_CHECKIN = "2026-12-01"; // doors open Dec 1, 2026
@@ -136,15 +137,20 @@ export default function Booking() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
         <main className="lg:col-span-8">
           {step === 1 && (
-            <StepStay
-              catalog={catalog}
-              roomId={roomId}
-              setRoomId={setRoomId}
-              stayId={stayId}
-              setStayId={setStayId}
-              discountPercent={discountPercent}
-              tier={tier}
-            />
+            <>
+              <div className="mb-6">
+                <ScarcityTicker />
+              </div>
+              <StepStay
+                catalog={catalog}
+                roomId={roomId}
+                setRoomId={setRoomId}
+                stayId={stayId}
+                setStayId={setStayId}
+                discountPercent={discountPercent}
+                tier={tier}
+              />
+            </>
           )}
           {step === 2 && (
             <StepGuests guests={guests} setGuests={setGuests} stayId={stayId} catalog={catalog} roomId={roomId} />
