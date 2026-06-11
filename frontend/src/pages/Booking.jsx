@@ -3,6 +3,7 @@ import { Navigate, useNavigate } from "react-router-dom";
 import { ArrowRight, ArrowLeft, Trash2, Plus, ShieldCheck, CalendarDays, PawPrint, ChevronDown, ChevronLeft, ChevronRight, Bath, ChefHat, Waves, TreePine, Coffee, Wifi, AlertCircle } from "lucide-react";
 import { useBooking } from "@/context/BookingContext";
 import { createCheckoutSession } from "@/lib/paw-api";
+import { getReferrer } from "@/lib/referral";
 import { track, identify } from "@/lib/analytics";
 import SummaryCard from "@/components/paw/SummaryCard";
 import EmailCTA from "@/components/paw/EmailCTA";
@@ -87,6 +88,7 @@ export default function Booking() {
         stay_id: stayId,
         tier,
         origin_url: window.location.origin,
+        referrer_code: getReferrer(),
         booking: {
           ...guests,
           pets: guests.pets.filter((p) => p.name.trim()),

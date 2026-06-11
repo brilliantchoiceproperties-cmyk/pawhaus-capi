@@ -10,6 +10,7 @@ import Success from "@/pages/Success";
 import Cancel from "@/pages/Cancel";
 import Admin from "@/pages/Admin";
 import { initAnalytics, pageview } from "@/lib/analytics";
+import { captureReferrerFromUrl } from "@/lib/referral";
 
 function RouteTracker() {
   const loc = useLocation();
@@ -22,6 +23,7 @@ function RouteTracker() {
 function App() {
   useEffect(() => {
     initAnalytics();
+    captureReferrerFromUrl();
   }, []);
 
   return (

@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { getQuote } from "@/lib/paw-api";
+import { getReferrer } from "@/lib/referral";
 
 export default function SummaryCard({ roomId, stayId, tier, catalog }) {
   const [quote, setQuote] = useState(null);
   const [loading, setLoading] = useState(false);
+  const referrer = getReferrer();
 
   useEffect(() => {
     let active = true;
@@ -12,14 +14,14 @@ export default function SummaryCard({ roomId, stayId, tier, catalog }) {
       return;
     }
     setLoading(true);
-    getQuote({ room_id: roomId, stay_id: stayId, tier })
+    getQuote({ room_id: roomId, stay_id: stayId, tier, referrer_code: referrer })
       .then((q) => active && setQuote(q))
       .catch(() => {})
       .finally(() => active && setLoading(false));
     return () => {
       active = false;
     };
-  }, [roomId, stayId, tier]);
+  }, [roomId, stayId, tier, referrer]);
 
   const room = catalog?.rooms?.find((r) => r.id === roomId);
   const stay = catalog?.stay_options?.find((s) => s.id === stayId);
@@ -65,6 +67,14 @@ export default function SummaryCard({ roomId, stayId, tier, catalog }) {
             </span>
             <span style={{ color: "var(--paw-clay)" }}>−{fmt(quote.discount_amount)}</span>
           </div>
+          {quote.referral_discount > 0 && (
+            <div className="flex items-baseline justify-between" data-testid="summary-referral">
+              <span style={{ color: "var(--paw-forest)" }}>
+                🎁 Referral credit applied
+              </span>
+              <span style={{ color: "var(--paw-forest)" }}>−{fmt(quote.referral_discount)}</span>
+            </div>
+          )}
           <div className="divider my-3" />
           <div className="flex items-baseline justify-between">
             <span className="overline" style={{ color: "var(--paw-muted)" }}>

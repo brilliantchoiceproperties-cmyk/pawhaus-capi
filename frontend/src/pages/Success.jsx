@@ -101,6 +101,54 @@ export default function Success() {
               ${Number(amount).toFixed(2)} paid
             </p>
           )}
+
+          {booking?.referral_code && (
+            <div data-testid="success-referral" className="paw-card p-7 mt-10 mx-auto max-w-xl" style={{ background: "var(--paw-bg-2)", borderColor: "var(--paw-clay)", borderWidth: 1, borderStyle: "solid" }}>
+              <div className="overline mb-2" style={{ color: "var(--paw-clay)" }}>
+                Refer a friend → both get $50 off
+              </div>
+              <p className="text-sm leading-relaxed mb-5" style={{ color: "var(--paw-ink-2)" }}>
+                Share your link below. When a friend books, they get $50 off — and we&apos;ll email you a $50 voucher for your next stay.
+              </p>
+              <div className="flex items-center gap-2 mb-3">
+                <input
+                  data-testid="referral-link-input"
+                  readOnly
+                  value={`https://staypawhaus.com/?ref=${booking.referral_code}`}
+                  className="flex-1 px-3 py-2 text-xs"
+                  style={{ background: "var(--paw-bg)", border: "1px solid var(--paw-line)", color: "var(--paw-ink)" }}
+                  onFocus={(e) => e.target.select()}
+                />
+                <button
+                  data-testid="referral-copy-button"
+                  onClick={() => {
+                    const url = `https://staypawhaus.com/?ref=${booking.referral_code}`;
+                    if (navigator.clipboard) navigator.clipboard.writeText(url);
+                  }}
+                  className="paw-btn-secondary text-xs"
+                >
+                  Copy
+                </button>
+                <button
+                  data-testid="referral-share-button"
+                  onClick={() => {
+                    const url = `https://staypawhaus.com/?ref=${booking.referral_code}`;
+                    const text = `I just booked PawHaus 🐾 — use my link to get $50 off your stay: ${url}`;
+                    if (navigator.share) navigator.share({ url, text, title: "PawHaus Resort" });
+                    else window.open(`mailto:?subject=${encodeURIComponent("PawHaus — $50 off your stay")}&body=${encodeURIComponent(text)}`);
+                  }}
+                  className="paw-btn-primary text-xs"
+                  style={{ background: "var(--paw-clay)", borderColor: "var(--paw-clay)" }}
+                >
+                  Share
+                </button>
+              </div>
+              <p className="text-xs" style={{ color: "var(--paw-muted)" }}>
+                Your code: <strong style={{ color: "var(--paw-ink)" }}>{booking.referral_code}</strong>
+              </p>
+            </div>
+          )}
+
           <Link to="/" data-testid="success-home-link" className="paw-btn-primary mt-8 inline-flex">
             Back to landing <ArrowRight size={14} strokeWidth={1.5} />
           </Link>

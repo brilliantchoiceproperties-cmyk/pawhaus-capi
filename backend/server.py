@@ -142,7 +142,16 @@ DISCOUNTS = {
 }
 
 
-def calculate_quote(room_id: str, stay_id: str, tier: str) -> Dict[str, Any]:
+REFERRAL_DISCOUNT_USD = 50.0  # $ off for the friend; referrer earns a matching voucher via GHL
+
+
+async def _is_valid_referral_code(code: str) -> bool:
+    if not code:
+        return False
+    return await db.bookings.find_one({"referral_code": code.upper()}) is not None
+
+
+def calculate_quote(room_id: str, stay_id: str, tier: str, referral_applied: bool = False) -> Dict[str, Any]:
     room = ROOMS.get(room_id)
     stay = next((s for s in STAY_OPTIONS if s["id"] == stay_id), None)
     if not room or not stay:
@@ -156,7 +165,8 @@ def calculate_quote(room_id: str, stay_id: str, tier: str) -> Dict[str, Any]:
     base_rate = round(base_rate, 2)
     discount_amount = round(base_rate * DISCOUNTS[tier]["percent"], 2)
     hot_tub_premium = round(HOT_TUB_PREMIUM_PER_NIGHT * stay["nights"], 2) if room["has_hot_tub"] else 0.0
-    total = round(base_rate - discount_amount + hot_tub_premium, 2)
+    referral_discount = REFERRAL_DISCOUNT_USD if referral_applied else 0.0
+    total = round(base_rate - discount_amount + hot_tub_premium - referral_discount, 2)
 
     return {
         "room_id": room_id,
@@ -170,6 +180,7 @@ def calculate_quote(room_id: str, stay_id: str, tier: str) -> Dict[str, Any]:
         "discount_amount": discount_amount,
         "discount_percent": DISCOUNTS[tier]["percent"],
         "hot_tub_premium": hot_tub_premium,
+        "referral_discount": referral_discount,
         "total": total,
         "currency": "usd",
     }
@@ -194,6 +205,7 @@ class QuoteRequest(BaseModel):
     room_id: str
     stay_id: str
     tier: str = "PUBLIC"
+    referrer_code: Optional[str] = None
 
 
 class BookingDetails(BaseModel):
@@ -215,6 +227,7 @@ class CheckoutRequest(BaseModel):
     tier: str = "PUBLIC"
     booking: BookingDetails
     origin_url: str
+    referrer_code: Optional[str] = None
 
 
 # ---------------------------------------------------------------------------
@@ -233,7 +246,8 @@ async def get_catalog():
 
 @api_router.post("/quote")
 async def quote(req: QuoteRequest):
-    return calculate_quote(req.room_id, req.stay_id, req.tier)
+    ref_ok = await _is_valid_referral_code(req.referrer_code or "")
+    return calculate_quote(req.room_id, req.stay_id, req.tier, referral_applied=ref_ok)
 
 
 # Total weekend slots we're treating as "prime launch window" (Dec 2026 + Q1 2027).
@@ -415,8 +429,19 @@ def _meta_signals_from_request(req: Request) -> Dict[str, Optional[str]]:
 
 @api_router.post("/payments/checkout/session")
 async def create_checkout_session(req: CheckoutRequest, http_request: Request):
+    # Validate referrer first (if provided)
+    referrer_code_clean = (req.referrer_code or "").strip().upper()
+    referral_applied = await _is_valid_referral_code(referrer_code_clean)
+    referrer_booking = None
+    if referral_applied:
+        referrer_booking = await db.bookings.find_one({"referral_code": referrer_code_clean}, {"_id": 0})
+        # Don't let users refer themselves
+        if referrer_booking and (referrer_booking.get("booking") or {}).get("email", "").lower() == req.booking.email.lower():
+            referral_applied = False
+            referrer_booking = None
+
     # Server-side computed amount (NEVER trust frontend)
-    quote_data = calculate_quote(req.room_id, req.stay_id, req.tier)
+    quote_data = calculate_quote(req.room_id, req.stay_id, req.tier, referral_applied=referral_applied)
 
     # Server-side date guard
     stay = next((s for s in STAY_OPTIONS if s["id"] == req.stay_id), None)
@@ -434,6 +459,9 @@ async def create_checkout_session(req: CheckoutRequest, http_request: Request):
             )
 
     booking_id = str(uuid.uuid4())
+    # Generate a unique referral code for THIS new booking — they can share to earn $50 vouchers
+    first_name_clean = "".join(c for c in (req.booking.full_name or "").split(" ")[0].upper() if c.isalpha())[:8] or "PAW"
+    referral_code = f"{first_name_clean}-{uuid.uuid4().hex[:4].upper()}"
     origin = req.origin_url.rstrip("/")
     success_url = f"{origin}/booking/success?session_id={{CHECKOUT_SESSION_ID}}"
     cancel_url = f"{origin}/booking/cancel"
@@ -494,6 +522,9 @@ async def create_checkout_session(req: CheckoutRequest, http_request: Request):
         "status": "pending_payment",
         "stripe_session_id": session.session_id,
         "origin_url": origin,
+        "referral_code": referral_code,
+        "referrer_code": referrer_code_clean if referral_applied else None,
+        "referrer_email": ((referrer_booking or {}).get("booking") or {}).get("email") if referrer_booking else None,
         "client_ip": sig["client_ip"],
         "client_ua": sig["client_ua"],
         "fbp": sig["fbp"],
@@ -698,6 +729,42 @@ async def fire_meta_purchase(booking_id: str) -> None:
             {"id": booking_id},
             {"$set": {"meta_purchase_at": datetime.now(timezone.utc).isoformat()}},
         )
+
+    # Fire referral_converted to GHL (idempotent — guarded by ghl_referral_converted_at)
+    if booking.get("referrer_email") and not booking.get("ghl_referral_converted_at"):
+        await _notify_ghl_referral(booking_id)
+
+
+async def _notify_ghl_referral(booking_id: str) -> None:
+    """Fires a referral_converted event to GHL so the referrer gets a $50 voucher email."""
+    if not GHL_WEBHOOK_URL:
+        return
+    booking = await db.bookings.find_one({"id": booking_id}, {"_id": 0})
+    if not booking or booking.get("ghl_referral_converted_at"):
+        return
+    payload = {
+        "event": "referral_converted",
+        "source": SITE_SOURCE,
+        "referrer_email": booking.get("referrer_email"),
+        "referrer_code": booking.get("referrer_code"),
+        "friend_first_name": ((booking.get("booking") or {}).get("full_name") or "").split(" ")[0],
+        "friend_email": (booking.get("booking") or {}).get("email"),
+        "friend_room_name": booking.get("room_name"),
+        "friend_total": (booking.get("quote") or {}).get("total"),
+        "voucher_amount": REFERRAL_DISCOUNT_USD,
+        "occurred_at": datetime.now(timezone.utc).isoformat(),
+    }
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as ghl:
+            resp = await ghl.post(GHL_WEBHOOK_URL, json=payload)
+            resp.raise_for_status()
+        await db.bookings.update_one(
+            {"id": booking_id},
+            {"$set": {"ghl_referral_converted_at": datetime.now(timezone.utc).isoformat()}},
+        )
+        logger.info("GHL referral_converted sent for booking %s", booking_id)
+    except Exception as e:
+        logger.warning("GHL referral_converted failed: %s", e)
 
 
 @api_router.post("/webhook/stripe")
