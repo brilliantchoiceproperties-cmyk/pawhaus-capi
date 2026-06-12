@@ -4,6 +4,7 @@ import { ArrowRight, ArrowLeft, Trash2, Plus, ShieldCheck, CalendarDays, PawPrin
 import { useBooking } from "@/context/BookingContext";
 import { createCheckoutSession } from "@/lib/paw-api";
 import { getReferrer } from "@/lib/referral";
+import { getPromo } from "@/lib/promo";
 import { track, identify } from "@/lib/analytics";
 import SummaryCard from "@/components/paw/SummaryCard";
 import EmailCTA from "@/components/paw/EmailCTA";
@@ -89,6 +90,7 @@ export default function Booking() {
         tier,
         origin_url: window.location.origin,
         referrer_code: getReferrer(),
+        promo_code: getPromo(),
         booking: {
           ...guests,
           pets: guests.pets.filter((p) => p.name.trim()),

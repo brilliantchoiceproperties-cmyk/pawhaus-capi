@@ -11,6 +11,7 @@ import Cancel from "@/pages/Cancel";
 import Admin from "@/pages/Admin";
 import { initAnalytics, pageview } from "@/lib/analytics";
 import { captureReferrerFromUrl } from "@/lib/referral";
+import { capturePromoFromUrl } from "@/lib/promo";
 
 function RouteTracker() {
   const loc = useLocation();
@@ -24,6 +25,7 @@ function App() {
   useEffect(() => {
     initAnalytics();
     captureReferrerFromUrl();
+    capturePromoFromUrl();
   }, []);
 
   return (

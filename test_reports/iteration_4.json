@@ -1,0 +1,41 @@
+{
+  "summary": "PAW25 promo code feature tested end-to-end. Backend: 10/10 pytest cases pass (test_promo_code.py 7/7 + test_ghl_referral_payload.py 1/1 + NEW test_ghl_promo_payload.py 1/1 + cleanup). Frontend: 3/4 critical UI flows verified on https://experiment-forge.preview.emergentagent.com. URL auto-apply (/booking?promo=PAW25) correctly reduces Standard Room total from $488.60 → $463.60 (exactly -$25). Manual input flow (Have a promo code? → input → Apply) works. Remove promo button restores total. Invalid code 'FAKE99' is silently rejected (badge not shown, total unchanged, localStorage cleared). FULL FUNNEL regression: /booking?promo=PAW25 → Standard Room → Step 2 (name/email/phone/check-in 2026-12-15/Bella/Blueberry Facial) → Step 3 → House Rules → Pay → redirected to LIVE Stripe checkout (cs_live_) showing US$463.60 and email promo-funnel@test.pawhaus.dev (confirmed via screenshot). Did NOT click final Stripe pay button. GHL payload verified to include promo_code='PAW25' and promo_discount_applied=25.0 via mocked httpx.AsyncClient intercept. 1 minor UX bug found: invalid-promo error message is set then immediately cleared by re-running useEffect — error never displays to user (silent rejection only). Test data cleaned up at end of run.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "SummaryCard.jsx",
+        "issue": "summary-promo-error message is set inside applyPromo() then immediately cleared by the useEffect on next render. When user enters invalid code (e.g. FAKE99), applyPromo() sets the error AND calls clearPromo(). clearPromo() updates localStorage so on re-render `const promo = getPromo()` returns null, the useEffect re-runs with new `promo` dep, and its else branch `setPromoError('')` wipes the error. Net result: rejection is fully silent — user sees no feedback. Spec asked the error to say 'isn\\'t valid'. Fix: don't reset promoError in the useEffect when promo is null, OR use a useRef/separate state flag to indicate 'last apply was rejected'.",
+        "selector": "[data-testid=\"summary-promo-error\"]",
+        "priority": "MEDIUM"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_promo_code.py",
+    "/app/backend/tests/test_ghl_promo_payload.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [
+    "Fix SummaryCard.jsx so summary-promo-error remains visible after applying an invalid promo code. Currently the useEffect's else branch clears it on re-render when promo becomes null. Consider tracking 'lastRejectedCode' in state separately from the localStorage promo and only clear the error when the user starts typing again or successfully applies a valid code."
+  ],
+  "critical_code_review_comments": [
+    "SummaryCard.jsx line 30: setPromoError('') inside the useEffect's else branch causes the invalid-promo UX bug above. The error is reactive to `promo` localStorage value, but the apply flow clears localStorage immediately after rejection, which races the error display.",
+    "SummaryCard.jsx applyPromo path duplicates the getQuote logic from useEffect. The useEffect already re-fires when `promo` localStorage changes — but applyPromo also explicitly calls getQuote with the new code. Two requests fire for every Apply click (one from setPromo→re-render→useEffect, one from explicit applyPromo call). Minor duplicate-request inefficiency.",
+    "promo.js capturePromoFromUrl correctly uppercases. Backend _validate_promo_code also normalises. Layered defence is good.",
+    "Booking.jsx line 93: getPromo() called once at payload-build time — correct; reads latest localStorage value.",
+    "GHL payload now includes promo_code + promo_discount_applied (server.py lines 830-831) — verified via new test_ghl_promo_payload.py."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_ghl_promo_payload.py (new — verifies GHL outbound payload includes PAW25 promo_code + promo_discount_applied=25.0 via mocked httpx)"
+  ],
+  "success_rate": {"backend": "100% (10/10 pytest)", "frontend": "75% (3/4 — URL auto-apply, manual input, remove, regression-to-Stripe all pass; invalid-promo error message UI silently fails)"},
+  "test_credentials": "Admin token: gMonNetmm9f0sJXvJ1z1e2PTeMFkHeskSOb3YndWvGs",
+  "seed_data_creation": "Backend pytest seeds @test.pawhaus.dev bookings (referrer + buyer) and cleans them up in test_zz_cleanup + test_ghl_promo_payload teardown. Frontend regression created 1 booking promo-funnel@test.pawhaus.dev which was manually cleaned (bookings:1 + payment_transactions:1 deleted via motor at end of run).",
+  "retest_needed": true,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "PAW25 promo backend logic is rock-solid (10/10 pytest, including stack with referral $50+$25=$75 off, case-insensitive, persists to booking + GHL payload). Frontend URL auto-apply, manual input, remove, and full Stripe funnel all work. ONLY OUTSTANDING ISSUE: the summary-promo-error message in SummaryCard.jsx is never visible to users because the useEffect's else branch wipes it on the re-render that follows clearPromo(). Once main agent decouples the error state from the `promo` localStorage useEffect dep, re-run the FAKE99 manual-input test and assert summary-promo-error becomes visible with text containing 'isn\\'t valid'.",
+  "rca of the issue": "Invalid-promo error UX bug RCA: In SummaryCard.jsx, applyPromo() → setPromo(code) writes to localStorage → React re-renders → top-level `const promo = getPromo()` returns 'FAKE99' → useEffect fires with new `promo` dep → getQuote returns no promo_code → `if (promo && (!q.promo_code...))` matches → setPromoError(...) GOOD. BUT applyPromo's own .then() also fires (race) and calls clearPromo() because the server returned no promo. clearPromo() → next React render → `promo = getPromo()` now returns null → useEffect fires again with promo=null dep → first if-branch (`if (promo && ...)`) fails because promo is falsy → ELSE branch runs → setPromoError('') wipes the error. The user sees nothing. Reproduction: clean localStorage, navigate to /booking, select Standard Room, click 'Have a promo code?', type 'FAKE99', click Apply. Wait 2 seconds. Observe summary-promo-error not visible. Mitigation: either (a) gate the useEffect's setPromoError('') behind an explicit condition like `if (promo && q.promo_code) setPromoError('')`, or (b) move error state into a useRef that only the apply handler touches, or (c) don't call clearPromo() inside applyPromo's rejection branch — leave the invalid code in LS until the next attempt so the useEffect's error-setting branch keeps firing."
+}

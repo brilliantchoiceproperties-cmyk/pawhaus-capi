@@ -1,11 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { getQuote } from "@/lib/paw-api";
 import { getReferrer } from "@/lib/referral";
+import { getPromo, setPromo, clearPromo } from "@/lib/promo";
 
 export default function SummaryCard({ roomId, stayId, tier, catalog }) {
   const [quote, setQuote] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [promoInput, setPromoInput] = useState("");
+  const [promoVisible, setPromoVisible] = useState(false);
+  const [promoError, setPromoError] = useState("");
   const referrer = getReferrer();
+  const promo = getPromo();
 
   useEffect(() => {
     let active = true;
@@ -14,14 +19,53 @@ export default function SummaryCard({ roomId, stayId, tier, catalog }) {
       return;
     }
     setLoading(true);
-    getQuote({ room_id: roomId, stay_id: stayId, tier, referrer_code: referrer })
-      .then((q) => active && setQuote(q))
+    getQuote({ room_id: roomId, stay_id: stayId, tier, referrer_code: referrer, promo_code: promo })
+      .then((q) => {
+        if (!active) return;
+        setQuote(q);
+        // If a promo code was entered but the server didn't apply it, surface that
+        if (promo && (!q.promo_code || q.promo_discount <= 0)) {
+          setPromoError(`Code "${promo}" isn't valid — try a different one.`);
+        } else {
+          setPromoError("");
+        }
+      })
       .catch(() => {})
       .finally(() => active && setLoading(false));
     return () => {
       active = false;
     };
-  }, [roomId, stayId, tier, referrer]);
+  }, [roomId, stayId, tier, referrer, promo]);
+
+  const applyPromo = () => {
+    setPromoError("");
+    const code = (promoInput || "").trim().toUpperCase();
+    if (!code) return;
+    setPromo(code);
+    // Force a re-render via window event or by triggering the useEffect deps
+    // — easiest: just reload local state
+    setPromoInput("");
+    // Bump the quote re-fetch by re-reading promo (state already in localStorage)
+    setLoading(true);
+    getQuote({ room_id: roomId, stay_id: stayId, tier, referrer_code: referrer, promo_code: code })
+      .then((q) => {
+        setQuote(q);
+        if (!q.promo_code || q.promo_discount <= 0) {
+          setPromoError(`Code "${code}" isn't valid — try a different one.`);
+          clearPromo();
+        }
+      })
+      .finally(() => setLoading(false));
+  };
+
+  const removePromo = () => {
+    clearPromo();
+    setPromoError("");
+    setLoading(true);
+    getQuote({ room_id: roomId, stay_id: stayId, tier, referrer_code: referrer, promo_code: null })
+      .then((q) => setQuote(q))
+      .finally(() => setLoading(false));
+  };
 
   const room = catalog?.rooms?.find((r) => r.id === roomId);
   const stay = catalog?.stay_options?.find((s) => s.id === stayId);
@@ -75,6 +119,25 @@ export default function SummaryCard({ roomId, stayId, tier, catalog }) {
               <span style={{ color: "var(--paw-forest)" }}>−{fmt(quote.referral_discount)}</span>
             </div>
           )}
+          {quote.promo_discount > 0 && (
+            <div className="flex items-baseline justify-between" data-testid="summary-promo">
+              <span style={{ color: "var(--paw-forest)" }}>
+                ✨ Promo {quote.promo_code} applied
+              </span>
+              <span className="flex items-center gap-2" style={{ color: "var(--paw-forest)" }}>
+                −{fmt(quote.promo_discount)}
+                <button
+                  type="button"
+                  onClick={removePromo}
+                  data-testid="summary-promo-remove"
+                  className="text-xs underline"
+                  style={{ color: "var(--paw-muted)" }}
+                >
+                  remove
+                </button>
+              </span>
+            </div>
+          )}
           <div className="divider my-3" />
           <div className="flex items-baseline justify-between">
             <span className="overline" style={{ color: "var(--paw-muted)" }}>
@@ -88,6 +151,57 @@ export default function SummaryCard({ roomId, stayId, tier, catalog }) {
               {fmt(quote.total)}
             </span>
           </div>
+
+          {/* Promo code input — only shown if no promo already applied */}
+          {quote.promo_discount === 0 && (
+            <div className="pt-2">
+              {!promoVisible ? (
+                <button
+                  type="button"
+                  data-testid="summary-promo-toggle"
+                  onClick={() => setPromoVisible(true)}
+                  className="text-xs underline"
+                  style={{ color: "var(--paw-muted)" }}
+                >
+                  Have a promo code?
+                </button>
+              ) : (
+                <div className="space-y-2">
+                  <div className="flex gap-2">
+                    <input
+                      data-testid="summary-promo-input"
+                      type="text"
+                      value={promoInput}
+                      onChange={(e) => setPromoInput(e.target.value.toUpperCase())}
+                      placeholder="PAW25"
+                      className="paw-input flex-1 text-xs"
+                      style={{ padding: "8px 10px" }}
+                      onKeyDown={(e) => e.key === "Enter" && applyPromo()}
+                    />
+                    <button
+                      type="button"
+                      data-testid="summary-promo-apply"
+                      onClick={applyPromo}
+                      className="text-xs px-3 py-2"
+                      style={{
+                        background: "var(--paw-clay)",
+                        color: "var(--paw-bg)",
+                        fontWeight: 500,
+                      }}
+                    >
+                      Apply
+                    </button>
+                  </div>
+                  {promoError && (
+                    <div className="text-xs" data-testid="summary-promo-error" style={{ color: "var(--paw-clay)" }}>
+                      {promoError}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
           <p className="text-xs mt-3 leading-relaxed" style={{ color: "var(--paw-muted)" }}>
             All taxes &amp; fees included. Free reschedule or refund up to 14 days before stay.
           </p>

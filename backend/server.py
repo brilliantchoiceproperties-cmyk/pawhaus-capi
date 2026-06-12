@@ -145,13 +145,38 @@ DISCOUNTS = {
 REFERRAL_DISCOUNT_USD = 50.0  # $ off for the friend; referrer earns a matching voucher via GHL
 
 
+# Flat-dollar promo codes. Stack on top of public discount + referral.
+# Add new codes here — keep keys uppercase, values in USD off.
+PROMO_CODES: Dict[str, float] = {
+    "PAW25": 25.0,  # exit-intent capture follow-up — $25 off
+}
+
+
+def _validate_promo_code(code: Optional[str]) -> tuple[Optional[str], float]:
+    """Returns (normalized_code, discount_usd) or (None, 0.0) if invalid."""
+    if not code:
+        return None, 0.0
+    norm = code.strip().upper()
+    amount = PROMO_CODES.get(norm)
+    if amount is None or amount <= 0:
+        return None, 0.0
+    return norm, float(amount)
+
+
 async def _is_valid_referral_code(code: str) -> bool:
     if not code:
         return False
     return await db.bookings.find_one({"referral_code": code.upper()}) is not None
 
 
-def calculate_quote(room_id: str, stay_id: str, tier: str, referral_applied: bool = False) -> Dict[str, Any]:
+def calculate_quote(
+    room_id: str,
+    stay_id: str,
+    tier: str,
+    referral_applied: bool = False,
+    promo_discount: float = 0.0,
+    promo_code: Optional[str] = None,
+) -> Dict[str, Any]:
     room = ROOMS.get(room_id)
     stay = next((s for s in STAY_OPTIONS if s["id"] == stay_id), None)
     if not room or not stay:
@@ -166,7 +191,14 @@ def calculate_quote(room_id: str, stay_id: str, tier: str, referral_applied: boo
     discount_amount = round(base_rate * DISCOUNTS[tier]["percent"], 2)
     hot_tub_premium = round(HOT_TUB_PREMIUM_PER_NIGHT * stay["nights"], 2) if room["has_hot_tub"] else 0.0
     referral_discount = REFERRAL_DISCOUNT_USD if referral_applied else 0.0
-    total = round(base_rate - discount_amount + hot_tub_premium - referral_discount, 2)
+    promo_discount = round(max(0.0, float(promo_discount or 0.0)), 2)
+    total = round(
+        base_rate - discount_amount + hot_tub_premium - referral_discount - promo_discount,
+        2,
+    )
+    # Hard floor at $1 — never give the room away free, even with stacked codes
+    if total < 1.0:
+        total = 1.0
 
     return {
         "room_id": room_id,
@@ -181,6 +213,8 @@ def calculate_quote(room_id: str, stay_id: str, tier: str, referral_applied: boo
         "discount_percent": DISCOUNTS[tier]["percent"],
         "hot_tub_premium": hot_tub_premium,
         "referral_discount": referral_discount,
+        "promo_code": promo_code,
+        "promo_discount": promo_discount,
         "total": total,
         "currency": "usd",
     }
@@ -224,6 +258,7 @@ class QuoteRequest(BaseModel):
     stay_id: str
     tier: str = "PUBLIC"
     referrer_code: Optional[str] = None
+    promo_code: Optional[str] = None
 
 
 class BookingDetails(BaseModel):
@@ -246,6 +281,7 @@ class CheckoutRequest(BaseModel):
     booking: BookingDetails
     origin_url: str
     referrer_code: Optional[str] = None
+    promo_code: Optional[str] = None
 
 
 # ---------------------------------------------------------------------------
@@ -265,7 +301,15 @@ async def get_catalog():
 @api_router.post("/quote")
 async def quote(req: QuoteRequest):
     ref_ok = await _is_valid_referral_code(req.referrer_code or "")
-    return calculate_quote(req.room_id, req.stay_id, req.tier, referral_applied=ref_ok)
+    promo_norm, promo_amount = _validate_promo_code(req.promo_code)
+    return calculate_quote(
+        req.room_id,
+        req.stay_id,
+        req.tier,
+        referral_applied=ref_ok,
+        promo_discount=promo_amount,
+        promo_code=promo_norm,
+    )
 
 
 # Total weekend slots we're treating as "prime launch window" (Dec 2026 + Q1 2027).
@@ -519,8 +563,18 @@ async def create_checkout_session(req: CheckoutRequest, http_request: Request):
             referral_applied = False
             referrer_booking = None
 
+    # Validate promo code (e.g. PAW25 from exit-intent email)
+    promo_code_norm, promo_amount = _validate_promo_code(req.promo_code)
+
     # Server-side computed amount (NEVER trust frontend)
-    quote_data = calculate_quote(req.room_id, req.stay_id, req.tier, referral_applied=referral_applied)
+    quote_data = calculate_quote(
+        req.room_id,
+        req.stay_id,
+        req.tier,
+        referral_applied=referral_applied,
+        promo_discount=promo_amount,
+        promo_code=promo_code_norm,
+    )
 
     # Server-side date guard
     stay = next((s for s in STAY_OPTIONS if s["id"] == req.stay_id), None)
@@ -601,6 +655,8 @@ async def create_checkout_session(req: CheckoutRequest, http_request: Request):
         "referral_code": referral_code,
         "referrer_code": referrer_code_clean if referral_applied else None,
         "referrer_email": ((referrer_booking or {}).get("booking") or {}).get("email") if referrer_booking else None,
+        "promo_code": promo_code_norm,
+        "promo_discount": promo_amount,
         "client_ip": sig["client_ip"],
         "client_ua": sig["client_ua"],
         "fbp": sig["fbp"],
@@ -771,6 +827,8 @@ async def notify_ghl(event: str, booking_id: str) -> None:
         "referred_by_code": booking.get("referrer_code"),  # populated if this booking came from a referral
         "referred_by_email": booking.get("referrer_email"),
         "referral_discount_applied": quote.get("referral_discount") or 0.0,
+        "promo_code": booking.get("promo_code"),
+        "promo_discount_applied": (quote.get("promo_discount") or 0.0),
         "currency": "usd",
         "occurred_at": datetime.now(timezone.utc).isoformat(),
         "paid_at": booking.get("paid_at"),

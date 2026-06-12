@@ -191,7 +191,7 @@ export default function ExitIntentModal() {
               Check your inbox.
             </h3>
             <p className="text-sm leading-relaxed" style={{ color: "var(--paw-ink-2)" }}>
-              Your $25 code is on its way. Use it within 48 hours at checkout — it stacks with the 30% pre-launch discount.
+              Your <strong style={{ color: "var(--paw-ink)" }}>PAW25</strong> code is on its way. Use it within 48 hours at checkout — it stacks with the 30% pre-launch discount. Just click the link in your email and the discount auto-applies.
             </p>
           </div>
         )}
