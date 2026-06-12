@@ -710,6 +710,16 @@ async def notify_ghl(event: str, booking_id: str) -> None:
         "base_price": quote.get("base"),
         "discount_amount": quote.get("discount"),
         "hot_tub_premium": quote.get("hot_tub"),
+        # Referral fields — drop into GHL custom fields so workflows can email the
+        # buyer their share code on payment_success automatically.
+        "referral_code": booking.get("referral_code"),  # buyer's own code (e.g. JANE-X9Y2)
+        "referral_share_url": (
+            f"{(booking.get('origin_url') or 'https://staypawhaus.com').rstrip('/')}/?ref={booking.get('referral_code')}"
+            if booking.get("referral_code") else None
+        ),
+        "referred_by_code": booking.get("referrer_code"),  # populated if this booking came from a referral
+        "referred_by_email": booking.get("referrer_email"),
+        "referral_discount_applied": quote.get("referral_discount") or 0.0,
         "currency": "usd",
         "occurred_at": datetime.now(timezone.utc).isoformat(),
         "paid_at": booking.get("paid_at"),
