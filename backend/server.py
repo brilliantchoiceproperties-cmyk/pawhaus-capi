@@ -5,7 +5,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
 from pathlib import Path
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import BaseModel, Field, EmailStr, field_validator
 from typing import List, Optional, Dict, Any
 import uuid
 from datetime import datetime, timezone
@@ -190,11 +190,29 @@ def calculate_quote(room_id: str, stay_id: str, tier: str, referral_applied: boo
 # Models
 # ---------------------------------------------------------------------------
 
+SPA_PERK_CHOICES = {"nail_trim", "blueberry_facial"}
+SPA_PERK_LABELS = {
+    "nail_trim": "Nail Trim",
+    "blueberry_facial": "Blueberry Facial",
+}
+
+
 class Pet(BaseModel):
     name: str
     breed: Optional[str] = ""
     size: Optional[str] = "Medium (25-60 lb)"
     special_needs: Optional[str] = ""
+    spa_perk: Optional[str] = "nail_trim"  # one of SPA_PERK_CHOICES
+
+    @field_validator("spa_perk")
+    @classmethod
+    def _validate_spa_perk(cls, v):
+        if not v:
+            return "nail_trim"
+        v = str(v).strip().lower()
+        if v not in SPA_PERK_CHOICES:
+            return "nail_trim"
+        return v
 
 
 class CodeValidateRequest(BaseModel):
@@ -321,6 +339,15 @@ async def admin_bookings(request: Request, limit: int = 50, status: Optional[str
     )
     items = []
     async for d in cursor:
+        pets_list = (d.get("booking") or {}).get("pets") or []
+        perks = [
+            {
+                "name": p.get("name"),
+                "spa_perk": p.get("spa_perk", "nail_trim"),
+                "spa_perk_label": SPA_PERK_LABELS.get(p.get("spa_perk", "nail_trim"), "Nail Trim"),
+            }
+            for p in pets_list if (p.get("name") or "").strip()
+        ]
         items.append({
             "id": d.get("id"),
             "site": SITE_SOURCE,
@@ -333,7 +360,8 @@ async def admin_bookings(request: Request, limit: int = 50, status: Optional[str
             "phone": (d.get("booking") or {}).get("phone"),
             "check_in": (d.get("booking") or {}).get("check_in"),
             "check_out": (d.get("booking") or {}).get("check_out"),
-            "pet_count": len([p for p in (d.get("booking") or {}).get("pets") or [] if (p.get("name") or "").strip()]),
+            "pet_count": len(perks),
+            "perks": perks,
             "created_at": d.get("created_at"),
             "paid_at": d.get("paid_at"),
         })
@@ -474,9 +502,6 @@ async def create_checkout_session(req: CheckoutRequest, http_request: Request):
         "email": req.booking.email.lower(),
         "full_name": req.booking.full_name,
     }
-
-    host_url = str(http_request.base_url)
-    webhook_url = f"{host_url.rstrip('/')}/api/webhook/stripe"
 
     # Direct Stripe SDK call so we can enable Apple Pay, Google Pay, and Link.
     # Stripe Checkout auto-renders the relevant wallets on supported devices.
@@ -675,6 +700,12 @@ async def notify_ghl(event: str, booking_id: str) -> None:
         "pet_count": len(pets),
         "pet_names": ", ".join([p.get("name", "") for p in pets if p.get("name")]),
         "pets": pets,
+        # Welcome perks (free with every booking) — included in prep checklist for ops team
+        "welcome_bandana": "Yes — one per dog",
+        "perks_summary": ", ".join([
+            f"{p.get('name', 'Dog')} → {SPA_PERK_LABELS.get(p.get('spa_perk', 'nail_trim'), 'Nail Trim')} + Bandana"
+            for p in pets if (p.get("name") or "").strip()
+        ]) or ("No dog this stay" if (details.get("pets") or []) == [] else ""),
         "total_amount": quote.get("total"),
         "base_price": quote.get("base"),
         "discount_amount": quote.get("discount"),

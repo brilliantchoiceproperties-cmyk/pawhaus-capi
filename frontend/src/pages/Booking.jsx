@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
-import { ArrowRight, ArrowLeft, Trash2, Plus, ShieldCheck, CalendarDays, PawPrint, ChevronDown, ChevronLeft, ChevronRight, Bath, ChefHat, Waves, TreePine, Coffee, Wifi, AlertCircle } from "lucide-react";
+import { ArrowRight, ArrowLeft, Trash2, Plus, ShieldCheck, CalendarDays, PawPrint, ChevronDown, ChevronLeft, ChevronRight, Bath, ChefHat, Waves, TreePine, Coffee, Wifi, AlertCircle, Scissors, Sparkles, Gift } from "lucide-react";
 import { useBooking } from "@/context/BookingContext";
 import { createCheckoutSession } from "@/lib/paw-api";
 import { getReferrer } from "@/lib/referral";
@@ -556,6 +556,7 @@ function StepGuests({ guests, setGuests, stayId, catalog, roomId }) {
           breed: "",
           size: "Medium (25-60 lb)",
           special_needs: "",
+          spa_perk: "nail_trim",
         },
       ],
     });
@@ -669,7 +670,7 @@ function StepGuests({ guests, setGuests, stayId, catalog, roomId }) {
               setGuests({
                 ...guests,
                 no_pets: checked,
-                pets: checked ? [] : (guests.pets.length === 0 ? [{ id: `pet-${Date.now()}`, name: "", breed: "", size: "Medium (25-60 lb)", special_needs: "" }] : guests.pets),
+                pets: checked ? [] : (guests.pets.length === 0 ? [{ id: `pet-${Date.now()}`, name: "", breed: "", size: "Medium (25-60 lb)", special_needs: "", spa_perk: "nail_trim" }] : guests.pets),
               });
             }}
             className="mt-1"
@@ -682,6 +683,23 @@ function StepGuests({ guests, setGuests, stayId, catalog, roomId }) {
             </span>
           </span>
         </label>
+
+        {!guests.no_pets && (
+        <div
+          data-testid="welcome-perks-banner"
+          className="paw-card p-5 mb-5"
+          style={{ background: "var(--paw-bg-2)", borderColor: "var(--paw-clay)", borderWidth: 1, borderStyle: "solid" }}
+        >
+          <div className="flex items-center gap-2 mb-2" style={{ color: "var(--paw-clay)" }}>
+            <Gift size={15} strokeWidth={1.8} />
+            <span className="overline">Welcome perks — free with every stay</span>
+          </div>
+          <p className="text-sm leading-relaxed" style={{ color: "var(--paw-ink-2)" }}>
+            Every dog gets a <strong style={{ color: "var(--paw-ink)" }}>PawHaus welcome bandana</strong> on arrival,
+            plus your choice of a complimentary <strong style={{ color: "var(--paw-ink)" }}>spa treatment</strong> below — nail trim or our signature blueberry facial. Pick one per dog.
+          </p>
+        </div>
+        )}
 
         {!guests.no_pets && (
         <div className="space-y-5">
@@ -721,6 +739,49 @@ function StepGuests({ guests, setGuests, stayId, catalog, roomId }) {
                   value={p.special_needs}
                   onChange={(v) => updatePet(i, "special_needs", v)}
                 />
+              </div>
+
+              {/* Spa perk picker — one free treatment per dog */}
+              <div className="mt-5 pt-5 border-t" style={{ borderColor: "var(--paw-line)" }}>
+                <div className="flex items-center gap-2 mb-3" style={{ color: "var(--paw-clay)" }}>
+                  <Gift size={13} strokeWidth={1.8} />
+                  <span className="overline">
+                    {p.name ? `${p.name}'s` : "Pet's"} complimentary spa pick
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {[
+                    { id: "nail_trim", label: "Nail Trim", icon: Scissors, desc: "Quick, calm clip during the stay" },
+                    { id: "blueberry_facial", label: "Blueberry Facial", icon: Sparkles, desc: "Our signature blueberry exfoliating treat" },
+                  ].map(({ id, label, icon: Icon, desc }) => {
+                    const selected = (p.spa_perk || "nail_trim") === id;
+                    return (
+                      <button
+                        key={id}
+                        type="button"
+                        data-testid={`pet-${i}-perk-${id}`}
+                        onClick={() => updatePet(i, "spa_perk", id)}
+                        className="paw-card p-3 text-left"
+                        style={{
+                          background: selected ? "var(--paw-forest)" : "var(--paw-bg)",
+                          color: selected ? "var(--paw-bg)" : "var(--paw-ink)",
+                          borderColor: selected ? "var(--paw-forest)" : "var(--paw-line)",
+                        }}
+                      >
+                        <div className="flex items-center gap-2 mb-1">
+                          <Icon size={14} strokeWidth={1.8} style={{ color: selected ? "var(--paw-bg)" : "var(--paw-clay)" }} />
+                          <span className="text-sm" style={{ fontWeight: 500 }}>{label}</span>
+                        </div>
+                        <div
+                          className="text-xs"
+                          style={{ color: selected ? "rgba(250,249,246,0.78)" : "var(--paw-muted)" }}
+                        >
+                          {desc}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           ))}
@@ -833,6 +894,34 @@ function StepReview({ catalog, roomId, stayId, tierLabel, discountPercent, guest
           />
           {guests.notes && <ReviewRow label="Notes" value={guests.notes} />}
         </div>
+
+        {/* Welcome perks line — confirms what's included */}
+        {!guests.no_pets && guests.pets.filter((p) => p.name.trim()).length > 0 && (
+          <div
+            data-testid="review-perks"
+            className="mt-7 pt-7 border-t"
+            style={{ borderColor: "var(--paw-line)" }}
+          >
+            <div className="flex items-center gap-2 mb-3" style={{ color: "var(--paw-clay)" }}>
+              <Gift size={14} strokeWidth={1.8} />
+              <span className="overline">Welcome perks — included</span>
+            </div>
+            <ul className="space-y-1.5">
+              {guests.pets.filter((p) => p.name.trim()).map((p, i) => (
+                <li
+                  key={p.id || `perk-${i}`}
+                  data-testid={`review-perk-${i}`}
+                  className="text-sm"
+                  style={{ color: "var(--paw-ink-2)" }}
+                >
+                  <strong style={{ color: "var(--paw-ink)" }}>{p.name}</strong> →{" "}
+                  {p.spa_perk === "blueberry_facial" ? "Blueberry Facial" : "Nail Trim"}{" "}
+                  <span style={{ color: "var(--paw-muted)" }}>+ welcome bandana</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
 
       {/* HOUSE RULES — required agreement */}

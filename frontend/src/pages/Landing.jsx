@@ -97,6 +97,7 @@ export default function Landing() {
               <ul className="space-y-2.5">
                 {[
                   "30% off every booking — no code, no email signup",
+                  "Welcome bandana + free spa treatment for every dog (nail trim or blueberry facial)",
                   "All taxes & fees included",
                   "Free reschedule or refund up to 14 days before stay",
                   "Final preview photos & arrival details sent before launch",

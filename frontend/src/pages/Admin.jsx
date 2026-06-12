@@ -338,13 +338,14 @@ export default function Admin() {
                 <Th>Cabin</Th>
                 <Th>Stay</Th>
                 <Th>Check-in</Th>
+                <Th>Perks</Th>
                 <Th>Total</Th>
                 <Th>Created</Th>
               </tr>
             </thead>
             <tbody>
               {bookings.length === 0 ? (
-                <tr><td colSpan={8} className="text-center py-10 text-xs" style={{ color: "var(--paw-muted)" }}>No bookings yet.</td></tr>
+                <tr><td colSpan={9} className="text-center py-10 text-xs" style={{ color: "var(--paw-muted)" }}>No bookings yet.</td></tr>
               ) : (
                 bookings.map((b) => (
                   <tr key={`${b.site_id}-${b.id}`} style={{ borderTop: "1px solid var(--paw-line)" }} data-testid={`booking-row-${b.id}`}>
@@ -364,6 +365,19 @@ export default function Admin() {
                     <Td>{b.room_name}</Td>
                     <Td>{b.stay_label}</Td>
                     <Td>{b.check_in}</Td>
+                    <Td>
+                      {(b.perks && b.perks.length > 0) ? (
+                        <div className="text-xs space-y-0.5" style={{ color: "var(--paw-ink-2)" }}>
+                          {b.perks.map((p, i) => (
+                            <div key={`${b.id}-perk-${i}`}>
+                              <strong style={{ color: "var(--paw-ink)" }}>{p.name}</strong>: {p.spa_perk_label} + Bandana
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <span className="text-xs" style={{ color: "var(--paw-muted)" }}>—</span>
+                      )}
+                    </Td>
                     <Td><strong>${(b.total || 0).toLocaleString()}</strong></Td>
                     <Td className="text-xs" style={{ color: "var(--paw-muted)" }}>{(b.created_at || "").slice(0, 16).replace("T", " ")}</Td>
                   </tr>

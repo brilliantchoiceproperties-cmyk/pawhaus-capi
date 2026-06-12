@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { CheckCircle2, ArrowRight } from "lucide-react";
+import { CheckCircle2, ArrowRight, Gift } from "lucide-react";
 import { getPaymentStatus } from "@/lib/paw-api";
 import { useBooking } from "@/context/BookingContext";
 import { track } from "@/lib/analytics";
@@ -101,6 +101,38 @@ export default function Success() {
               ${Number(amount).toFixed(2)} paid
             </p>
           )}
+
+          {(() => {
+            const pets = booking?.booking?.pets || [];
+            const namedPets = pets.filter((p) => (p.name || "").trim());
+            if (booking?.booking?.no_pets || namedPets.length === 0) return null;
+            return (
+              <div
+                data-testid="success-perks"
+                className="paw-card p-6 mt-10 mx-auto max-w-xl text-left"
+                style={{ background: "var(--paw-bg-2)", borderColor: "var(--paw-clay)", borderWidth: 1, borderStyle: "solid" }}
+              >
+                <div className="flex items-center gap-2 mb-3" style={{ color: "var(--paw-clay)" }}>
+                  <Gift size={15} strokeWidth={1.8} />
+                  <span className="overline">Welcome perks — ready at check-in</span>
+                </div>
+                <ul className="space-y-2">
+                  {namedPets.map((p, i) => (
+                    <li
+                      key={p.id || `success-perk-${i}`}
+                      data-testid={`success-perk-${i}`}
+                      className="text-sm leading-relaxed"
+                      style={{ color: "var(--paw-ink-2)" }}
+                    >
+                      <strong style={{ color: "var(--paw-ink)" }}>{p.name}</strong> →{" "}
+                      {p.spa_perk === "blueberry_facial" ? "Blueberry Facial 🫐" : "Nail Trim ✂️"}{" "}
+                      <span style={{ color: "var(--paw-muted)" }}>+ PawHaus welcome bandana</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            );
+          })()}
 
           {booking?.referral_code && (
             <div data-testid="success-referral" className="paw-card p-7 mt-10 mx-auto max-w-xl" style={{ background: "var(--paw-bg-2)", borderColor: "var(--paw-clay)", borderWidth: 1, borderStyle: "solid" }}>

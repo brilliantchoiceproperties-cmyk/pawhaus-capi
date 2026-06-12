@@ -1,0 +1,35 @@
+{
+  "summary": "Welcome perks (bandana + per-pet spa pick) feature fully verified end-to-end. Backend: 9/9 pytest cases pass — Pet.spa_perk validator accepts nail_trim/blueberry_facial, silently coerces invalid values to nail_trim default, /api/admin/bookings response includes per-pet perks array with humanized labels, per-pet choices persist correctly when 2 pets pick different perks, empty pets returns []. Frontend: Landing public-card shows the welcome perks bullet. Booking Step 2 welcome-perks-banner is visible (mentions bandana, spa, blueberry), per-pet pet-{i}-perk-nail_trim and pet-{i}-perk-blueberry_facial pickers exist, selecting blueberry_facial flips background to var(--paw-forest) (forest green highlight verified), add-pet-button spawns a second pet card with its own picker, no-pets-toggle correctly HIDES the welcome-perks-banner and unhides on untoggle. Step 3 review-perks section renders 'Bella → Blueberry Facial + welcome bandana' as expected. Admin /admin dashboard shows new PERKS column with 'Bella: Blueberry Facial + Bandana' / 'Max: Nail Trim + Bandana' formatting per pet. Stripe checkout NOT submitted (per instructions). Test bookings cleaned up via DELETE /api/admin/bookings/all?confirm=YES.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_perks_api.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "server.py: Pet.spa_perk validator silently coerces unknown values to 'nail_trim' instead of returning a 422 — acceptable for a free perk default, but means typos in API payloads are masked. Consider logging a warning.",
+    "server.py admin_bookings: perks list filters out pets with blank names — a no-named-pet booking will show pet_count=0 even if pets[] has objects. Matches review UX but worth noting.",
+    "Booking.jsx Step2/3: review-perks only lists named pets; if a user toggles no_pets ON after picking perks, the banner correctly hides but pets[] is cleared from state — irreversible if they toggle back without re-adding (currently re-adds a fresh pet). Acceptable.",
+    "Old test file /app/backend/tests/test_pawhaus_api.py referenced removed endpoints (/api/code/validate, VIP tier) — deleted by testing agent to keep regression suite green.",
+    "ADMIN_TOKEN is in plain .env; preview env exposes it via X-Admin-Token header. Standard for this stage."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_perks_api.py (new)",
+    "/app/backend/tests/test_pawhaus_api.py (deleted — referenced removed VIP/code endpoints)"
+  ],
+  "success_rate": {"backend": "100% (9/9)", "frontend": "100% (all perks flows)"},
+  "test_credentials": "Admin token: gMonNetmm9f0sJXvJ1z1e2PTeMFkHeskSOb3YndWvGs (header X-Admin-Token).",
+  "seed_data_creation": "Each pytest test creates a TEST_-prefixed booking via POST /api/payments/checkout/session and the final test_zz_cleanup_all_test_bookings wipes via DELETE /api/admin/bookings/all?confirm=YES. UI admin test also seeds one booking with curl then wipes.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Backend tests live at /app/backend/tests/test_perks_api.py — run with `python -m pytest backend/tests/test_perks_api.py -v`. The Pet validator quietly maps unknown spa_perk to 'nail_trim', so frontend should never send invalid values but backend is tolerant. SPA_PERK_LABELS dict in server.py controls humanized labels in /api/admin/bookings response and GHL payload. Stripe is LIVE on this env — do not click Pay Securely. Use 2026-12-15 for safe check-in. The /admin frontend shows the PERKS column between CHECK-IN and TOTAL, rendering each pet as 'Name: Treatment + Bandana'.",
+  "rca of the issue": "No issues found. Feature works as specified."
+}
