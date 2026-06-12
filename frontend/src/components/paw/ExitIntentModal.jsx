@@ -41,7 +41,7 @@ export default function ExitIntentModal() {
 
     // Desktop: mouseout toward top of viewport
     const onMouseOut = (e) => {
-      if (e.clientY <= 0 && !e.relatedTarget && !e.toElement) {
+      if (e.clientY <= 0 && !e.relatedTarget) {
         trigger("desktop_mouseout");
       }
     };
@@ -84,7 +84,7 @@ export default function ExitIntentModal() {
     }
     setSubmitting(true);
     try {
-      await fetch(`${API_URL}/api/lead-capture`, {
+      const res = await fetch(`${API_URL}/api/lead-capture`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -93,6 +93,9 @@ export default function ExitIntentModal() {
           page: typeof window !== "undefined" ? window.location.pathname : "",
         }),
       });
+      if (!res.ok) {
+        throw new Error(`server returned ${res.status}`);
+      }
       track("exit_intent_email_captured", { email });
       setSubmitted(true);
     } catch (err) {
