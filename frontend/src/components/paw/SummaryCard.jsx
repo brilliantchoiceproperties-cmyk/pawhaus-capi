@@ -23,12 +23,6 @@ export default function SummaryCard({ roomId, stayId, tier, catalog }) {
       .then((q) => {
         if (!active) return;
         setQuote(q);
-        // If a promo code was entered but the server didn't apply it, surface that
-        if (promo && (!q.promo_code || q.promo_discount <= 0)) {
-          setPromoError(`Code "${promo}" isn't valid — try a different one.`);
-        } else {
-          setPromoError("");
-        }
       })
       .catch(() => {})
       .finally(() => active && setLoading(false));
@@ -41,20 +35,23 @@ export default function SummaryCard({ roomId, stayId, tier, catalog }) {
     setPromoError("");
     const code = (promoInput || "").trim().toUpperCase();
     if (!code) return;
-    setPromo(code);
-    // Force a re-render via window event or by triggering the useEffect deps
-    // — easiest: just reload local state
-    setPromoInput("");
-    // Bump the quote re-fetch by re-reading promo (state already in localStorage)
     setLoading(true);
+    // Probe the server with the code BEFORE persisting to localStorage —
+    // that way invalid codes never poison the auto-apply path on next page load.
     getQuote({ room_id: roomId, stay_id: stayId, tier, referrer_code: referrer, promo_code: code })
       .then((q) => {
-        setQuote(q);
-        if (!q.promo_code || q.promo_discount <= 0) {
+        if (q.promo_code && q.promo_discount > 0) {
+          // Valid — persist + update UI
+          setPromo(code);
+          setQuote(q);
+          setPromoInput("");
+          setPromoError("");
+        } else {
+          // Invalid — show error, do NOT touch localStorage
           setPromoError(`Code "${code}" isn't valid — try a different one.`);
-          clearPromo();
         }
       })
+      .catch(() => setPromoError("Couldn't check that code — try again."))
       .finally(() => setLoading(false));
   };
 

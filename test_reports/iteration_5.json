@@ -1,0 +1,36 @@
+{
+  "summary": "Retest of PAW25 invalid-promo error UI bug fix in SummaryCard.jsx. 3/4 critical UI flows fully pass. INVALID PROMO ERROR now correctly displays — typing 'FAKE99' and clicking Apply shows error text 'Code \"FAKE99\" isn't valid — try a different one.' as expected, with localStorage 'pawhaus_promo_code' remaining null and total unchanged at $488.60. VALID PAW25 still works ($488.60 → $463.60, badge appears, error clears, localStorage='PAW25'). URL AUTO-APPLY still works (/booking?promo=PAW25 → Standard Room → total $463.60, badge auto-shows). REMOVE BUTTON works functionally (badge disappears, total restored to $488.60, localStorage cleared) BUT the input panel does not collapse back to the 'Have a promo code?' toggle — promoVisible state is never reset to false after remove, so the user sees the input box + Apply button still expanded instead of the compact toggle. Minor UX inconsistency only; does not block re-application or any other flow.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "SummaryCard.jsx",
+        "issue": "After clicking summary-promo-remove, the promo input panel stays expanded (input + Apply button visible) instead of collapsing back to the summary-promo-toggle ('Have a promo code?') link. Root cause: removePromo() in SummaryCard.jsx (lines ~58-65) clears localStorage and refetches the quote but does not call setPromoVisible(false). Recommendation: add setPromoVisible(false) and setPromoInput('') inside removePromo() so the UI returns to its original compact state.",
+        "selector": "[data-testid=\"summary-promo-toggle\"]",
+        "priority": "LOW"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_promo_code.py",
+    "/app/backend/tests/test_ghl_promo_payload.py"
+  ],
+  "action_items": [
+    "Minor: in SummaryCard.jsx removePromo(), call setPromoVisible(false) and setPromoInput('') so the compact 'Have a promo code?' toggle reappears after the user removes an applied promo."
+  ],
+  "critical_code_review_comments": [
+    "SummaryCard.jsx applyPromo() fix is solid: probing the server BEFORE setPromo() prevents invalid codes from polluting localStorage and the useEffect auto-apply path. Verified end-to-end with FAKE99.",
+    "SummaryCard.jsx useEffect simplification (lines 15-32) correctly only updates quote on dependency change; no longer wipes promoError on re-render. Race condition from iter 4 is fully fixed.",
+    "Minor: applyPromo's success branch sets promoInput='' but does not setPromoVisible(false). Inconsistent with the expectation that a successful apply collapses the input area (badge replaces it — quote.promo_discount > 0 hides the entire promo input block via line 153 condition, so this works by side effect for the success case but not for the remove case)."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100% (not re-tested per request)", "frontend": "75% (Test 1 invalid-error: PASS, Test 2 valid PAW25: PASS, Test 3 remove: FAIL on toggle-reappears assertion only, functionality intact, Test 4 URL auto-apply: PASS)"},
+  "test_credentials": "n/a — no auth needed for booking flow tests",
+  "seed_data_creation": "None — no bookings created this iteration (Stripe regression skipped per request).",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "The primary iter-4 bug (invalid-promo error message silently failing) is FIXED and verified. SummaryCard.jsx applyPromo now correctly probes the server before persisting; useEffect no longer races. Only outstanding minor UX nit: removePromo() doesn't reset promoVisible/promoInput state, so the input panel stays expanded after removing a promo. Functionality (badge removal, total restoration, localStorage clearing) all works correctly. No retest needed unless main agent fixes the minor UX nit.",
+  "rca of the issue": "Test 3 'toggle reappears' failure RCA: After clicking summary-promo-remove, removePromo() (SummaryCard.jsx lines 58-65) calls clearPromo() + refetches quote with promo_code=null. The quote.promo_discount returns to 0, so the promo input block (line 153 conditional) becomes visible again. However, promoVisible local state is still true from when the user first clicked the toggle, so the {promoVisible ? input : toggle} ternary at line 155 keeps rendering the input form. Fix: add setPromoVisible(false) inside removePromo() to reset the panel to its collapsed toggle state."
+}
