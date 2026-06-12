@@ -401,30 +401,52 @@ function RoomCard({ room, selected, onSelect, discountPercent, stayId, catalog, 
           {room.description}
         </p>
 
-        {/* Slashed pricing */}
-        <div className="mt-5 flex items-baseline gap-2.5">
-          <span className="text-sm" style={{ color: "var(--paw-muted)" }}>
-            From
-          </span>
-          {discountPercent > 0 && (
-            <span
-              data-testid={`room-${room.id}-strike-price`}
-              className="text-base line-through"
-              style={{ color: "var(--paw-muted)" }}
-            >
-              ${basePrice.toFixed(0)}
+        {/* Slashed pricing — anchored & punchy */}
+        <div className="mt-5">
+          <div className="flex items-baseline gap-2.5 flex-wrap">
+            <span className="text-sm" style={{ color: "var(--paw-muted)" }}>
+              From
             </span>
-          )}
-          <span
-            data-testid={`room-${room.id}-discount-price`}
-            className="font-display text-2xl"
-            style={{ color: "var(--paw-clay)" }}
+            {discountPercent > 0 && (
+              <span
+                data-testid={`room-${room.id}-strike-price`}
+                className="text-base line-through"
+                style={{ color: "var(--paw-muted)" }}
+              >
+                ${basePrice.toFixed(0)}
+              </span>
+            )}
+            <span
+              data-testid={`room-${room.id}-discount-price`}
+              className="font-display text-3xl"
+              style={{ color: "var(--paw-clay)" }}
+            >
+              ${discounted}
+            </span>
+            <span className="text-sm" style={{ color: "var(--paw-muted)" }}>
+              /{stayLabel}
+            </span>
+            {discountPercent > 0 && (
+              <span
+                data-testid={`room-${room.id}-savings-badge`}
+                className="overline ml-1 px-2 py-1"
+                style={{
+                  background: "var(--paw-forest)",
+                  color: "var(--paw-bg)",
+                  borderRadius: 2,
+                  fontSize: "10px",
+                }}
+              >
+                Save ${(basePrice - discounted).toFixed(0)}
+              </span>
+            )}
+          </div>
+          <div
+            className="mt-1.5 text-xs"
+            style={{ color: "var(--paw-forest)" }}
           >
-            ${discounted}
-          </span>
-          <span className="text-sm" style={{ color: "var(--paw-muted)" }}>
-            /{stayLabel}
-          </span>
+            + free welcome bandana &amp; spa treatment per dog (worth $40)
+          </div>
         </div>
 
         {/* More details dropdown */}

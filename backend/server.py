@@ -383,6 +383,57 @@ async def admin_wipe_all(request: Request, confirm: str = ""):
     }
 
 
+class LeadCaptureRequest(BaseModel):
+    email: EmailStr
+    source: Optional[str] = "exit_intent"
+    page: Optional[str] = None
+
+
+@api_router.post("/lead-capture")
+async def lead_capture(req: LeadCaptureRequest):
+    """
+    Captures emails from the exit-intent modal (and any future lead-capture
+    surface). Stores the lead and fires a GHL webhook event so the email
+    automation can send the $25 follow-up code.
+    """
+    now = datetime.now(timezone.utc)
+    doc = {
+        "id": str(uuid.uuid4()),
+        "email": str(req.email).lower().strip(),
+        "source": req.source or "exit_intent",
+        "page": req.page,
+        "site": SITE_SOURCE,
+        "created_at": now.isoformat(),
+    }
+    await db.leads.update_one(
+        {"email": doc["email"], "source": doc["source"]},
+        {"$set": doc, "$setOnInsert": {"first_seen_at": now.isoformat()}},
+        upsert=True,
+    )
+
+    target = GHL_WEBHOOK_URL or GHL_ABANDONED_WEBHOOK_URL
+    if target:
+        payload = {
+            "event": "exit_intent_lead",
+            "source": SITE_SOURCE,
+            "lead_source": doc["source"],
+            "email": doc["email"],
+            "page": doc["page"],
+            "occurred_at": now.isoformat(),
+            "extra_discount_label": "$25 OFF",
+            "extra_discount_code": "PAW25",
+        }
+        try:
+            async with httpx.AsyncClient(timeout=8.0) as ghl:
+                resp = await ghl.post(target, json=payload)
+                resp.raise_for_status()
+            logger.info("GHL lead_capture sent for %s", doc["email"])
+        except Exception as e:  # noqa: BLE001
+            logger.warning("GHL lead_capture failed for %s: %s", doc["email"], e)
+
+    return {"ok": True}
+
+
 @api_router.get("/scarcity")
 async def scarcity():
     """

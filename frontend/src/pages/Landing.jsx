@@ -4,6 +4,9 @@ import { ArrowRight, Check, MapPin, Coffee, Flame, Trees, Wifi, ShoppingBag, Bat
 import { track } from "@/lib/analytics";
 import EmailCTA from "@/components/paw/EmailCTA";
 import FaqSection from "@/components/paw/FaqSection";
+import FounderSection from "@/components/paw/FounderSection";
+import MobileStickyBar from "@/components/paw/MobileStickyBar";
+import ExitIntentModal from "@/components/paw/ExitIntentModal";
 
 // PawHaus brand assets — served as optimised webp from /public/brand/
 const HERO_IMG = "/brand/hero.webp";
@@ -151,8 +154,7 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* CAMERON RANCH CREDIBILITY */}
-      <section className="mx-auto max-w-[1400px] px-6 sm:px-10 pt-24">
+      {/* CAMERON RANCH CREDIBILITY */}      <section className="mx-auto max-w-[1400px] px-6 sm:px-10 pt-24">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-10 items-center">
           <div className="md:col-span-6 order-2 md:order-1">
             <div
@@ -179,6 +181,9 @@ export default function Landing() {
           </div>
         </div>
       </section>
+
+      {/* FOUNDER — face + story */}
+      <FounderSection />
 
       {/* INSIDE THE CABIN — bedroom shot */}
       <section className="mx-auto max-w-[1400px] px-6 sm:px-10 pt-32">
@@ -399,6 +404,10 @@ export default function Landing() {
           </div>
         </div>
       </section>
+
+      {/* Mobile sticky CTA bar + Exit-intent modal — visible only on landing */}
+      <MobileStickyBar />
+      <ExitIntentModal />
     </div>
   );
 }
