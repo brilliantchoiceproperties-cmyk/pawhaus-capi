@@ -58,6 +58,8 @@ export default function SummaryCard({ roomId, stayId, tier, catalog }) {
   const removePromo = () => {
     clearPromo();
     setPromoError("");
+    setPromoInput("");
+    setPromoVisible(false);
     setLoading(true);
     getQuote({ room_id: roomId, stay_id: stayId, tier, referrer_code: referrer, promo_code: null })
       .then((q) => setQuote(q))
