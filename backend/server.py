@@ -64,13 +64,29 @@ ROOMS: Dict[str, Dict[str, Any]] = {
             "LONG_3N": 1759.0,
         },
     },
-    "standard": {
-        "id": "standard",
-        "name": "Standard Room",
+    "extended": {
+        "id": "extended",
+        "name": "Extended Room",
         "bed": "King Bed",
         "capacity": "Sleeps 2 + up to 3 pets (snug)",
         "max_pets": 3,
-        "description": "Upgraded suite with private wood-fire hot tub included, king bed, forest-facing deck, in-cabin shower and bathroom, small kitchenette. It's a tiny home — comfortable for two humans with two dogs; snug with three.",
+        "description": "Upgraded suite with king bed, forest-facing deck, in-cabin shower and bathroom, small kitchenette, and your own private yard with a cedar dog cot under sail shade. It's a tiny home — comfortable for two humans with two dogs; snug with three.",
+        "has_hot_tub": False,
+        "stay_totals": {
+            "WEEKDAY_1N": 623.0,
+            "WEEKDAY_2N": 1128.0,
+            "WEEKEND_1N": 863.0,
+            "WEEKEND_2N": 1542.0,
+            "LONG_3N": 1864.0,
+        },
+    },
+    "extended_ht": {
+        "id": "extended_ht",
+        "name": "Extended Room + Wood-Fired Hot Tub",
+        "bed": "King Bed",
+        "capacity": "Sleeps 2 + up to 3 pets (snug)",
+        "max_pets": 3,
+        "description": "Same upgraded Extended suite — king bed, forest deck, private yard with cedar dog cot — plus your own private wood-fire hot tub on the deck. Limited inventory: only two of these cabins available per night.",
         "has_hot_tub": True,
         "stay_totals": {
             "WEEKDAY_1N": 698.0,
@@ -86,16 +102,33 @@ ROOMS: Dict[str, Dict[str, Any]] = {
         "bed": "King Bed",
         "capacity": "Sleeps 4 + up to 3 pets",
         "max_pets": 3,
-        "description": "Our largest unit. Double-height glass, king bed, in-cabin shower and bathroom, small kitchenette, private wood-fire hot tub included. Sleeps four humans plus up to three dogs.",
+        "description": "Our largest unit. Double-height glass, king bed, in-cabin shower and bathroom, small kitchenette, private wood-fire hot tub included, and a fully fenced yard with cedar dog cot. Sleeps four humans plus up to three dogs.",
         "has_hot_tub": True,
         "stay_totals": {
-            "WEEKDAY_1N": 898.0,
-            "WEEKDAY_2N": 1478.0,
-            "WEEKEND_1N": 1138.0,
-            "WEEKEND_2N": 1952.0,
-            "LONG_3N": 2419.0,
+            "WEEKDAY_1N": 948.0,
+            "WEEKDAY_2N": 1578.0,
+            "WEEKEND_1N": 1188.0,
+            "WEEKEND_2N": 2052.0,
+            "LONG_3N": 2569.0,
         },
     },
+}
+
+# Backwards-compat: the old room IDs route to the new ones so existing
+# bookings, GHL contacts, Stripe sessions, and any in-flight links still resolve.
+ROOM_ID_ALIASES: Dict[str, str] = {
+    "standard": "extended_ht",  # historical Standard always had a hot tub
+}
+
+
+def _resolve_room_id(room_id: str) -> str:
+    return ROOM_ID_ALIASES.get(room_id, room_id)
+
+
+# Per-date inventory caps. extended_ht has only 2 wood-fired hot-tub cabins on
+# property, so we hard-stop bookings beyond 2 per check-in date to avoid overbooking.
+ROOM_DAILY_CAPS: Dict[str, int] = {
+    "extended_ht": 2,
 }
 
 # Hot tub is now included in the Standard & Monolith room rate — no extra charge.
@@ -177,6 +210,7 @@ def calculate_quote(
     promo_discount: float = 0.0,
     promo_code: Optional[str] = None,
 ) -> Dict[str, Any]:
+    room_id = _resolve_room_id(room_id)
     room = ROOMS.get(room_id)
     stay = next((s for s in STAY_OPTIONS if s["id"] == stay_id), None)
     if not room or not stay:
@@ -552,6 +586,9 @@ def _meta_signals_from_request(req: Request) -> Dict[str, Optional[str]]:
 
 @api_router.post("/payments/checkout/session")
 async def create_checkout_session(req: CheckoutRequest, http_request: Request):
+    # Resolve any historical room IDs (e.g. "standard" → "extended_ht")
+    resolved_room_id = _resolve_room_id(req.room_id)
+
     # Validate referrer first (if provided)
     referrer_code_clean = (req.referrer_code or "").strip().upper()
     referral_applied = await _is_valid_referral_code(referrer_code_clean)
@@ -568,7 +605,7 @@ async def create_checkout_session(req: CheckoutRequest, http_request: Request):
 
     # Server-side computed amount (NEVER trust frontend)
     quote_data = calculate_quote(
-        req.room_id,
+        resolved_room_id,
         req.stay_id,
         req.tier,
         referral_applied=referral_applied,
@@ -581,8 +618,25 @@ async def create_checkout_session(req: CheckoutRequest, http_request: Request):
     if stay:
         _validate_dates(req.booking.check_in, stay["nights"])
 
+    # Per-date inventory cap (limited cabin variants like extended_ht)
+    cap = ROOM_DAILY_CAPS.get(resolved_room_id)
+    if cap is not None and req.booking.check_in:
+        already_booked = await db.bookings.count_documents({
+            "room_id": resolved_room_id,
+            "booking.check_in": req.booking.check_in,
+            "status": {"$in": ["confirmed", "pending_payment"]},
+        })
+        if already_booked >= cap:
+            raise HTTPException(
+                status_code=409,
+                detail=(
+                    f"Only {cap} of this cabin available on {req.booking.check_in} and they're all taken. "
+                    f"Try another date — or pick the standard Extended Room (no hot tub) for that night."
+                ),
+            )
+
     # Enforce max pets per room
-    room = ROOMS.get(req.room_id)
+    room = ROOMS.get(resolved_room_id)
     if room:
         pets_count = len([p for p in req.booking.pets if p.name.strip()])
         if pets_count > room.get("max_pets", 99):
@@ -601,7 +655,7 @@ async def create_checkout_session(req: CheckoutRequest, http_request: Request):
 
     metadata = {
         "booking_id": booking_id,
-        "room_id": req.room_id,
+        "room_id": resolved_room_id,
         "stay_id": req.stay_id,
         "tier": req.tier,
         "email": req.booking.email.lower(),
@@ -640,7 +694,7 @@ async def create_checkout_session(req: CheckoutRequest, http_request: Request):
     sig = _meta_signals_from_request(http_request)
     booking_doc = {
         "id": booking_id,
-        "room_id": req.room_id,
+        "room_id": resolved_room_id,
         "room_name": quote_data["room_name"],
         "stay_id": req.stay_id,
         "stay_label": quote_data["stay_label"],

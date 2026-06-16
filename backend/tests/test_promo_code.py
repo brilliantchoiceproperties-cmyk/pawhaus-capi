@@ -38,7 +38,7 @@ if os.path.exists("/app/backend/.env"):
             if line.startswith("DB_NAME="):
                 DB_NAME = line.split("=", 1)[1].strip().strip('"').strip("'")
 
-ROOM_ID = "standard"
+ROOM_ID = "extended"  # no per-date cap
 STAY_ID = "WEEKDAY_1N"
 PROMO = "PAW25"
 PROMO_AMOUNT = 25.0

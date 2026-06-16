@@ -5,6 +5,7 @@ import { track } from "@/lib/analytics";
 import EmailCTA from "@/components/paw/EmailCTA";
 import FaqSection from "@/components/paw/FaqSection";
 import FounderSection from "@/components/paw/FounderSection";
+import DogDifferenceSection from "@/components/paw/DogDifferenceSection";
 import MobileStickyBar from "@/components/paw/MobileStickyBar";
 import ExitIntentModal from "@/components/paw/ExitIntentModal";
 
@@ -184,6 +185,9 @@ export default function Landing() {
 
       {/* FOUNDER — face + story */}
       <FounderSection />
+
+      {/* DOG DIFFERENCE — what we do differently for dogs */}
+      <DogDifferenceSection />
 
       {/* INSIDE THE CABIN — bedroom shot */}
       <section className="mx-auto max-w-[1400px] px-6 sm:px-10 pt-32">

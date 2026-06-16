@@ -1,0 +1,29 @@
+{
+  "summary": "Full backend + frontend regression for Room Catalog v2 (Extended split into extended/extended_ht, Monolith +$50/night, hard cap of 2 on extended_ht, 'standard' alias backwards-compat) and the new DogDifferenceSection on Landing. ALL 9 backend pytest cases pass against the public URL. Live curl-verified: GET /api/catalog returns 4 rooms in correct order [petite, extended, extended_ht, monolith] with correct names ('Extended Room' and 'Extended Room + Wood-Fired Hot Tub'), has_hot_tub flags [F,F,T,T], and WEEKDAY_1N bases [558, 623, 698, 948]. POST /api/quote regression: monolith/LONG_3N base_rate=2569 (was 2419, +$150) total=1798.30; monolith/WEEKDAY_2N base=1578 (+$100); discount math = base × 0.70 holds. Backwards-compat: room_id='standard' resolves to extended_ht ($698, room_id in response='extended_ht', name contains 'Hot Tub'). Per-date cap on extended_ht verified end-to-end via pytest (1st+2nd 200 OK, 3rd 409 with 'Only 2' in detail, 4th with extended SKU on same date returns 200 — cap is SKU-scoped). Frontend /booking renders all 4 room cards with correct data-testids and prices (Petite $558→$391, Extended $623→$436, Extended+HT $698→$489, Monolith $948→$664), each card shows 'free welcome bandana & spa treatment per dog (worth $40)' and SAVE badge. Landing renders DogDifferenceSection directly after FounderSection with all 4 cards (in-your-cabin, in-your-private-yard, across-the-property, our-service); key text 'potty corner', 'auto-fill stainless water bowl', 'Vetster', and 'pup cups' all present in correct cards. Stripe LIVE — full Pay funnel deliberately NOT clicked; pricing math for the funnel is already validated by the cap test which exercises the real /api/payments/checkout/session endpoint with both extended and extended_ht SKUs and creates real bookings (cleaned up after).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_room_catalog_v2.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "server.py line ~134: HOT_TUB_PREMIUM_PER_NIGHT=0.0 is now dead — the hot-tub price is baked into extended_ht's stay_totals. Safe to remove the constant and the conditional in calculate_quote() to reduce dead code; or keep with a comment but flag as legacy.",
+    "Per-date inventory cap counts bookings with status in ['confirmed','pending_payment']. There is no TTL/expiration on pending_payment, so abandoned carts could artificially block real bookings on the same date forever. Consider an expires_at on the booking doc (e.g., 30 min after stripe session creation) and exclude expired pending rows from the cap count. Not blocking — but worth tracking before launch.",
+    "ROOM_ID_ALIASES is a clean and well-documented backwards-compat pattern. Recommend the same treatment for any future stay_id renames.",
+    "Landing.jsx line 213 still mentions 'Standard & Monolith' in the bullet list ('Private wood fire pit + wood-fire hot tub (Standard & Monolith)'). Since the Standard SKU was renamed, this user-facing copy now refers to a name that no longer exists in the room cards (now 'Extended Room + Wood-Fired Hot Tub' and 'Monolith Room'). Suggest updating to 'Extended+HT & Monolith' or similar for consistency. LOW priority — purely copy.",
+    "Landing.jsx house-rules card 'Stay within cabin pet limits' line ~309 also still reads 'Standard & Monolith: up to 3 pets'. Same copy mismatch — should reference Extended/Extended+HT/Monolith now. LOW priority."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100% (9/9 pytest + 3 live curl checks)", "frontend": "100% (DogDifferenceSection + all 4 room cards + pricing + perk copy verified)"},
+  "test_credentials": "n/a — no auth needed for catalog/quote/checkout/landing flows. Admin token gMonNetmm9f0sJXvJ1z1e2PTeMFkHeskSOb3YndWvGs present in env but not exercised this iteration.",
+  "seed_data_creation": "test_extended_ht_cap_blocks_third_booking creates 3 bookings on 2026-12-20 and 1 extended booking on the same date via real /api/payments/checkout/session (real Stripe Checkout sessions). test_zz_cleanup deletes them via direct Mongo. Verified post-run: 0 stale @test.pawhaus.dev bookings/transactions in DB.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Room catalog v2 is fully shipped and locked in. test_room_catalog_v2.py is the regression suite — re-run before any future pricing change. The only outstanding nits are two stale 'Standard' copy mentions on Landing.jsx (lines ~213 and ~309) that the main agent missed during the rename; non-blocking. The cap on extended_ht counts both 'confirmed' and 'pending_payment' bookings indefinitely — could become an issue if abandoned carts pile up on hot dates; recommend a follow-up to expire pending bookings after ~30 min before launch.",
+  "rca of the issue": "n/a — no defects found this iteration."
+}

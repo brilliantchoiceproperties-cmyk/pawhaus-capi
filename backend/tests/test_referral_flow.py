@@ -46,7 +46,7 @@ if os.path.exists("/app/backend/.env"):
 
 
 REFERRAL_DISCOUNT = 50.0
-ROOM_ID = "standard"
+ROOM_ID = "extended"  # no per-date cap — keeps referral tests independent
 STAY_ID = "WEEKDAY_1N"
 SAFE_CHECKIN = "2026-12-15"  # post-launch, not a blackout
 
