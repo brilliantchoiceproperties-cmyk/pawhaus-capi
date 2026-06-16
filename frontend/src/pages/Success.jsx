@@ -3,7 +3,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { CheckCircle2, ArrowRight, Gift } from "lucide-react";
 import { getPaymentStatus } from "@/lib/paw-api";
 import { useBooking } from "@/context/BookingContext";
-import { track } from "@/lib/analytics";
+import { track, roomEventProps } from "@/lib/analytics";
 
 const POLL_INTERVAL = 2500;
 const MAX_ATTEMPTS = 8;
@@ -35,10 +35,10 @@ export default function Success() {
           track("checkout_paid", {
             amount: data.amount,
             tier: data.booking?.tier,
-            room_id: data.booking?.room_id,
             stay_id: data.booking?.stay_id,
             session_id: sessionId,
             booking_id: data.booking?.id,
+            ...roomEventProps(data.booking?.room_id),
           });
           // Clear context after success
           reset();

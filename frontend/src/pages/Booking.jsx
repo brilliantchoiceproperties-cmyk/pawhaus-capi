@@ -5,7 +5,7 @@ import { useBooking } from "@/context/BookingContext";
 import { createCheckoutSession } from "@/lib/paw-api";
 import { getReferrer } from "@/lib/referral";
 import { getPromo } from "@/lib/promo";
-import { track, identify } from "@/lib/analytics";
+import { track, identify, roomEventProps } from "@/lib/analytics";
 import SummaryCard from "@/components/paw/SummaryCard";
 import EmailCTA from "@/components/paw/EmailCTA";
 import ScarcityTicker from "@/components/paw/ScarcityTicker";
@@ -79,9 +79,11 @@ export default function Booking() {
     identify(guests.email, { full_name: guests.full_name, tier });
     track("checkout_initiated", {
       tier,
-      room_id: roomId,
       stay_id: stayId,
       pets_count: guests.pets.filter((p) => p.name.trim()).length,
+      promo_code: getPromo(),
+      referrer_code: getReferrer(),
+      ...roomEventProps(roomId),
     });
     try {
       const payload = {
