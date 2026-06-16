@@ -210,7 +210,7 @@ export default function Landing() {
                 "King or queen bed on a memory-foam mattress",
                 "Rainfall shower in a private bathroom",
                 "Small kitchenette + charcoal grill at every unit",
-                "Private wood fire pit + wood-fire hot tub (Standard & Monolith)",
+                "Private wood fire pit + wood-fire hot tub (Extended+HT & Monolith)",
                 "WiFi included",
                 "2–3 dog beds, food & water bowls, towel station",
               ].map((label) => (
@@ -306,7 +306,7 @@ export default function Landing() {
               {
                 icon: <Users size={18} strokeWidth={1.5} />,
                 title: "Stay within cabin pet limits",
-                body: "Petite: up to 2 pets • Standard & Monolith: up to 3 pets. No exceptions — for everyone's comfort.",
+                body: "Petite: up to 2 pets • Extended & Monolith: up to 3 pets. No exceptions — for everyone's comfort.",
               },
               {
                 icon: <DollarSign size={18} strokeWidth={1.5} />,
