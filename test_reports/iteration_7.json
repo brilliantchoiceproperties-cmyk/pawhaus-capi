@@ -1,0 +1,32 @@
+{
+  "summary": "Full backend + frontend regression for the Room Catalog v2 polish pass: rename extended/extended_ht → standard/standard_ht, 30-min TTL on pending_payment bookings, new GET /api/admin/inventory endpoint + admin widget, and 5th 'Wash, spa & pool' card in DogDifferenceSection. ALL 9 pytest cases in the new regression file pass against the public URL. Live curl-verified: GET /api/catalog returns 4 rooms with correct IDs [petite, standard, standard_ht, monolith] and names ['Petite Room', 'Standard Room', 'Standard Room + Wood-Fired Hot Tub', 'Monolith Room']; no 'extended'/'extended_ht' IDs leak through. POST /api/quote: standard base=$623 / standard_ht base=$698. TTL: a synthetic 60-min-old pending_payment booking inserted directly in Mongo did NOT count toward the cap (3rd fresh booking still blocked after 2 fresh — and 1st fresh was admitted with 2 old pendings already on the same date). Admin /api/admin/inventory returns {site, rooms:[{room_id, room_name, cap}], items:[{room_id, date, cap, booked, confirmed, pending, remaining, status}], ttl_min:30}; without X-Admin-Token it 401s; with 2 fresh standard_ht bookings on 2027-01-10 the row reports {booked:2, cap:2, remaining:0, status:'sold_out'}. Full funnel: standard $623×0.7=$436.10 and standard_ht $698×0.7=$488.60 — both verified by reading the payment_transactions.amount field for a real /api/payments/checkout/session response (Stripe LIVE, Pay button never clicked). FRONTEND: '/' renders DogDifferenceSection with EXACTLY 5 cards [in-your-cabin, in-your-private-yard, across-the-property, our-service, wash-spa-pool]; 5th card has class md:col-span-2 and contains 'DIY dog wash station', 'PawHaus Dog Spa', 'human spa'. '/admin' login with the Admin token + 'Unlock Dashboard' button works; admin-inventory-widget renders above the bookings table with all 6 columns (Date/Site/Cabin/Booked/Remaining/Status); inventory-row-standard_ht-2027-03-10 visible with badge text reflecting the row's status. Zero @test.pawhaus.dev residue in Mongo after run.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_polish_v2_rename_ttl_inventory.py",
+    "/app/backend/tests/test_room_catalog_v2.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "server.py inventory endpoint introduces a third status 'low' (when booked >= cap-1) in addition to the spec's 'open'/'sold_out'. The frontend renders it as a 'Last N' badge. This is a positive enhancement over the spec but NOT mentioned in the review_request — confirm with PM that the extra granularity is intentional.",
+    "server.py line ~119 ROOM_ID_ALIASES is now empty {} — any older deep links / bookmarks that used the previous 'extended'/'extended_ht' IDs will now return 404 from /api/quote. If those legacy IDs were ever published externally, consider re-adding aliases (e.g. {'extended':'standard','extended_ht':'standard_ht'}) for safety.",
+    "server.py admin_inventory cap counts confirmed unconditionally but pending_payment only when created_at >= cutoff. Older bookings (pre-TTL feature) that don't have a created_at field will be silently EXCLUDED by {'$gte': cutoff_iso} — they fail the match. This is the correct behaviour for the cap check, but verify there are no legacy 'confirmed' bookings missing created_at that should still surface in inventory.",
+    "Landing.jsx copy nits flagged in iteration_6 (lines ~213 and ~309 still referencing 'Standard' even though the SKU was renamed to 'Extended' at the time) are now NATURALLY resolved since the SKU has been renamed BACK to 'Standard Room'. No action needed — but worth noting as a happy side-effect of the rename.",
+    "DogDifferenceSection.jsx — the 5th card uses md:col-span-2 to span the full row, but on a 3-column lg breakpoint this would only span 2 of 3. Current Tailwind grid is grid-cols-1 md:grid-cols-2 (visually confirmed), so md:col-span-2 = full row, which is correct."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_polish_v2_rename_ttl_inventory.py (new — 9 tests covering rename, TTL, admin inventory, full funnel)"
+  ],
+  "success_rate": {"backend": "100% (9/9 pytest + live curl verification of $436.10 and $488.60 amounts)", "frontend": "100% (DogDifferenceSection 5 cards + admin inventory widget + admin login flow all verified)"},
+  "test_credentials": "Admin token used: gMonNetmm9f0sJXvJ1z1e2PTeMFkHeskSOb3YndWvGs (loaded from /app/backend/.env ADMIN_TOKEN). No /app/memory/test_credentials.md present; not required for this iteration.",
+  "seed_data_creation": "Test file seeds TTL data (2 synthetic 60-min-old pending bookings on 2027-01-05 + 2 fresh) and inventory data (2 fresh pending on 2027-01-10 + 2 on 2027-03-10 from the manual admin widget check). test_zz_cleanup + a final post-run cleanup script removed all @test.pawhaus.dev bookings and payment_transactions. Verified post-run: 0 residue.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "The polish v2 rename + TTL + admin-inventory + 5-card DogDifference are fully shipped, locked, and have green regression coverage in /app/backend/tests/test_polish_v2_rename_ttl_inventory.py. Re-run that file BEFORE any future SKU rename or cap-related change. Note that the inventory endpoint emits a 3rd status 'low' (rendered as 'Last N' in the UI) that wasn't in the original spec but is a sensible addition — confirm with PM if it should stay. Stripe is LIVE — never click final Pay button; payment_transactions.amount is the safest place to verify pricing math after a checkout/session call.",
+  "rca of the issue": "n/a — no defects found this iteration. The two 'FAIL' lines in the Playwright output were false negatives caused by my own case-sensitivity bug in string contains checks (overlines and table headers are uppercased via CSS text-transform). Screenshots and inner_text both visually + textually confirm the UI is correct."
+}

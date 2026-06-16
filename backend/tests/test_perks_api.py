@@ -12,7 +12,7 @@ ADMIN_HEADERS = {"X-Admin-Token": ADMIN_TOKEN}
 
 def _payload(email, pets):
     return {
-        "room_id": "extended",
+        "room_id": "standard",
         "stay_id": "WEEKDAY_1N",
         "tier": "PUBLIC",
         "origin_url": "https://example.com",

@@ -8,7 +8,7 @@ from pathlib import Path
 from pydantic import BaseModel, Field, EmailStr, field_validator
 from typing import List, Optional, Dict, Any
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 from emergentintegrations.payments.stripe.checkout import (
     StripeCheckout,
@@ -64,9 +64,9 @@ ROOMS: Dict[str, Dict[str, Any]] = {
             "LONG_3N": 1759.0,
         },
     },
-    "extended": {
-        "id": "extended",
-        "name": "Extended Room",
+    "standard": {
+        "id": "standard",
+        "name": "Standard Room",
         "bed": "King Bed",
         "capacity": "Sleeps 2 + up to 3 pets (snug)",
         "max_pets": 3,
@@ -80,13 +80,13 @@ ROOMS: Dict[str, Dict[str, Any]] = {
             "LONG_3N": 1864.0,
         },
     },
-    "extended_ht": {
-        "id": "extended_ht",
-        "name": "Extended Room + Wood-Fired Hot Tub",
+    "standard_ht": {
+        "id": "standard_ht",
+        "name": "Standard Room + Wood-Fired Hot Tub",
         "bed": "King Bed",
         "capacity": "Sleeps 2 + up to 3 pets (snug)",
         "max_pets": 3,
-        "description": "Same upgraded Extended suite — king bed, forest deck, private yard with cedar dog cot — plus your own private wood-fire hot tub on the deck. Limited inventory: only two of these cabins available per night.",
+        "description": "Same Standard suite — king bed, forest deck, private yard with cedar dog cot — plus your own private wood-fire hot tub on the deck. Limited inventory: only two of these cabins available per night.",
         "has_hot_tub": True,
         "stay_totals": {
             "WEEKDAY_1N": 698.0,
@@ -114,10 +114,10 @@ ROOMS: Dict[str, Dict[str, Any]] = {
     },
 }
 
-# Backwards-compat: the old room IDs route to the new ones so existing
-# bookings, GHL contacts, Stripe sessions, and any in-flight links still resolve.
+# Backwards-compat: previous internal IDs map to current canonical IDs.
+# Add new aliases here as you rename SKUs — old links/bookings continue to resolve.
 ROOM_ID_ALIASES: Dict[str, str] = {
-    "standard": "extended_ht",  # historical Standard always had a hot tub
+    # (no aliases currently — standard + standard_ht are the canonical IDs)
 }
 
 
@@ -125,11 +125,15 @@ def _resolve_room_id(room_id: str) -> str:
     return ROOM_ID_ALIASES.get(room_id, room_id)
 
 
-# Per-date inventory caps. extended_ht has only 2 wood-fired hot-tub cabins on
+# Per-date inventory caps. standard_ht has only 2 wood-fired hot-tub cabins on
 # property, so we hard-stop bookings beyond 2 per check-in date to avoid overbooking.
 ROOM_DAILY_CAPS: Dict[str, int] = {
-    "extended_ht": 2,
+    "standard_ht": 2,
 }
+
+# Pending-payment bookings get a 30-min hold; abandoned carts past that window
+# no longer count toward the per-date cap above.
+PENDING_BOOKING_TTL_MIN = 30
 
 # Hot tub is now included in the Standard & Monolith room rate — no extra charge.
 HOT_TUB_PREMIUM_PER_NIGHT = 0.0
@@ -446,6 +450,76 @@ async def admin_bookings(request: Request, limit: int = 50, status: Optional[str
     return {"site": SITE_SOURCE, "items": items}
 
 
+@api_router.get("/admin/inventory")
+async def admin_inventory(request: Request, days: int = 400):
+    """
+    Returns per-date inventory usage for every capped room SKU. Helps the
+    operator see which dates are filling up on limited inventory like
+    standard_ht (max 2 wood-fired hot tubs).
+
+    Each row: { room_id, room_name, cap, date, booked, remaining, status }.
+    Dates with 0 bookings are omitted to keep the response tight.
+    """
+    _require_admin(request)
+
+    if not ROOM_DAILY_CAPS:
+        return {"site": SITE_SOURCE, "rooms": [], "items": []}
+
+    now = datetime.now(timezone.utc)
+    cutoff_iso = (now - timedelta(minutes=PENDING_BOOKING_TTL_MIN)).isoformat()
+    today_iso = now.date().isoformat()
+    window_end = (now + timedelta(days=max(1, days))).date().isoformat()
+
+    out_rooms: List[Dict[str, Any]] = []
+    out_items: List[Dict[str, Any]] = []
+
+    for rid, cap in ROOM_DAILY_CAPS.items():
+        room = ROOMS.get(rid, {})
+        out_rooms.append({
+            "room_id": rid,
+            "room_name": room.get("name", rid),
+            "cap": cap,
+        })
+
+        # Aggregate active bookings per check-in date in the window
+        pipeline = [
+            {"$match": {
+                "room_id": rid,
+                "booking.check_in": {"$gte": today_iso, "$lte": window_end},
+                "$or": [
+                    {"status": "confirmed"},
+                    {"status": "pending_payment", "created_at": {"$gte": cutoff_iso}},
+                ],
+            }},
+            {"$group": {
+                "_id": "$booking.check_in",
+                "booked": {"$sum": 1},
+                "confirmed": {"$sum": {"$cond": [{"$eq": ["$status", "confirmed"]}, 1, 0]}},
+                "pending": {"$sum": {"$cond": [{"$eq": ["$status", "pending_payment"]}, 1, 0]}},
+            }},
+            {"$sort": {"_id": 1}},
+        ]
+
+        async for row in db.bookings.aggregate(pipeline):
+            booked = int(row["booked"])
+            out_items.append({
+                "room_id": rid,
+                "room_name": room.get("name", rid),
+                "cap": cap,
+                "date": row["_id"],
+                "booked": booked,
+                "confirmed": int(row.get("confirmed", 0)),
+                "pending": int(row.get("pending", 0)),
+                "remaining": max(0, cap - booked),
+                "status": (
+                    "sold_out" if booked >= cap
+                    else ("low" if booked >= max(1, cap - 1) else "open")
+                ),
+            })
+
+    return {"site": SITE_SOURCE, "rooms": out_rooms, "items": out_items, "ttl_min": PENDING_BOOKING_TTL_MIN}
+
+
 @api_router.delete("/admin/bookings/all")
 async def admin_wipe_all(request: Request, confirm: str = ""):
     """One-shot wipe of ALL bookings + payment_transactions. Requires admin token AND confirm=YES."""
@@ -618,20 +692,25 @@ async def create_checkout_session(req: CheckoutRequest, http_request: Request):
     if stay:
         _validate_dates(req.booking.check_in, stay["nights"])
 
-    # Per-date inventory cap (limited cabin variants like extended_ht)
+    # Per-date inventory cap (limited cabin variants like standard_ht).
+    # Abandoned pending_payment carts past PENDING_BOOKING_TTL_MIN no longer block real bookings.
     cap = ROOM_DAILY_CAPS.get(resolved_room_id)
     if cap is not None and req.booking.check_in:
+        cutoff = (datetime.now(timezone.utc) - timedelta(minutes=PENDING_BOOKING_TTL_MIN)).isoformat()
         already_booked = await db.bookings.count_documents({
             "room_id": resolved_room_id,
             "booking.check_in": req.booking.check_in,
-            "status": {"$in": ["confirmed", "pending_payment"]},
+            "$or": [
+                {"status": "confirmed"},
+                {"status": "pending_payment", "created_at": {"$gte": cutoff}},
+            ],
         })
         if already_booked >= cap:
             raise HTTPException(
                 status_code=409,
                 detail=(
                     f"Only {cap} of this cabin available on {req.booking.check_in} and they're all taken. "
-                    f"Try another date — or pick the standard Extended Room (no hot tub) for that night."
+                    f"Try another date — or pick the standard cabin (no hot tub) for that night."
                 ),
             )
 

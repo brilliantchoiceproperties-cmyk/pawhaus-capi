@@ -1,5 +1,5 @@
 import React from "react";
-import { Home, Trees, MapPin, HeartHandshake, Sparkles } from "lucide-react";
+import { Home, Trees, MapPin, HeartHandshake, Sparkles, Droplets } from "lucide-react";
 
 /**
  * "What we do differently for dogs" — the proof points for why pet parents
@@ -53,6 +53,17 @@ const GROUPS = [
       "Temperament-tested + vaccinated guests only, so every dog is safe to roam.",
     ],
   },
+  {
+    icon: Droplets,
+    overline: "Wash, spa & pool",
+    title: "Clean dog, relaxed human.",
+    items: [
+      "DIY dog wash station included — warm water, low-tearing shampoo, blow-dry stand, leash hook. Free, all day.",
+      "Prefer to skip the scrub? Drop them at the PawHaus Dog Spa for a full bath while you head to the pool or human spa next door.",
+      "Onsite human spa + heated pool open to all guests — so the whole pack gets pampered.",
+      "Spa add-on bookable at the front desk on arrival, or in advance with your reservation team.",
+    ],
+  },
 ];
 
 export default function DogDifferenceSection() {
@@ -82,14 +93,15 @@ export default function DogDifferenceSection() {
       </div>
 
       <div className="mt-14 grid grid-cols-1 md:grid-cols-2 gap-7">
-        {GROUPS.map((g) => {
+        {GROUPS.map((g, idx) => {
           const Icon = g.icon;
           const slug = g.overline.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+          const isOdd5th = GROUPS.length === 5 && idx === 4;
           return (
             <div
               key={g.overline}
               data-testid={`dog-difference-card-${slug}`}
-              className="paw-card p-7"
+              className={`paw-card p-7 ${isOdd5th ? "md:col-span-2" : ""}`}
               style={{ background: "var(--paw-bg-2)" }}
             >
               <div className="flex items-center gap-2 mb-4" style={{ color: "var(--paw-clay)" }}>

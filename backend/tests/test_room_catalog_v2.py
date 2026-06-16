@@ -1,11 +1,11 @@
 """
 Verifies the new room catalog + per-date inventory cap.
 
-1. Room IDs: petite / extended / extended_ht / monolith all exist with new prices
-2. Backwards-compat: room_id="standard" still resolves to extended_ht
+1. Room IDs: petite / extended / standard_ht / monolith all exist with new prices
+2. Backwards-compat: room_id="standard" still resolves to standard_ht
 3. Monolith was bumped by $50/night across all stays
-4. Extended (no HT) is exactly $75/night cheaper than extended_ht
-5. extended_ht has a HARD cap of 2 bookings per check-in date (3rd → 409)
+4. Extended (no HT) is exactly $75/night cheaper than standard_ht
+5. standard_ht has a HARD cap of 2 bookings per check-in date (3rd → 409)
 6. Petite is unchanged
 
 Run: python -m pytest backend/tests/test_room_catalog_v2.py -v -s
@@ -92,24 +92,24 @@ def test_petite_unchanged(client):
 
 def test_extended_no_hot_tub_price(client):
     """Extended (no hot tub) — $623 weekday 1N base."""
-    q = _quote(client, "extended")
+    q = _quote(client, "standard")
     assert q["base_rate"] == 623.0
-    assert q["room_name"] == "Extended Room"
-    print(f"  ✓ extended (no HT):  base=${q['base_rate']} total=${q['total']}")
+    assert q["room_name"] == "Standard Room"
+    print(f"  ✓ standard (no HT):  base=${q['base_rate']} total=${q['total']}")
 
 
-def test_extended_ht_price(client):
+def test_standard_ht_price(client):
     """Extended + Hot Tub — $698 weekday 1N base ($75 more than no-HT)."""
-    q = _quote(client, "extended_ht")
+    q = _quote(client, "standard_ht")
     assert q["base_rate"] == 698.0
     assert "Hot Tub" in q["room_name"]
     print(f"  ✓ extended + HT:     base=${q['base_rate']} total=${q['total']}")
 
 
-def test_extended_ht_is_75_more(client):
+def test_standard_ht_is_75_more(client):
     """The hot-tub variant is EXACTLY $75/night more than the no-hot-tub variant."""
-    q_no = _quote(client, "extended")
-    q_ht = _quote(client, "extended_ht")
+    q_no = _quote(client, "standard")
+    q_ht = _quote(client, "standard_ht")
     assert round(q_ht["base_rate"] - q_no["base_rate"], 2) == 75.0
     # And after discount, still proportional
     print(f"  ✓ HT premium = $75:  no_ht=${q_no['base_rate']} ht=${q_ht['base_rate']}")
@@ -131,21 +131,21 @@ def test_monolith_2n_bumped_by_100(client):
 
 
 def test_standard_alias_resolves(client):
-    """Backwards-compat: room_id='standard' must still work (resolves to extended_ht)."""
+    """No alias needed now — room_id='standard' IS the no-HT SKU directly."""
     q = _quote(client, "standard")
-    assert q["base_rate"] == 698.0  # extended_ht price
-    assert q["room_id"] == "extended_ht"
-    assert "Hot Tub" in q["room_name"]
-    print(f"  ✓ standard → extended_ht: base=${q['base_rate']}")
+    assert q["base_rate"] == 623.0
+    assert q["room_id"] == "standard"
+    assert q["room_name"] == "Standard Room"
+    print(f"  ✓ standard direct: base=${q['base_rate']} (no alias indirection)")
 
 
-def test_extended_ht_cap_blocks_third_booking(client, loop_and_db):
+def test_standard_ht_cap_blocks_third_booking(client, loop_and_db):
     """The 3rd booking on the same check-in date MUST get 409."""
     loop, db = loop_and_db
     # Clean any leftovers for this date
     loop.run_until_complete(
         db.bookings.delete_many({
-            "room_id": "extended_ht",
+            "room_id": "standard_ht",
             "booking.check_in": CAP_CHECKIN,
         })
     )
@@ -153,21 +153,21 @@ def test_extended_ht_cap_blocks_third_booking(client, loop_and_db):
     # First two should succeed
     for i in range(2):
         email = f"cap-ok-{i}-{uuid.uuid4().hex[:5]}@test.pawhaus.dev"
-        r = client.post("/api/payments/checkout/session", json=_payload("extended_ht", CAP_CHECKIN, email))
+        r = client.post("/api/payments/checkout/session", json=_payload("standard_ht", CAP_CHECKIN, email))
         assert r.status_code == 200, f"booking #{i+1} should succeed: {r.text}"
 
     # Third must hit 409
     email3 = f"cap-blocked-{uuid.uuid4().hex[:5]}@test.pawhaus.dev"
-    r = client.post("/api/payments/checkout/session", json=_payload("extended_ht", CAP_CHECKIN, email3))
+    r = client.post("/api/payments/checkout/session", json=_payload("standard_ht", CAP_CHECKIN, email3))
     assert r.status_code == 409, f"3rd booking should be capped, got {r.status_code}: {r.text}"
     assert "Only 2" in r.json()["detail"]
     print(f"  ✓ 3rd booking blocked: {r.json()['detail']}")
 
     # Extended (no HT) on same date should STILL work (no cap)
     email4 = f"cap-noht-{uuid.uuid4().hex[:5]}@test.pawhaus.dev"
-    r = client.post("/api/payments/checkout/session", json=_payload("extended", CAP_CHECKIN, email4))
-    assert r.status_code == 200, f"extended (no HT) should not be capped: {r.text}"
-    print(f"  ✓ extended (no HT) on same date succeeds — unrelated cap")
+    r = client.post("/api/payments/checkout/session", json=_payload("standard", CAP_CHECKIN, email4))
+    assert r.status_code == 200, f"standard (no HT) should not be capped: {r.text}"
+    print(f"  ✓ standard (no HT) on same date succeeds — unrelated cap")
 
 
 def test_zz_cleanup(loop_and_db):

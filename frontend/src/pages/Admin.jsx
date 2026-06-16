@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
-import { Lock, RefreshCw, DollarSign, TrendingUp, Users, MapPin, Calendar } from "lucide-react";
+import { Lock, RefreshCw, DollarSign, TrendingUp, Users, MapPin, Calendar, Flame } from "lucide-react";
 
 const LS_TOKEN = "pawhaus_admin_token";
 const LS_SITES = "pawhaus_admin_sites";
@@ -35,6 +35,7 @@ export default function Admin() {
   const [error, setError] = useState("");
   const [stats, setStats] = useState({}); // keyed by site id
   const [bookings, setBookings] = useState([]);
+  const [inventory, setInventory] = useState([]); // [{site_id, site_label, room_id, room_name, cap, date, booked, remaining, status}]
   const [loading, setLoading] = useState(false);
   const [extraSites, setExtraSites] = useState(() => loadStoredSites());
   const [newSiteUrl, setNewSiteUrl] = useState("");
@@ -70,16 +71,21 @@ export default function Admin() {
     setLoading(true);
     const nextStats = {};
     const nextBookings = [];
+    const nextInventory = [];
     await Promise.all(
       allSites.map(async (site) => {
         try {
-          const [s, b] = await Promise.all([
+          const [s, b, inv] = await Promise.all([
             axios.get(`${site.base_url}/api/admin/stats`, { headers: { "X-Admin-Token": token } }),
             axios.get(`${site.base_url}/api/admin/bookings?limit=100`, { headers: { "X-Admin-Token": token } }),
+            axios.get(`${site.base_url}/api/admin/inventory`, { headers: { "X-Admin-Token": token } }).catch(() => ({ data: { items: [] } })),
           ]);
           nextStats[site.id] = { ...s.data, site_label: site.label };
           (b.data.items || []).forEach((it) =>
             nextBookings.push({ ...it, site_label: site.label, site_id: site.id })
+          );
+          (inv.data?.items || []).forEach((it) =>
+            nextInventory.push({ ...it, site_label: site.label, site_id: site.id })
           );
         } catch (e) {
           nextStats[site.id] = { error: "unreachable", site_label: site.label };
@@ -87,8 +93,10 @@ export default function Admin() {
       })
     );
     nextBookings.sort((a, b) => (b.created_at || "").localeCompare(a.created_at || ""));
+    nextInventory.sort((a, b) => (a.date || "").localeCompare(b.date || ""));
     setStats(nextStats);
     setBookings(nextBookings);
+    setInventory(nextInventory);
     setLoading(false);
   };
 
@@ -317,6 +325,89 @@ export default function Admin() {
           </div>
         )}
       </div>
+
+      {/* INVENTORY — capacity-limited rooms by check-in date */}
+      {inventory.length > 0 && (
+        <div
+          data-testid="admin-inventory-widget"
+          className="paw-card overflow-hidden mb-7"
+          style={{ background: "var(--paw-bg-2)" }}
+        >
+          <div className="px-6 py-5 flex items-center justify-between" style={{ borderBottom: "1px solid var(--paw-line)" }}>
+            <div className="flex items-center gap-2">
+              <Flame size={14} strokeWidth={1.7} style={{ color: "var(--paw-clay)" }} />
+              <div className="overline" style={{ color: "var(--paw-clay)" }}>
+                Capped inventory · upcoming
+              </div>
+            </div>
+            <span className="text-xs" style={{ color: "var(--paw-muted)" }}>
+              {inventory.length} date{inventory.length === 1 ? "" : "s"} with bookings
+            </span>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left" style={{ color: "var(--paw-muted)" }}>
+                  <Th>Date</Th>
+                  <Th>Site</Th>
+                  <Th>Cabin</Th>
+                  <Th>Booked</Th>
+                  <Th>Remaining</Th>
+                  <Th>Status</Th>
+                </tr>
+              </thead>
+              <tbody>
+                {inventory.map((row) => (
+                  <tr
+                    key={`${row.site_id}-${row.room_id}-${row.date}`}
+                    style={{ borderTop: "1px solid var(--paw-line)" }}
+                    data-testid={`inventory-row-${row.room_id}-${row.date}`}
+                  >
+                    <Td><strong style={{ color: "var(--paw-ink)" }}>{row.date}</strong></Td>
+                    <Td>{row.site_label}</Td>
+                    <Td>{row.room_name}</Td>
+                    <Td>
+                      <span style={{ color: "var(--paw-ink)" }}>{row.booked}</span>
+                      <span className="ml-1 text-xs" style={{ color: "var(--paw-muted)" }}>
+                        / {row.cap}
+                      </span>
+                      {row.pending > 0 && (
+                        <span className="ml-2 text-xs" style={{ color: "var(--paw-muted)" }}>
+                          ({row.pending} pending)
+                        </span>
+                      )}
+                    </Td>
+                    <Td>
+                      <span style={{ color: row.remaining === 0 ? "var(--paw-clay)" : "var(--paw-forest)" }}>
+                        {row.remaining}
+                      </span>
+                    </Td>
+                    <Td>
+                      <span
+                        className="text-xs px-2 py-0.5"
+                        style={{
+                          background:
+                            row.status === "sold_out" ? "var(--paw-clay)"
+                            : row.status === "low" ? "var(--paw-bg)"
+                            : "var(--paw-forest)",
+                          color:
+                            row.status === "low" ? "var(--paw-clay)" : "var(--paw-bg)",
+                          border: row.status === "low" ? "1px solid var(--paw-clay)" : "none",
+                        }}
+                      >
+                        {row.status === "sold_out" ? "Sold out" : row.status === "low" ? "Last 1" : "Open"}
+                      </span>
+                    </Td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="px-6 py-3 text-xs" style={{ color: "var(--paw-muted)", borderTop: "1px solid var(--paw-line)" }}>
+            Tracks rooms with daily caps (e.g. Standard + Hot Tub — max 2 per night). Helps you size hot-tub inventory ahead of launch. Pending carts older than 30 min are excluded.
+          </div>
+        </div>
+      )}
 
       {/* BOOKINGS TABLE */}
       <div className="paw-card overflow-hidden" data-testid="admin-bookings-list" style={{ background: "var(--paw-bg-2)" }}>
