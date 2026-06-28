@@ -35,7 +35,7 @@ export default function FounderSection() {
             className="font-display text-4xl sm:text-5xl leading-[1.05]"
             style={{ color: "var(--paw-ink)" }}
           >
-            Hi, I&apos;m Garrett. I built PawHaus for the dog I couldn&apos;t bring with me.
+            Hi, I&apos;m Garrett. Cameron Ranch welcomed your dog. PawHaus was built for them.
           </h2>
           <div
             className="mt-7 space-y-5 max-w-xl text-base leading-relaxed"
@@ -43,21 +43,25 @@ export default function FounderSection() {
           >
             <p>
               A few years ago I founded Cameron Ranch Glamping — one of the most viral
-              luxury glamping properties in the country. It worked. People came. But
-              every time I checked in a family, I&apos;d watch them apologize for the
-              dog in the back seat that couldn&apos;t come inside.
+              luxury glamping properties in the country. Dogs were always welcome,
+              and a lot of them came. But Cameron Ranch wasn&apos;t designed around
+              them. It was designed for guests, who happened to bring a dog.
             </p>
             <p>
-              That apology stuck with me. The dog never asked to be left behind.
-              So I&apos;m building the place I wished existed when I was hiding mine
-              in a hotel bathroom — twelve glass-and-pine cabins, a private fenced
-              yard at every door, a dog concierge on staff, and a property that was
-              designed paw-up from day one.
+              And every check-in, I&apos;d watch a family work around that. Apologizing
+              for muddy paws on the rug. Tying a leash to a deck post because there
+              was no fenced yard. Skipping the trail because there was no water bowl
+              halfway through it. Loving the place anyway — but always working a little
+              harder than they should have to.
             </p>
             <p>
-              If you book during pre-launch, you&apos;re not just getting 30% off.
-              You&apos;re telling me you&apos;ve been waiting for this too. I&apos;ll
-              be there December 1st to shake your hand and meet your dog. See you then.
+              So I&apos;m building the place that fixes all of that — twelve glass-and-pine
+              cabins on 30 private acres, a fenced yard at every door, designated potty
+              corners, a dog spa, a 24/7 vet partner on call, and a property that was
+              designed paw-up from day one. If you book during pre-launch, you&apos;re
+              not just getting 30% off. You&apos;re telling me you&apos;ve been waiting
+              for this too. I&apos;ll be there December 1st to shake your hand and meet
+              your dog. See you then.
             </p>
           </div>
 

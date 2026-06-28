@@ -248,28 +248,32 @@ function StepStay({ catalog, roomId, setRoomId, stayId, setStayId, discountPerce
       <h2 className="font-display text-4xl sm:text-5xl mb-3" style={{ color: "var(--paw-ink)" }}>
         Choose your retreat.
       </h2>
-      <p className="text-base leading-relaxed mb-10 max-w-xl" style={{ color: "var(--paw-ink-2)" }}>
-        Three architectural homes, all glass and pine. Pick what suits you and the pack.
+      <p className="text-base leading-relaxed mb-8 max-w-xl" style={{ color: "var(--paw-ink-2)" }}>
+        Three architectural homes, all glass and pine. Pick your stay length first — the prices below update to match.
       </p>
 
-      <div className="space-y-5">
-        {catalog.rooms.map((room) => (
-          <RoomCard
-            key={room.id}
-            room={room}
-            selected={roomId === room.id}
-            onSelect={() => handleRoomSelect(room.id)}
-            discountPercent={discountPercent}
-            stayId={stayId}
-            catalog={catalog}
-            tier={tier}
-          />
-        ))}
+      {/* STAY PICKER — moved above rooms so prices already reflect the chosen length */}
+      <div className="mb-4 flex items-center justify-between">
+        <h3 className="overline" style={{ color: "var(--paw-clay)" }}>
+          Step 1a · Pick your stay length
+        </h3>
+        <div
+          data-testid="all-in-pricing-badge"
+          className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1"
+          style={{
+            background: "var(--paw-forest)",
+            color: "var(--paw-bg)",
+            borderRadius: 2,
+            fontSize: "10px",
+            letterSpacing: "0.08em",
+            textTransform: "uppercase",
+            fontWeight: 600,
+          }}
+        >
+          <ShieldCheck size={12} strokeWidth={2} />
+          All taxes &amp; fees included — no surprises at checkout
+        </div>
       </div>
-
-      <h3 className="font-display text-2xl mt-12 mb-5" style={{ color: "var(--paw-ink)" }}>
-        Pick your stay.
-      </h3>
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
         {catalog.stay_options.map((s) => {
           const selected = stayId === s.id;
@@ -306,6 +310,42 @@ function StepStay({ catalog, roomId, setRoomId, stayId, setStayId, discountPerce
           Long Weekend • Best per-night value. Any 3 consecutive nights. Blackout: Christmas, NYE, July 4th (±2 days).
         </p>
       )}
+
+      {/* Mobile-only all-in pricing pill (since the desktop badge is hidden < sm) */}
+      <div
+        data-testid="all-in-pricing-badge-mobile"
+        className="sm:hidden mt-5 inline-flex items-center gap-1.5 px-2.5 py-1.5"
+        style={{
+          background: "var(--paw-forest)",
+          color: "var(--paw-bg)",
+          borderRadius: 2,
+          fontSize: "10px",
+          letterSpacing: "0.08em",
+          textTransform: "uppercase",
+          fontWeight: 600,
+        }}
+      >
+        <ShieldCheck size={12} strokeWidth={2} />
+        All taxes &amp; fees included
+      </div>
+
+      <h3 className="overline mt-12 mb-4" style={{ color: "var(--paw-clay)" }}>
+        Step 1b · Pick your cabin
+      </h3>
+      <div className="space-y-5">
+        {catalog.rooms.map((room) => (
+          <RoomCard
+            key={room.id}
+            room={room}
+            selected={roomId === room.id}
+            onSelect={() => handleRoomSelect(room.id)}
+            discountPercent={discountPercent}
+            stayId={stayId}
+            catalog={catalog}
+            tier={tier}
+          />
+        ))}
+      </div>
     </section>
   );
 }
