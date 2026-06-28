@@ -130,7 +130,7 @@ def test_quote_standard_ht(client):
 
 # --- 2. TTL ON PENDING_PAYMENT ------------------------------------------
 
-TTL_DATE = "2027-01-05"
+TTL_DATE = "2027-02-05"
 
 
 def test_ttl_old_pending_does_not_block(client, loop_and_db):
@@ -183,7 +183,7 @@ def test_ttl_recent_pending_does_block(client, loop_and_db):
 
 # --- 3. ADMIN INVENTORY ENDPOINT ----------------------------------------
 
-INV_DATE = "2027-01-10"
+INV_DATE = "2027-02-10"
 
 
 def test_admin_inventory_shape_and_data(client, loop_and_db):

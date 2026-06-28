@@ -94,7 +94,7 @@ export default function Success() {
           <p className="mt-5 text-base max-w-xl mx-auto leading-relaxed" style={{ color: "var(--paw-ink-2)" }}>
             {booking?.room_name} • {booking?.stay_label}. We&apos;ll reach out 30 days before
             check-in to confirm your dates, and final preview photos & arrival details
-            will be sent before our December 1, 2026 opening.
+            will be sent before our January 1, 2027 opening.
           </p>
           {amount != null && (
             <p className="mt-5 font-display text-3xl" style={{ color: "var(--paw-forest)" }}>

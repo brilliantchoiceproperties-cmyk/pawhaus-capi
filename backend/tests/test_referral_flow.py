@@ -48,7 +48,7 @@ if os.path.exists("/app/backend/.env"):
 REFERRAL_DISCOUNT = 50.0
 ROOM_ID = "standard"  # no per-date cap — keeps referral tests independent
 STAY_ID = "WEEKDAY_1N"
-SAFE_CHECKIN = "2026-12-15"  # post-launch, not a blackout
+SAFE_CHECKIN = "2027-01-15"  # post-launch, not a blackout
 
 
 def _make_payload(email, referrer_code=None, full_name="Test Referrer"):
@@ -64,7 +64,7 @@ def _make_payload(email, referrer_code=None, full_name="Test Referrer"):
             "phone": "5551234567",
             "guests": 2,
             "check_in": SAFE_CHECKIN,
-            "check_out": "2026-12-16",
+            "check_out": "2027-01-16",
             "pets": [{"name": "Bella", "breed": "Lab", "size": "Medium (25-60 lb)", "special_needs": ""}],
             "notes": "",
         },

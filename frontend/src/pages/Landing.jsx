@@ -63,7 +63,7 @@ export default function Landing() {
                 at <em className="not-italic" style={{ color: "#E8D9C8" }}>PawHaus Resort.</em>
               </h1>
               <p className="mt-7 text-lg max-w-xl leading-relaxed" style={{ color: "rgba(250,249,246,0.92)" }}>
-                Twelve glass-and-pine cabins. A private yard at every door. The USA&apos;s first dog-first luxury nature hotel — opening December 1, 2026.
+                Twelve glass-and-pine cabins. A private yard at every door. The USA&apos;s first dog-first luxury nature hotel — opening January 1, 2027.
               </p>
             </div>
           </div>
@@ -84,7 +84,7 @@ export default function Landing() {
                 <em className="not-italic" style={{ color: "var(--paw-clay)" }}>30% off</em> every booking.
               </h2>
               <p className="text-base leading-relaxed mt-5 mb-8" style={{ color: "var(--paw-ink-2)" }}>
-                Open to everyone for pre-launch. 30% off any cabin, any night — no code, no waitlist, no membership. Just pick your dates. After we open December 1, 2026, rates return to standard.
+                Open to everyone for pre-launch. 30% off any cabin, any night — no code, no waitlist, no membership. Just pick your dates. After we open January 1, 2027, rates return to standard.
               </p>
 
               <button
@@ -361,7 +361,7 @@ export default function Landing() {
             ["12 modular units", "Built in Houston, drop on site September"],
             ["Common areas", "Built — full photos coming soon"],
             ["Dog park, salon, massage home", "Active renovation"],
-            ["Final reveal & first stays", "December 1, 2026"],
+            ["Final reveal & first stays", "January 1, 2027"],
           ].map(([title, status]) => (
             <div key={title} className="paw-card p-6" style={{ background: "var(--paw-bg)" }}>
               <div className="overline mb-2" style={{ color: "var(--paw-clay)" }}>
@@ -374,7 +374,7 @@ export default function Landing() {
           ))}
         </div>
         <p className="mt-8 text-sm leading-relaxed max-w-2xl" style={{ color: "var(--paw-ink-2)" }}>
-          Once the final reveal is set up ahead of our December 1, 2026 opening, if for any reason you&apos;re not happy with the result — you get a full refund. No questions asked.
+          Once the final reveal is set up ahead of our January 1, 2027 opening, if for any reason you&apos;re not happy with the result — you get a full refund. No questions asked.
         </p>
       </section>
 

@@ -43,7 +43,7 @@ STAY_ID = "WEEKDAY_1N"
 PROMO = "PAW25"
 PROMO_AMOUNT = 25.0
 REFERRAL_AMOUNT = 50.0
-SAFE_CHECKIN = "2026-12-15"
+SAFE_CHECKIN = "2027-01-15"
 
 
 def _booking_payload(email, referrer_code=None, promo_code=None, full_name="Promo Test"):
@@ -60,7 +60,7 @@ def _booking_payload(email, referrer_code=None, promo_code=None, full_name="Prom
             "phone": "5551234567",
             "guests": 2,
             "check_in": SAFE_CHECKIN,
-            "check_out": "2026-12-16",
+            "check_out": "2027-01-16",
             "pets": [{"name": "Bella", "breed": "Lab", "size": "Medium (25-60 lb)", "special_needs": ""}],
             "notes": "",
         },

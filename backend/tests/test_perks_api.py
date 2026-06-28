@@ -21,8 +21,8 @@ def _payload(email, pets):
             "email": email,
             "phone": "555-1234",
             "guests": 2,
-            "check_in": "2026-12-15",
-            "check_out": "2026-12-16",
+            "check_in": "2027-01-15",
+            "check_out": "2027-01-16",
             "pets": pets,
         },
     }

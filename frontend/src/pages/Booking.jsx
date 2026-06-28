@@ -12,7 +12,7 @@ import ScarcityTicker from "@/components/paw/ScarcityTicker";
 import TrustStrip from "@/components/paw/TrustStrip";
 
 // Date constraints
-const MIN_CHECKIN = "2026-12-01"; // doors open Dec 1, 2026
+const MIN_CHECKIN = "2027-01-01"; // doors open Jan 1, 2027
 const BLACKOUT_MONTH_DAYS = ["12-24", "12-25", "12-31"]; // Christmas Eve, Christmas, NYE — annual
 
 // PawHaus brand assets — multi-image galleries per room (served from /public/brand/)
@@ -583,7 +583,7 @@ function StepGuests({ guests, setGuests, stayId, catalog, roomId }) {
   const dateError = useMemo(() => {
     if (!guests.check_in) return "";
     if (guests.check_in < MIN_CHECKIN) {
-      return "We open December 1, 2026. Please pick a check-in date on or after Dec 1, 2026.";
+      return "We open January 1, 2027. Please pick a check-in date on or after Jan 1, 2027.";
     }
     const d = new Date(guests.check_in + "T00:00:00");
     if (isNaN(d.getTime())) return "";
@@ -648,7 +648,7 @@ function StepGuests({ guests, setGuests, stayId, catalog, roomId }) {
         <div>
           <Field label="Check-In" type="date" testid="guest-checkin-input" value={guests.check_in} onChange={(v) => update("check_in", v)} min={MIN_CHECKIN} />
           <p className="mt-2 text-xs" style={{ color: "var(--paw-muted)" }}>
-            Earliest check-in: Dec 1, 2026 • Blackout dates: Dec 24, 25 & 31
+            Earliest check-in: Jan 1, 2027 • Blackout dates: Dec 24, 25 &amp; 31
           </p>
           <p className="mt-1 text-xs" style={{ color: "var(--paw-muted)" }}>
             Check-in 4:00 PM • Check-out 11:00 AM
@@ -1029,7 +1029,7 @@ function StepReview({ catalog, roomId, stayId, tierLabel, discountPercent, guest
         <Reassurance
           icon={<CalendarDays size={16} strokeWidth={1.5} />}
           heading="Your dates aren't locked in"
-          body="If anything changes, you'll have plenty of chances to switch dates. We'll reach out before our December 1, 2026 opening to confirm."
+          body="If anything changes, you'll have plenty of chances to switch dates. We'll reach out before our January 1, 2027 opening to confirm."
         />
         <Reassurance
           icon={<ShieldCheck size={16} strokeWidth={1.5} />}

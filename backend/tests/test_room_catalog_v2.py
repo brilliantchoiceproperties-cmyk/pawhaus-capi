@@ -37,7 +37,7 @@ if os.path.exists("/app/backend/.env"):
                 DB_NAME = line.split("=", 1)[1].strip().strip('"').strip("'")
 
 # Use a check-in date NOT used by any other test to keep cap test isolated
-CAP_CHECKIN = "2026-12-20"
+CAP_CHECKIN = "2027-01-20"
 
 
 def _payload(room_id, check_in, email):
@@ -52,7 +52,7 @@ def _payload(room_id, check_in, email):
             "phone": "5551234567",
             "guests": 2,
             "check_in": check_in,
-            "check_out": "2026-12-21",
+            "check_out": "2027-01-21",
             "pets": [{"name": "Bella", "breed": "Lab", "size": "Medium (25-60 lb)", "special_needs": ""}],
             "notes": "",
         },

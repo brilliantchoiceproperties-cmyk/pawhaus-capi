@@ -60,7 +60,7 @@ export default function FounderSection() {
               corners, a dog spa, a 24/7 vet partner on call, and a property that was
               designed paw-up from day one. If you book during pre-launch, you&apos;re
               not just getting 30% off. You&apos;re telling me you&apos;ve been waiting
-              for this too. I&apos;ll be there December 1st to shake your hand and meet
+              for this too. I&apos;ll be there January 1st to shake your hand and meet
               your dog. See you then.
             </p>
           </div>
