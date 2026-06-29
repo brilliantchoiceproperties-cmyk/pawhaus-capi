@@ -643,7 +643,27 @@ function StepGuests({ guests, setGuests, stayId, catalog, roomId }) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <Field label="Full Name" testid="guest-name-input" value={guests.full_name} onChange={(v) => update("full_name", v)} />
         <Field label="Email" type="email" testid="guest-email-input" value={guests.email} onChange={(v) => update("email", v)} />
-        <Field label="Phone" testid="guest-phone-input" value={guests.phone} onChange={(v) => update("phone", v)} />
+        <div>
+          <Field label="Phone" testid="guest-phone-input" value={guests.phone} onChange={(v) => update("phone", v)} />
+          <p
+            data-testid="sms-consent-disclosure"
+            className="mt-2 text-xs leading-relaxed"
+            style={{ color: "var(--paw-muted)" }}
+          >
+            By providing your number, you agree to receive booking and occasional marketing texts
+            from PawHaus. Msg &amp; data rates may apply. Reply STOP to opt out, HELP for help.
+            See our{" "}
+            <a
+              href="/privacy"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: "var(--paw-clay)", textDecoration: "underline" }}
+            >
+              Privacy Policy
+            </a>
+            .
+          </p>
+        </div>
         <Field label="Guests" type="number" testid="guest-count-input" value={guests.guests} onChange={(v) => update("guests", parseInt(v) || 1)} />
         <div>
           <Field label="Check-In" type="date" testid="guest-checkin-input" value={guests.check_in} onChange={(v) => update("check_in", v)} min={MIN_CHECKIN} />

@@ -9,6 +9,8 @@ import Booking from "@/pages/Booking";
 import Success from "@/pages/Success";
 import Cancel from "@/pages/Cancel";
 import Admin from "@/pages/Admin";
+import Privacy from "@/pages/Privacy";
+import Terms from "@/pages/Terms";
 import { initAnalytics, pageview } from "@/lib/analytics";
 import { captureReferrerFromUrl } from "@/lib/referral";
 import { capturePromoFromUrl } from "@/lib/promo";
@@ -40,6 +42,8 @@ function App() {
             <Route path="/booking/success" element={<Success />} />
             <Route path="/booking/cancel" element={<Cancel />} />
             <Route path="/admin" element={<Admin />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
           </Routes>
           <Footer />
         </BookingProvider>

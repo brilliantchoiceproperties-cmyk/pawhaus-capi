@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 export default function Footer() {
   return (
@@ -38,14 +39,37 @@ export default function Footer() {
             <br />
             bark@staypawhaus.com
           </p>
+          <div className="mt-5 flex flex-col gap-2 text-sm">
+            <Link
+              to="/privacy"
+              data-testid="footer-privacy-link"
+              style={{ color: "var(--paw-ink-2)" }}
+            >
+              Privacy Policy
+            </Link>
+            <Link
+              to="/terms"
+              data-testid="footer-terms-link"
+              style={{ color: "var(--paw-ink-2)" }}
+            >
+              Terms of Service
+            </Link>
+          </div>
         </div>
       </div>
       <div
-        className="border-t py-5 text-center text-xs"
+        className="border-t py-5 text-center text-xs px-4"
         style={{ borderColor: "var(--paw-line)", color: "var(--paw-muted)" }}
       >
         © 2026 PawHaus Resort • All taxes &amp; fees included • Free reschedule or refund up to 14
-        days before stay
+        days before stay •{" "}
+        <Link to="/privacy" style={{ color: "var(--paw-muted)", textDecoration: "underline" }}>
+          Privacy
+        </Link>
+        {" • "}
+        <Link to="/terms" style={{ color: "var(--paw-muted)", textDecoration: "underline" }}>
+          Terms
+        </Link>
       </div>
     </footer>
   );
