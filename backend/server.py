@@ -82,30 +82,13 @@ ROOMS: Dict[str, Dict[str, Any]] = {
             "LONG_3N": 1864.0,
         },
     },
-    "standard_ht": {
-        "id": "standard_ht",
-        "name": "Standard Room + Wood-Fired Hot Tub",
-        "bed": "King Bed",
-        "capacity": "Sleeps 2 + up to 3 pets (snug)",
-        "max_pets": 3,
-        "description": "Same Standard suite — king bed, forest deck, private yard with cedar dog cot — plus your own private wood-fire hot tub on the deck. Limited inventory: only two of these cabins available per night.",
-        "has_hot_tub": True,
-        "stay_totals": {
-            "WEEKDAY_1N": 698.0,
-            "WEEKDAY_2N": 1278.0,
-            "WEEKDAY_3N": 1917.0,
-            "WEEKEND_1N": 938.0,
-            "WEEKEND_2N": 1692.0,
-            "LONG_3N": 2089.0,
-        },
-    },
     "monolith": {
         "id": "monolith",
         "name": "Monolith Room",
         "bed": "King Bed",
         "capacity": "Sleeps 4 + up to 3 pets",
         "max_pets": 3,
-        "description": "Our largest unit. Double-height glass, king bed, in-cabin shower and bathroom, small kitchenette, private wood-fire hot tub included, and a fully fenced yard with cedar dog cot. Sleeps four humans plus up to three dogs.",
+        "description": "Our largest unit. Double-height glass, king bed, in-cabin shower and bathroom, small kitchenette, **the only cabin with a private wood-fire hot tub**, and a fully fenced yard with cedar dog cot. Sleeps four humans plus up to three dogs.",
         "has_hot_tub": True,
         "stay_totals": {
             "WEEKDAY_1N": 948.0,
@@ -129,11 +112,10 @@ def _resolve_room_id(room_id: str) -> str:
     return ROOM_ID_ALIASES.get(room_id, room_id)
 
 
-# Per-date inventory caps. standard_ht has only 2 wood-fired hot-tub cabins on
-# property, so we hard-stop bookings beyond 2 per check-in date to avoid overbooking.
-ROOM_DAILY_CAPS: Dict[str, int] = {
-    "standard_ht": 2,
-}
+# Per-date inventory caps. (No SKU is currently capped — Monolith hot tubs
+# are a 1-per-cabin amenity not a shared resource. Add entries here if a
+# future SKU needs daily-quantity enforcement.)
+ROOM_DAILY_CAPS: Dict[str, int] = {}
 
 # Pending-payment bookings get a 30-min hold; abandoned carts past that window
 # no longer count toward the per-date cap above.

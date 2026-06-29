@@ -182,7 +182,6 @@ function fireGA4AndMeta(event, props) {
 const ROOM_META = {
   petite: { name: "Petite Room", has_hot_tub: false, is_capped_sku: false },
   standard: { name: "Standard Room", has_hot_tub: false, is_capped_sku: false },
-  standard_ht: { name: "Standard Room + Wood-Fired Hot Tub", has_hot_tub: true, is_capped_sku: true },
   monolith: { name: "Monolith Room", has_hot_tub: true, is_capped_sku: false },
 };
 

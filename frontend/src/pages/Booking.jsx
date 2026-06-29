@@ -29,12 +29,6 @@ const ROOM_GALLERIES = {
     "/brand/standard-2.webp",
     "/brand/standard-3.webp",
   ],
-  standard_ht: [
-    "/brand/standard-0.webp",
-    "/brand/standard-1.webp",
-    "/brand/standard-2.webp",
-    "/brand/standard-3.webp",
-  ],
   monolith: [
     "/brand/monolith-0.webp",
     "/brand/bedroom.webp",

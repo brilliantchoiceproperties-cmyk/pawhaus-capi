@@ -210,7 +210,7 @@ export default function Landing() {
                 "King or queen bed on a memory-foam mattress",
                 "Rainfall shower in a private bathroom",
                 "Small kitchenette + charcoal grill at every unit",
-                "Private wood fire pit + wood-fire hot tub (Standard+HT & Monolith)",
+                "Private wood fire pit at every cabin + wood-fire hot tub (Monolith only)",
                 "WiFi included",
                 "2–3 dog beds, food & water bowls, towel station",
               ].map((label) => (

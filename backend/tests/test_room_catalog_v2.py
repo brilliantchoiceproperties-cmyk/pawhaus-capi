@@ -98,21 +98,19 @@ def test_extended_no_hot_tub_price(client):
     print(f"  ✓ standard (no HT):  base=${q['base_rate']} total=${q['total']}")
 
 
-def test_standard_ht_price(client):
-    """Extended + Hot Tub — $698 weekday 1N base ($75 more than no-HT)."""
-    q = _quote(client, "standard_ht")
-    assert q["base_rate"] == 698.0
-    assert "Hot Tub" in q["room_name"]
-    print(f"  ✓ extended + HT:     base=${q['base_rate']} total=${q['total']}")
+def test_standard_ht_removed(client):
+    """standard_ht SKU has been removed — Monolith is the only hot-tub room now."""
+    r = client.post("/api/quote", json={"room_id": "standard_ht", "stay_id": "WEEKDAY_1N", "tier": "PUBLIC"})
+    assert r.status_code == 400, f"standard_ht should return 400 (Invalid room), got {r.status_code}"
+    print(f"\n  ✓ standard_ht removed: API returns 400 for that room_id")
 
 
-def test_standard_ht_is_75_more(client):
-    """The hot-tub variant is EXACTLY $75/night more than the no-hot-tub variant."""
-    q_no = _quote(client, "standard")
-    q_ht = _quote(client, "standard_ht")
-    assert round(q_ht["base_rate"] - q_no["base_rate"], 2) == 75.0
-    # And after discount, still proportional
-    print(f"  ✓ HT premium = $75:  no_ht=${q_no['base_rate']} ht=${q_ht['base_rate']}")
+def test_only_monolith_has_hot_tub(client):
+    """Hot-tub flag should only be True on monolith now."""
+    catalog = client.get("/api/catalog").json()
+    hot_tub_rooms = [r["id"] for r in catalog["rooms"] if r.get("has_hot_tub")]
+    assert hot_tub_rooms == ["monolith"], f"expected only monolith to have hot tub, got {hot_tub_rooms}"
+    print(f"  ✓ only monolith has_hot_tub=True: {hot_tub_rooms}")
 
 
 def test_monolith_bumped_by_50(client):
@@ -130,44 +128,32 @@ def test_monolith_2n_bumped_by_100(client):
     print(f"  ✓ monolith 2N: ${r.json()['base_rate']} (was 1478)")
 
 
-def test_standard_alias_resolves(client):
-    """No alias needed now — room_id='standard' IS the no-HT SKU directly."""
+def test_standard_no_hot_tub(client):
+    """Standard Room is the only mid-tier — no hot tub."""
     q = _quote(client, "standard")
     assert q["base_rate"] == 623.0
     assert q["room_id"] == "standard"
     assert q["room_name"] == "Standard Room"
-    print(f"  ✓ standard direct: base=${q['base_rate']} (no alias indirection)")
+    print(f"  ✓ standard direct: base=${q['base_rate']}")
 
 
-def test_standard_ht_cap_blocks_third_booking(client, loop_and_db):
-    """The 3rd booking on the same check-in date MUST get 409."""
+def test_no_capped_rooms_for_now(client, loop_and_db):
+    """ROOM_DAILY_CAPS is now empty (standard_ht removed). No cap should block bookings."""
     loop, db = loop_and_db
     # Clean any leftovers for this date
     loop.run_until_complete(
         db.bookings.delete_many({
-            "room_id": "standard_ht",
+            "room_id": "standard",
             "booking.check_in": CAP_CHECKIN,
         })
     )
 
-    # First two should succeed
-    for i in range(2):
-        email = f"cap-ok-{i}-{uuid.uuid4().hex[:5]}@test.pawhaus.dev"
-        r = client.post("/api/payments/checkout/session", json=_payload("standard_ht", CAP_CHECKIN, email))
-        assert r.status_code == 200, f"booking #{i+1} should succeed: {r.text}"
-
-    # Third must hit 409
-    email3 = f"cap-blocked-{uuid.uuid4().hex[:5]}@test.pawhaus.dev"
-    r = client.post("/api/payments/checkout/session", json=_payload("standard_ht", CAP_CHECKIN, email3))
-    assert r.status_code == 409, f"3rd booking should be capped, got {r.status_code}: {r.text}"
-    assert "Only 2" in r.json()["detail"]
-    print(f"  ✓ 3rd booking blocked: {r.json()['detail']}")
-
-    # Extended (no HT) on same date should STILL work (no cap)
-    email4 = f"cap-noht-{uuid.uuid4().hex[:5]}@test.pawhaus.dev"
-    r = client.post("/api/payments/checkout/session", json=_payload("standard", CAP_CHECKIN, email4))
-    assert r.status_code == 200, f"standard (no HT) should not be capped: {r.text}"
-    print(f"  ✓ standard (no HT) on same date succeeds — unrelated cap")
+    # 3+ bookings on the same date should ALL succeed for non-capped rooms
+    for i in range(3):
+        email = f"nocap-{i}-{uuid.uuid4().hex[:5]}@test.pawhaus.dev"
+        r = client.post("/api/payments/checkout/session", json=_payload("standard", CAP_CHECKIN, email))
+        assert r.status_code == 200, f"booking #{i+1} should succeed (no cap): {r.text}"
+    print(f"  ✓ no per-date cap: 3 standard bookings same date all succeed")
 
 
 def test_zz_cleanup(loop_and_db):
