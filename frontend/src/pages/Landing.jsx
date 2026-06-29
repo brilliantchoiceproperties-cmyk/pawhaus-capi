@@ -57,12 +57,12 @@ export default function Landing() {
                   Pre-Launch • Goodrich, TX
                 </span>
               </div>
-              <h1 className="font-display text-white text-5xl sm:text-7xl leading-[1.02] tracking-tight" style={{ fontWeight: 400 }}>
+              <h1 className="font-display text-white text-5xl sm:text-7xl leading-[1.02] tracking-tight hero-text-shadow" style={{ fontWeight: 400 }}>
                 Reserve your first stay
                 <br />
                 at <em className="not-italic" style={{ color: "#E8D9C8" }}>PawHaus Resort.</em>
               </h1>
-              <p className="mt-7 text-lg max-w-xl leading-relaxed" style={{ color: "rgba(250,249,246,0.92)" }}>
+              <p className="mt-7 text-lg max-w-xl leading-relaxed hero-text-shadow" style={{ color: "rgba(250,249,246,0.96)" }}>
                 Twelve glass-and-pine cabins. A private yard at every door. The USA&apos;s first dog-first luxury nature hotel — opening January 1, 2027.
               </p>
             </div>

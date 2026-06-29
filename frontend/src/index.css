@@ -184,9 +184,16 @@ html, body, #root {
     background: rgba(44, 76, 59, 0.06);
 }
 
-/* Hero overlay — lighter so the photo stays prominent, with a darker base for text legibility */
+/* Hero overlay — stronger left-side scrim + bottom fade so white headline reads
+   against the golden-hour photo (light pines + sky on the right). */
 .hero-overlay {
-    background: linear-gradient(180deg, rgba(26,35,28,0.10) 0%, rgba(26,35,28,0.18) 55%, rgba(26,35,28,0.55) 85%, rgba(250,249,246,0.95) 100%);
+    background:
+        linear-gradient(90deg, rgba(20,28,22,0.62) 0%, rgba(20,28,22,0.45) 35%, rgba(20,28,22,0.18) 65%, rgba(20,28,22,0.08) 100%),
+        linear-gradient(180deg, rgba(20,28,22,0.20) 0%, rgba(20,28,22,0.30) 55%, rgba(20,28,22,0.65) 85%, rgba(250,249,246,0.95) 100%);
+}
+
+.hero-text-shadow {
+    text-shadow: 0 2px 24px rgba(0, 0, 0, 0.55), 0 1px 4px rgba(0, 0, 0, 0.35);
 }
 
 .fade-in {
