@@ -24,6 +24,12 @@ const ROOM_GALLERIES = {
     "/brand/petite-3.webp",
   ],
   standard: [
+    "/brand/standard-lake.webp",
+    "/brand/standard-1.webp",
+    "/brand/standard-2.webp",
+    "/brand/standard-3.webp",
+  ],
+  standard_ht: [
     "/brand/standard-0.webp",
     "/brand/standard-1.webp",
     "/brand/standard-2.webp",
@@ -274,7 +280,7 @@ function StepStay({ catalog, roomId, setRoomId, stayId, setStayId, discountPerce
           All taxes &amp; fees included — no surprises at checkout
         </div>
       </div>
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
         {catalog.stay_options.map((s) => {
           const selected = stayId === s.id;
           return (
@@ -295,7 +301,15 @@ function StepStay({ catalog, roomId, setRoomId, stayId, setStayId, discountPerce
               >
                 {s.type === "MIXED" ? "Long Weekend" : s.type}
               </div>
-              <div className="font-display text-xl">{s.nights} {s.nights === 1 ? "Night" : "Nights"}</div>
+              <div className="font-display text-xl leading-tight">{s.nights} {s.nights === 1 ? "Night" : "Nights"}</div>
+              {s.definition && (
+                <div
+                  className="text-xs mt-2 leading-snug"
+                  style={{ color: selected ? "rgba(250,249,246,0.75)" : "var(--paw-muted)" }}
+                >
+                  {s.definition}
+                </div>
+              )}
             </button>
           );
         })}

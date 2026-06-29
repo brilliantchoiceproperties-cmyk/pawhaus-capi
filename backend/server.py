@@ -59,6 +59,7 @@ ROOMS: Dict[str, Dict[str, Any]] = {
         "stay_totals": {
             "WEEKDAY_1N": 558.0,
             "WEEKDAY_2N": 1116.0,
+            "WEEKDAY_3N": 1674.0,
             "WEEKEND_1N": 798.0,
             "WEEKEND_2N": 1474.0,
             "LONG_3N": 1759.0,
@@ -75,6 +76,7 @@ ROOMS: Dict[str, Dict[str, Any]] = {
         "stay_totals": {
             "WEEKDAY_1N": 623.0,
             "WEEKDAY_2N": 1128.0,
+            "WEEKDAY_3N": 1692.0,
             "WEEKEND_1N": 863.0,
             "WEEKEND_2N": 1542.0,
             "LONG_3N": 1864.0,
@@ -91,6 +93,7 @@ ROOMS: Dict[str, Dict[str, Any]] = {
         "stay_totals": {
             "WEEKDAY_1N": 698.0,
             "WEEKDAY_2N": 1278.0,
+            "WEEKDAY_3N": 1917.0,
             "WEEKEND_1N": 938.0,
             "WEEKEND_2N": 1692.0,
             "LONG_3N": 2089.0,
@@ -107,6 +110,7 @@ ROOMS: Dict[str, Dict[str, Any]] = {
         "stay_totals": {
             "WEEKDAY_1N": 948.0,
             "WEEKDAY_2N": 1578.0,
+            "WEEKDAY_3N": 2367.0,
             "WEEKEND_1N": 1188.0,
             "WEEKEND_2N": 2052.0,
             "LONG_3N": 2569.0,
@@ -139,11 +143,18 @@ PENDING_BOOKING_TTL_MIN = 30
 HOT_TUB_PREMIUM_PER_NIGHT = 0.0
 
 STAY_OPTIONS = [
-    {"id": "WEEKDAY_1N", "label": "Weekday • 1 Night", "type": "WEEKDAY", "nights": 1},
-    {"id": "WEEKDAY_2N", "label": "Weekday • 2 Nights", "type": "WEEKDAY", "nights": 2},
-    {"id": "WEEKEND_1N", "label": "Weekend • 1 Night", "type": "WEEKEND", "nights": 1},
-    {"id": "WEEKEND_2N", "label": "Weekend • 2 Nights", "type": "WEEKEND", "nights": 2},
-    {"id": "LONG_3N", "label": "Long Weekend • 3 Nights", "type": "MIXED", "nights": 3},
+    {"id": "WEEKDAY_1N", "label": "Weekday • 1 Night", "type": "WEEKDAY", "nights": 1,
+     "definition": "Sun – Thu nights"},
+    {"id": "WEEKDAY_2N", "label": "Weekday • 2 Nights", "type": "WEEKDAY", "nights": 2,
+     "definition": "Any 2 consecutive Sun – Thu nights"},
+    {"id": "WEEKDAY_3N", "label": "Weekday • 3 Nights", "type": "WEEKDAY", "nights": 3,
+     "definition": "Any 3 consecutive Sun – Thu nights"},
+    {"id": "WEEKEND_1N", "label": "Weekend • 1 Night", "type": "WEEKEND", "nights": 1,
+     "definition": "Friday or Saturday night"},
+    {"id": "WEEKEND_2N", "label": "Weekend • 2 Nights", "type": "WEEKEND", "nights": 2,
+     "definition": "Friday + Saturday"},
+    {"id": "LONG_3N", "label": "Long Weekend • 3 Nights", "type": "MIXED", "nights": 3,
+     "definition": "Thu – Sun or Fri – Mon"},
 ]
 
 # Date constraints

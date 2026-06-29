@@ -20,16 +20,25 @@ export default function ExitIntentModal() {
   const [error, setError] = useState("");
   const idleTimer = useRef(null);
   const lastScrollAt = useRef(0);
+  // Once we've shown the modal once in this tab, never show it again — even if
+  // the user dismisses it and re-triggers the mouseout/scroll-idle pattern.
+  const hasTriggeredRef = useRef(false);
+  const cleanupListenersRef = useRef(null);
 
   useEffect(() => {
     // Already shown this session? bail out
     try {
-      if (window.localStorage.getItem(STORAGE_KEY) === "1") return;
+      if (window.localStorage.getItem(STORAGE_KEY) === "1") {
+        hasTriggeredRef.current = true;
+        return;
+      }
     } catch (e) {
-      // localStorage blocked — still allow once per page load
+      // localStorage blocked — still allow once per page load via ref
     }
 
     const trigger = (source) => {
+      if (hasTriggeredRef.current) return; // hard guard against re-triggering
+      hasTriggeredRef.current = true;
       try {
         window.localStorage.setItem(STORAGE_KEY, "1");
       } catch (e) {
@@ -37,6 +46,8 @@ export default function ExitIntentModal() {
       }
       track("exit_intent_shown", { source });
       setOpen(true);
+      // Remove listeners so they can't fire again this session even after close
+      if (cleanupListenersRef.current) cleanupListenersRef.current();
     };
 
     // Desktop: mouseout toward top of viewport
@@ -53,7 +64,6 @@ export default function ExitIntentModal() {
       if (pct < 0.6) return;
       if (idleTimer.current) clearTimeout(idleTimer.current);
       idleTimer.current = setTimeout(() => {
-        // Only trigger if user has been idle the full window
         if (Date.now() - lastScrollAt.current >= 5800) {
           trigger("mobile_scroll_idle");
         }
@@ -63,10 +73,14 @@ export default function ExitIntentModal() {
     document.addEventListener("mouseout", onMouseOut);
     window.addEventListener("scroll", onScroll, { passive: true });
 
-    return () => {
+    cleanupListenersRef.current = () => {
       document.removeEventListener("mouseout", onMouseOut);
       window.removeEventListener("scroll", onScroll);
       if (idleTimer.current) clearTimeout(idleTimer.current);
+    };
+
+    return () => {
+      if (cleanupListenersRef.current) cleanupListenersRef.current();
     };
   }, []);
 
