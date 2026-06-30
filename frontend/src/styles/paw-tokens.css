@@ -1,0 +1,313 @@
+/* =====================================================================
+   PawHaus — Shared Design Tokens & Component Primitives
+   =====================================================================
+   PASTE INTO: /src/styles/paw-tokens.css of the VIP Portal app
+   IMPORT IN : /src/index.css with `@import "./styles/paw-tokens.css";`
+                BEFORE @tailwind directives.
+
+   Then anywhere in JSX:
+     <h1 className="font-display text-5xl" style={{color:"var(--paw-ink)"}}>
+       Doors open before doors open.
+     </h1>
+     <button className="paw-btn-primary">Book my dates</button>
+     <input className="paw-input" placeholder="you@email.com" />
+
+   Requires the Google Fonts import (already included below).
+   ===================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Outfit:wght@300;400;500;600&display=swap');
+
+/* ---------------- Brand color tokens ---------------- */
+:root {
+    --paw-bg:           #FAF9F6;             /* warm off-white page background */
+    --paw-bg-2:         #EBE8E0;             /* card / hover surface */
+    --paw-bg-3:         #DDE0D9;             /* deeper sand for sections */
+    --paw-ink:          #1A231C;             /* near-black for headlines & body */
+    --paw-ink-2:        #4A564D;             /* secondary text */
+    --paw-muted:        #758077;             /* captions, microcopy, dim labels */
+    --paw-forest:       #2C4C3B;             /* primary accent / CTA bg */
+    --paw-forest-2:     #1E3529;             /* CTA hover */
+    --paw-clay:         #A85A43;             /* rust accent — overlines, badges */
+    --paw-clay-2:       #8C4A36;             /* clay hover */
+    --paw-line:         rgba(44, 76, 59, 0.15);    /* hairline */
+    --paw-line-strong:  rgba(44, 76, 59, 0.4);     /* card hover line */
+}
+
+/* ---------------- shadcn-compatible HSL tokens (so shadcn components match) ---------------- */
+@layer base {
+    :root {
+        --background: 48 30% 97%;
+        --foreground: 130 14% 11%;
+        --card: 0 0% 100%;
+        --card-foreground: 130 14% 11%;
+        --popover: 0 0% 100%;
+        --popover-foreground: 130 14% 11%;
+        --primary: 142 27% 23%;
+        --primary-foreground: 48 30% 97%;
+        --secondary: 43 14% 90%;
+        --secondary-foreground: 130 14% 11%;
+        --muted: 43 14% 90%;
+        --muted-foreground: 130 6% 48%;
+        --accent: 14 42% 46%;
+        --accent-foreground: 48 30% 97%;
+        --destructive: 0 70% 45%;
+        --destructive-foreground: 0 0% 98%;
+        --border: 142 27% 23% / 0.15;
+        --input: 142 27% 23% / 0.2;
+        --ring: 142 27% 23%;
+        --radius: 0.125rem;           /* nearly square corners — magazine feel */
+    }
+}
+
+/* ---------------- Base reset ---------------- */
+* {
+    border-color: var(--paw-line);
+}
+
+html, body, #root {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+    background: var(--paw-bg);
+    color: var(--paw-ink);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 300;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+/* ---------------- Typography helpers ---------------- */
+.font-display {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+}
+
+.font-body {
+    font-family: 'Outfit', sans-serif;
+}
+
+.overline {
+    font-size: 0.7rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    font-weight: 500;
+}
+
+/* ---------------- Cards ---------------- */
+.paw-card {
+    background: var(--paw-bg);
+    border: 1px solid var(--paw-line);
+    transition: border-color 0.3s ease, transform 0.3s ease;
+}
+
+.paw-card:hover {
+    border-color: var(--paw-line-strong);
+}
+
+/* ---------------- Buttons ---------------- */
+.paw-btn-primary {
+    background: var(--paw-forest);
+    color: var(--paw-bg);
+    padding: 0.95rem 1.6rem;
+    font-size: 0.78rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-weight: 500;
+    border: 1px solid var(--paw-forest);
+    transition: background 0.25s ease, color 0.25s ease, transform 0.25s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    cursor: pointer;
+}
+
+.paw-btn-primary:hover {
+    background: var(--paw-forest-2);
+    transform: translateY(-1px);
+}
+
+.paw-btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.paw-btn-secondary {
+    background: transparent;
+    color: var(--paw-forest);
+    padding: 0.95rem 1.6rem;
+    font-size: 0.78rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-weight: 500;
+    border: 1px solid var(--paw-forest);
+    transition: background 0.25s ease, color 0.25s ease;
+    cursor: pointer;
+}
+
+.paw-btn-secondary:hover {
+    background: var(--paw-forest);
+    color: var(--paw-bg);
+}
+
+/* ---------------- Inputs ---------------- */
+.paw-input {
+    background: transparent;
+    border: 1px solid var(--paw-line-strong);
+    padding: 0.85rem 1rem;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.95rem;
+    color: var(--paw-ink);
+    width: 100%;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.paw-input:focus {
+    border-color: var(--paw-forest);
+}
+
+.paw-input::placeholder {
+    color: var(--paw-muted);
+    letter-spacing: 0.1em;
+    font-size: 0.85rem;
+}
+
+/* ---------------- Misc utilities ---------------- */
+.divider {
+    height: 1px;
+    background: var(--paw-line);
+    width: 100%;
+}
+
+/* Discount badge — for "30% OFF" type chips */
+.discount-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid var(--paw-clay);
+    color: var(--paw-clay);
+    padding: 0.35rem 0.75rem;
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-weight: 500;
+    background: rgba(168, 90, 67, 0.06);
+}
+
+.discount-badge.vip {
+    border-color: var(--paw-forest);
+    color: var(--paw-forest);
+    background: rgba(44, 76, 59, 0.06);
+}
+
+/* ---------------- Hero overlay scrim ---------------- */
+/* Use as: <div className="hero-overlay absolute inset-0" /> over a full-bleed photo */
+.hero-overlay {
+    background:
+        linear-gradient(90deg, rgba(20,28,22,0.62) 0%, rgba(20,28,22,0.45) 35%, rgba(20,28,22,0.18) 65%, rgba(20,28,22,0.08) 100%),
+        linear-gradient(180deg, rgba(20,28,22,0.20) 0%, rgba(20,28,22,0.30) 55%, rgba(20,28,22,0.65) 85%, rgba(250,249,246,0.95) 100%);
+}
+
+.hero-text-shadow {
+    text-shadow: 0 2px 24px rgba(0, 0, 0, 0.55), 0 1px 4px rgba(0, 0, 0, 0.35);
+}
+
+/* ---------------- Entry animation (staggered reveal) ---------------- */
+.fade-in {
+    animation: fadeUp 0.8s ease forwards;
+    opacity: 0;
+    transform: translateY(12px);
+}
+
+@keyframes fadeUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.stagger-1 { animation-delay: 0.05s; }
+.stagger-2 { animation-delay: 0.18s; }
+.stagger-3 { animation-delay: 0.32s; }
+.stagger-4 { animation-delay: 0.46s; }
+
+/* ---------------- Multi-step tracker (booking funnel) ---------------- */
+.step-dot {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+}
+
+.step-dot .num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.15rem;
+    color: var(--paw-muted);
+}
+
+.step-dot.active .num {
+    color: var(--paw-forest);
+}
+
+.step-dot.active {
+    color: var(--paw-ink);
+}
+
+.step-dot:not(.active) {
+    color: var(--paw-muted);
+}
+
+/* ---------------- Hide scrollbar utility ---------------- */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* =====================================================================
+   USAGE CHEATSHEET
+   =====================================================================
+   COLORS  — use as CSS vars:
+     style={{ color: "var(--paw-ink)" }}
+     style={{ background: "var(--paw-forest)" }}
+     style={{ borderColor: "var(--paw-line)" }}
+
+   FONTS   — Tailwind class:
+     className="font-display"              (Cormorant — for headings)
+     default body is Outfit (already set)
+
+   OVERLINE — small tracked caps label above headings:
+     <span className="overline" style={{color:"var(--paw-clay)"}}>VIP ONLY</span>
+
+   BUTTONS — semantic classes:
+     <button className="paw-btn-primary">Book my dates</button>
+     <button className="paw-btn-secondary">How VIP works</button>
+
+   CARDS:
+     <article className="paw-card p-6">…</article>
+
+   INPUTS:
+     <input className="paw-input" />
+
+   HERO OVERLAY (over a full-bleed bg photo):
+     <div className="relative h-screen">
+       <img src="…" className="absolute inset-0 w-full h-full object-cover"/>
+       <div className="hero-overlay absolute inset-0"/>
+       <div className="relative z-10 hero-text-shadow text-white">…</div>
+     </div>
+
+   STAGGERED ENTRY:
+     <h1 className="fade-in stagger-1">…</h1>
+     <p  className="fade-in stagger-2">…</p>
+     <a  className="fade-in stagger-3 paw-btn-primary">…</a>
+
+   ASYMMETRIC GRID (the editorial gallery rhythm):
+     <div className="grid grid-cols-1 md:grid-cols-12 gap-2 sm:gap-3">
+       <div className="md:col-span-7 md:row-span-2"> hero photo </div>
+       <div className="md:col-span-5"> photo </div>
+       <div className="md:col-span-5"> photo </div>
+     </div>
+   ===================================================================== */
