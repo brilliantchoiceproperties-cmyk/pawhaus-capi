@@ -34,8 +34,8 @@ const ROOM_GALLERIES = {
     "/brand/shower.webp",                    // rainfall shower bath
   ],
   monolith: [
-    "/brand/monolith-hottub.webp",         // LEAD — wood-fired hot tub + fire pit + couple + dog
-    "/brand/monolith-mirror-couple.webp",  // mirror cabin lakefront, couple, two dogs at golden hour
+    "/brand/monolith-mirror-couple.webp",  // LEAD — mirror cabin lakefront, couple, two dogs at golden hour
+    "/brand/monolith-hottub.webp",         // wood-fired hot tub + fire pit + couple + dog
     "/brand/monolith-bedroom-lake.webp",   // bedroom with corner glass + lake view
     "/brand/monolith-dining.webp",         // dining nook, green velvet chairs, lake view
     "/brand/monolith-kitchen.webp",        // kitchenette + PawHaus dog bed + lake sunset
