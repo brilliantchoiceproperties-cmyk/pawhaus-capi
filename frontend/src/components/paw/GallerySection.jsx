@@ -69,8 +69,8 @@ const TILES = [
   {
     key: "wash-station",
     src: IMG("wash-station"),
-    label: "DIY dog wash",
-    sub: "Warm water, shampoo, blow-dryer. Included, all day.",
+    label: "Wash at the Dog Spa",
+    sub: "Pro wash room inside PawHaus Grooming & Salon — drop them off, pick them up clean.",
   },
   {
     key: "shower",
