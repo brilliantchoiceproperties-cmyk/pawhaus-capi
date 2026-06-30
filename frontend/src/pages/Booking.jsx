@@ -25,10 +25,11 @@ const ROOM_GALLERIES = {
     "/brand/shower.webp",                  // rainfall shower bath
   ],
   standard: [
-    "/brand/standard-lake.webp",
-    "/brand/standard-1.webp",
-    "/brand/standard-2.webp",
-    "/brand/standard-3.webp",
+    "/brand/signature-exterior.webp",        // wood-gate cabin arrival
+    "/brand/standard-treatbar-lake.webp",    // NEW — woman at treat bar, lake view
+    "/brand/petite-mirror.webp",             // mirror cabin reflecting the lake
+    "/brand/petite-kitchen.webp",            // kitchenette + PawHaus dog bed
+    "/brand/shower.webp",                    // rainfall shower bath
   ],
   monolith: [
     "/brand/monolith-0.webp",
