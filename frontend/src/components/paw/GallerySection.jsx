@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Camera, X } from "lucide-react";
+import { track } from "@/lib/analytics";
 
 /**
  * Editorial photo gallery — asymmetric magazine grid.
@@ -98,11 +99,18 @@ const TILES = [
   },
 ];
 
-function Tile({ tile, span, onOpen }) {
+function Tile({ tile, span, onOpen, position }) {
   return (
     <button
       type="button"
-      onClick={() => onOpen(tile)}
+      onClick={() => {
+        track("gallery_tile_click", {
+          tile_key: tile.key,
+          tile_label: tile.label,
+          position,
+        });
+        onOpen(tile);
+      }}
       data-testid={`gallery-tile-${tile.key}`}
       aria-label={`${tile.label}. ${tile.sub} Open larger view.`}
       className={`group relative overflow-hidden ${span} block w-full`}
@@ -174,40 +182,40 @@ export default function GallerySection() {
       {/* Row 1 — hero asymmetric */}
       <div className="mt-12 grid grid-cols-1 md:grid-cols-12 gap-2 sm:gap-3">
         <div className="md:col-span-7 md:row-span-2 h-[420px] md:h-[640px]">
-          <Tile tile={byKey["signature-exterior"]} span="h-full" onOpen={setLightbox} />
+          <Tile tile={byKey["signature-exterior"]} span="h-full" onOpen={setLightbox} position={1} />
         </div>
         <div className="md:col-span-5 h-[260px] md:h-[316px]">
-          <Tile tile={byKey["pool-twilight"]} span="h-full" onOpen={setLightbox} />
+          <Tile tile={byKey["pool-twilight"]} span="h-full" onOpen={setLightbox} position={2} />
         </div>
         <div className="md:col-span-5 h-[260px] md:h-[316px]">
-          <Tile tile={byKey["dog-park-2"]} span="h-full" onOpen={setLightbox} />
+          <Tile tile={byKey["dog-park-2"]} span="h-full" onOpen={setLightbox} position={3} />
         </div>
       </div>
 
       {/* Row 2 — two equal heroes */}
       <div className="mt-2 sm:mt-3 grid grid-cols-1 md:grid-cols-12 gap-2 sm:gap-3">
         <div className="md:col-span-6 h-[320px] md:h-[440px]">
-          <Tile tile={byKey["signature-interior"]} span="h-full" onOpen={setLightbox} />
+          <Tile tile={byKey["signature-interior"]} span="h-full" onOpen={setLightbox} position={4} />
         </div>
         <div className="md:col-span-6 h-[320px] md:h-[440px]">
-          <Tile tile={byKey["monolith-exterior"]} span="h-full" onOpen={setLightbox} />
+          <Tile tile={byKey["monolith-exterior"]} span="h-full" onOpen={setLightbox} position={5} />
         </div>
       </div>
 
       {/* Row 3 — trio (treat bar, human spa, grooming) */}
       <div className="mt-2 sm:mt-3 grid grid-cols-1 md:grid-cols-12 gap-2 sm:gap-3">
-        {["treat-bar-suite", "human-spa", "grooming-salon"].map((k) => (
+        {["treat-bar-suite", "human-spa", "grooming-salon"].map((k, i) => (
           <div key={k} className="md:col-span-4 h-[300px] md:h-[380px]">
-            <Tile tile={byKey[k]} span="h-full" onOpen={setLightbox} />
+            <Tile tile={byKey[k]} span="h-full" onOpen={setLightbox} position={6 + i} />
           </div>
         ))}
       </div>
 
       {/* Row 4 — quartet of details */}
       <div className="mt-2 sm:mt-3 grid grid-cols-2 md:grid-cols-12 gap-2 sm:gap-3">
-        {["wash-station", "shower", "play-lounge", "lobby"].map((k) => (
+        {["wash-station", "shower", "play-lounge", "lobby"].map((k, i) => (
           <div key={k} className="md:col-span-3 h-[220px] md:h-[300px]">
-            <Tile tile={byKey[k]} span="h-full" onOpen={setLightbox} />
+            <Tile tile={byKey[k]} span="h-full" onOpen={setLightbox} position={9 + i} />
           </div>
         ))}
       </div>
@@ -215,7 +223,7 @@ export default function GallerySection() {
       {/* Row 5 — panoramic finale */}
       <div className="mt-2 sm:mt-3 grid grid-cols-1 gap-2">
         <div className="h-[320px] md:h-[480px]">
-          <Tile tile={byKey["dog-park"]} span="h-full" onOpen={setLightbox} />
+          <Tile tile={byKey["dog-park"]} span="h-full" onOpen={setLightbox} position={13} />
         </div>
       </div>
 
