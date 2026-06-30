@@ -6,6 +6,7 @@ import EmailCTA from "@/components/paw/EmailCTA";
 import FaqSection from "@/components/paw/FaqSection";
 import FounderSection from "@/components/paw/FounderSection";
 import DogDifferenceSection from "@/components/paw/DogDifferenceSection";
+import GallerySection from "@/components/paw/GallerySection";
 import MobileStickyBar from "@/components/paw/MobileStickyBar";
 import ExitIntentModal from "@/components/paw/ExitIntentModal";
 
@@ -188,6 +189,9 @@ export default function Landing() {
 
       {/* DOG DIFFERENCE — what we do differently for dogs */}
       <DogDifferenceSection />
+
+      {/* GALLERY — editorial photo walk-through of the property */}
+      <GallerySection />
 
       {/* INSIDE THE CABIN — bedroom shot */}
       <section className="mx-auto max-w-[1400px] px-6 sm:px-10 pt-32">
