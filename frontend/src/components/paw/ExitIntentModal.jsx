@@ -14,6 +14,7 @@ const STORAGE_KEY = "pawhaus_exit_intent_seen";
  */
 export default function ExitIntentModal() {
   const [open, setOpen] = useState(false);
+  const [firstName, setFirstName] = useState("");
   const [email, setEmail] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -98,6 +99,10 @@ export default function ExitIntentModal() {
   const submit = async (e) => {
     e.preventDefault();
     setError("");
+    if (!firstName.trim()) {
+      setError("Please enter your first name.");
+      return;
+    }
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       setError("Please enter a valid email.");
       return;
@@ -109,6 +114,7 @@ export default function ExitIntentModal() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email,
+          first_name: firstName.trim(),
           source: "exit_intent",
           page: typeof window !== "undefined" ? window.location.pathname : "",
         }),
@@ -163,14 +169,25 @@ export default function ExitIntentModal() {
               $25 off — on top of the 30%.
             </h3>
             <p className="text-sm leading-relaxed mb-6" style={{ color: "var(--paw-ink-2)" }}>
-              Drop your email and we&apos;ll text you a one-time code worth an extra $25 off any cabin. Good for the next 48 hours only.
+              Drop your name and email and we&apos;ll reveal your one-time $25 off code on the next screen — and email it to you for safekeeping. Good for the next 48 hours only.
             </p>
             <form onSubmit={submit} className="space-y-3">
+              <input
+                data-testid="exit-intent-first-name"
+                type="text"
+                autoComplete="given-name"
+                autoFocus
+                placeholder="First name"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                className="paw-input w-full"
+                disabled={submitting}
+              />
               <input
                 data-testid="exit-intent-email"
                 type="email"
                 inputMode="email"
-                autoFocus
+                autoComplete="email"
                 placeholder="you@email.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -189,7 +206,7 @@ export default function ExitIntentModal() {
                 className="paw-btn-primary w-full"
                 style={{ background: "var(--paw-clay)", borderColor: "var(--paw-clay)" }}
               >
-                {submitting ? "Sending…" : "Send me my $25 code"}
+                {submitting ? "Sending…" : "Reveal my $25 code"}
               </button>
               <p className="text-xs text-center" style={{ color: "var(--paw-muted)" }}>
                 No spam. One code, one email, done.
@@ -208,10 +225,25 @@ export default function ExitIntentModal() {
               className="font-display text-2xl mb-2"
               style={{ color: "var(--paw-ink)" }}
             >
-              Check your inbox.
+              {firstName ? `You're in, ${firstName}.` : "You're in."}
             </h3>
-            <p className="text-sm leading-relaxed" style={{ color: "var(--paw-ink-2)" }}>
-              Your <strong style={{ color: "var(--paw-ink)" }}>PAW25</strong> code is on its way. Use it within 48 hours at checkout — it stacks with the 30% pre-launch discount. Just click the link in your email and the discount auto-applies.
+            <p className="text-sm leading-relaxed mb-5" style={{ color: "var(--paw-ink-2)" }}>
+              Here&apos;s your code — copy it now or grab it from the email we just sent you.
+            </p>
+            <div
+              data-testid="exit-intent-code"
+              className="mx-auto mb-5 inline-block px-6 py-3 font-display tracking-[0.18em] text-2xl select-all"
+              style={{
+                background: "var(--paw-bg-2)",
+                border: "1.5px dashed var(--paw-forest)",
+                color: "var(--paw-ink)",
+                letterSpacing: "0.18em",
+              }}
+            >
+              PAW25
+            </div>
+            <p className="text-xs leading-relaxed" style={{ color: "var(--paw-muted)" }}>
+              Stacks with the 30% pre-launch discount. Valid 48 hours. Apply at checkout, or use the link in your email to auto-apply.
             </p>
           </div>
         )}

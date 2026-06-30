@@ -531,6 +531,7 @@ async def admin_wipe_all(request: Request, confirm: str = ""):
 
 class LeadCaptureRequest(BaseModel):
     email: EmailStr
+    first_name: Optional[str] = None
     source: Optional[str] = "exit_intent"
     page: Optional[str] = None
 
@@ -543,9 +544,11 @@ async def lead_capture(req: LeadCaptureRequest):
     automation can send the $25 follow-up code.
     """
     now = datetime.now(timezone.utc)
+    first_name = (req.first_name or "").strip()
     doc = {
         "id": str(uuid.uuid4()),
         "email": str(req.email).lower().strip(),
+        "first_name": first_name,
         "source": req.source or "exit_intent",
         "page": req.page,
         "site": SITE_SOURCE,
@@ -564,6 +567,7 @@ async def lead_capture(req: LeadCaptureRequest):
             "source": SITE_SOURCE,
             "lead_source": doc["source"],
             "email": doc["email"],
+            "first_name": first_name,
             "page": doc["page"],
             "occurred_at": now.isoformat(),
             "extra_discount_label": "$25 OFF",

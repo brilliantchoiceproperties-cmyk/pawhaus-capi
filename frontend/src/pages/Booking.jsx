@@ -20,7 +20,7 @@ const ROOM_GALLERIES = {
   petite: [
     "/brand/cabin-vol.webp",                 // LEAD — twilight fire pit, golden retriever, grill
     "/brand/cabin-yg.webp",                  // golden hour, Cabin 101, golden retriever at door
-    "/brand/petite-mirror.webp",             // mirror cabin reflecting the lake
+    "/brand/petite-mirror-sunset.webp",      // sunset mirror cabin — Petite-exclusive
     "/brand/petite-kitchen.webp",            // kitchenette + PawHaus dog bed
     "/brand/petite-treatbar-lifestyle.webp", // the Doggy Treat Bar suite
     "/brand/shower.webp",                    // rainfall shower bath
