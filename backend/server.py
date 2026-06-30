@@ -37,6 +37,7 @@ STRIPE_API_KEY = os.environ["STRIPE_API_KEY"]
 STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET", "")
 GHL_WEBHOOK_URL = os.environ.get("GHL_WEBHOOK_URL", "")
 GHL_ABANDONED_WEBHOOK_URL = os.environ.get("GHL_ABANDONED_WEBHOOK_URL", "")
+GHL_EXIT_INTENT_WEBHOOK_URL = os.environ.get("GHL_EXIT_INTENT_WEBHOOK_URL", "")
 stripe.api_key = STRIPE_API_KEY
 
 app = FastAPI(title="PawHaus VIP Portal A/B")
@@ -556,7 +557,7 @@ async def lead_capture(req: LeadCaptureRequest):
         upsert=True,
     )
 
-    target = GHL_WEBHOOK_URL or GHL_ABANDONED_WEBHOOK_URL
+    target = GHL_EXIT_INTENT_WEBHOOK_URL or GHL_WEBHOOK_URL or GHL_ABANDONED_WEBHOOK_URL
     if target:
         payload = {
             "event": "exit_intent_lead",
