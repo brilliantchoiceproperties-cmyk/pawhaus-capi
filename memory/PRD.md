@@ -94,6 +94,24 @@ Verified examples from spec:
 - ✅ **PostHog A/B enrichment (2026-02-16)** — Every key funnel event (`room_selected`, `checkout_initiated`, `checkout_paid`) now carries enriched A/B-comparison properties via new `roomEventProps(roomId)` helper in `analytics.js`. Auto-attaches `room_name` (human-readable), `has_hot_tub` (boolean — true for standard_ht & monolith), and `is_capped_sku` (boolean — true for standard_ht only). Lets the operator build PostHog funnels filtered/grouped by hot tub demand without memorizing which room_id maps to what. Used as `track("checkout_initiated", { ...roomEventProps(roomId), tier, stay_id, ... })`.
 - ✅ **Property Photo Gallery (2026-06-30)** — New `GallerySection.jsx` editorial magazine-style asymmetric grid added to Landing between `DogDifferenceSection` and the "Inside the cabin" block. 13 curated property photos (signature-exterior, pool-twilight, dog-park-2, signature-interior, monolith-exterior, treat-bar-suite, human-spa, grooming-salon, wash-station, shower, play-lounge, lobby, dog-park) optimized as webp under `/brand/`. 5-row asymmetric layout (1 hero + 2 stacked → 2 medium → 3 trio → 4 quartet → 1 panoramic finale). Click any tile → full-screen lightbox with caption; closes via X button, backdrop tap, or **Escape key**. Mobile: single-column stack with sub-captions always visible (no hover dependency). Native lazy-loading on all 13 tiles; aria-label on each. Frontend testing agent 21/21 assertions pass.
 
+- ✅ **All 3 Room Galleries refreshed (2026-06-30)** — Replaced legacy room photos in `Booking.jsx` with curated 5-6 photo carousels per tier:
+  - **Petite (6):** `cabin-vol` (twilight fire pit, LEAD) → `cabin-yg` (golden hour Cabin 101) → `petite-mirror-sunset` (Petite-exclusive sunset mirror cabin) → `petite-kitchen` → `petite-treatbar-lifestyle` (Doggy Treat Bar, man) → `shower`
+  - **Standard (6):** `petite-mirror` (mirror cabin LEAD) → `standard-treatbar-lake` (Treat Bar, woman, lake) → `cabin-vol` → `cabin-yg` → `petite-kitchen` → `shower`
+  - **Monolith (5):** `monolith-mirror-couple` (mirror cabin, couple, 2 dogs golden hour, LEAD) → `monolith-hottub` (wood-fired hot tub + fire pit + couple) → `monolith-bedroom-lake` (corner glass bedroom) → `monolith-dining` (green velvet chairs + lake) → `monolith-kitchen` (kitchenette + dog bed)
+  - Cross-room shared assets are intentional (same architectural unit) but lead photos are unique per tier for visual differentiation in the funnel.
+
+- ✅ **Exit-Intent Pop-up — major UX & GHL upgrade (2026-06-30)**
+  - **New: 15-second dwell trigger** added to existing mouseout + scroll-idle triggers (fires whichever first; once per session via localStorage)
+  - **New: First name field** alongside email — both required
+  - **New: Code revealed on screen immediately** in big dashed-border tile (copy-selectable `PAW25`) with personalized success: *"You're in, {firstName}."* — plus email delivery
+  - **New copy:** Removed misleading "we'll text you" language. New: *"Drop your name and email and we'll reveal your one-time $25 off code on the next screen — and email it to you for safekeeping."*
+  - **Submit button:** *"Reveal my $25 code"*
+  - **Backend:** `LeadCaptureRequest` now accepts `first_name`; saved to `db.leads`; GHL payload includes `"first_name"` field for Contact mapping
+  - **GHL routing:** Added dedicated `GHL_EXIT_INTENT_WEBHOOK_URL` env var with priority fallback chain (exit_intent → main → abandoned). User created dedicated workflow `PawHaus — Exit Intent $25 Off (PAW25)` with inbound webhook URL set in env. **Live tested 2026-06-30 03:57** — payload landed in GHL.
+  - **PAW25 email copy delivered** (3-email sequence: immediate, 24hr reminder, 47hr final) — user owns plug-in to GHL workflow.
+
+- ✅ **PostHog `gallery_tile_click` tracking (2026-06-30)** — Every gallery tile click fires `gallery_tile_click` event with `{ tile_key, tile_label, position }` (1-13 ordinal). Lets operator identify highest-engagement property photos within 1 week of launch to reorder hero tile for max conversion lift.
+
 ## Personas
 - **Founders Pass holder** — paid $47 for early access; wants exclusive 50% off + perks; enters PAWVIP
 - **Pre-launch public visitor** — no code; wants 20% off pre-launch pricing; high intent dog owner
