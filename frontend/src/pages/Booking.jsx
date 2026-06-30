@@ -18,15 +18,17 @@ const BLACKOUT_MONTH_DAYS = ["12-24", "12-25", "12-31"]; // Christmas Eve, Chris
 // PawHaus brand assets — multi-image galleries per room (served from /public/brand/)
 const ROOM_GALLERIES = {
   petite: [
-    "/brand/petite-mirror.webp",           // mirrored facade, lake reflection
-    "/brand/signature-exterior.webp",      // arrival — your private wood-gate cabin
-    "/brand/petite-kitchen.webp",          // inside — kitchenette + PawHaus dog bed
+    "/brand/cabin-vol.webp",                 // LEAD — twilight fire pit, golden retriever, grill
+    "/brand/cabin-yg.webp",                  // golden hour, Cabin 101, golden retriever at door
+    "/brand/petite-mirror.webp",             // mirror cabin reflecting the lake
+    "/brand/petite-kitchen.webp",            // kitchenette + PawHaus dog bed
     "/brand/petite-treatbar-lifestyle.webp", // the Doggy Treat Bar suite
-    "/brand/shower.webp",                  // rainfall shower bath
+    "/brand/shower.webp",                    // rainfall shower bath
   ],
   standard: [
-    "/brand/signature-exterior.webp",        // wood-gate cabin arrival
-    "/brand/standard-treatbar-lake.webp",    // NEW — woman at treat bar, lake view
+    "/brand/cabin-vol.webp",                 // LEAD — twilight fire pit, golden retriever, grill
+    "/brand/cabin-yg.webp",                  // golden hour, Cabin 101, golden retriever at door
+    "/brand/standard-treatbar-lake.webp",    // woman at treat bar, lake view
     "/brand/petite-mirror.webp",             // mirror cabin reflecting the lake
     "/brand/petite-kitchen.webp",            // kitchenette + PawHaus dog bed
     "/brand/shower.webp",                    // rainfall shower bath
