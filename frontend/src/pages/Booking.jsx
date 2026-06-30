@@ -26,10 +26,10 @@ const ROOM_GALLERIES = {
     "/brand/shower.webp",                    // rainfall shower bath
   ],
   standard: [
-    "/brand/cabin-vol.webp",                 // LEAD — twilight fire pit, golden retriever, grill
-    "/brand/cabin-yg.webp",                  // golden hour, Cabin 101, golden retriever at door
+    "/brand/petite-mirror.webp",             // LEAD — mirror cabin reflecting the lake
     "/brand/standard-treatbar-lake.webp",    // woman at treat bar, lake view
-    "/brand/petite-mirror.webp",             // mirror cabin reflecting the lake
+    "/brand/cabin-vol.webp",                 // twilight fire pit, golden retriever, grill
+    "/brand/cabin-yg.webp",                  // golden hour, Cabin 101, golden retriever at door
     "/brand/petite-kitchen.webp",            // kitchenette + PawHaus dog bed
     "/brand/shower.webp",                    // rainfall shower bath
   ],
