@@ -26,9 +26,8 @@ const GROUPS = [
     title: "Their own little outdoors.",
     items: [
       "A designated potty corner — turf or decomposed-granite zone with a discreet cedar-framed waste station. No more midnight leash walks.",
-      "Ground-level auto-fill stainless water bowl, plumbed in. Always full, never warm.",
       "A shaded cedar dog cot under a sail shade — their bed outdoors, not just indoors.",
-      "Coming soon: solar-heated outdoor shower + private cold rinse station per cabin. Mud stays outside; dogs come in fresh.",
+      "Solar-heated outdoor shower + private cold rinse station per cabin. Mud stays outside; dogs come in fresh.",
     ],
   },
   {
@@ -36,10 +35,10 @@ const GROUPS = [
     overline: "Across the property",
     title: "30 acres made for sniffing.",
     items: [
-      "Off-leash freedom on 30 private wooded acres — not a sad little gravel run.",
-      "Water bowls at every turn: lobby, café, every trailhead.",
+      "30 private wooded acres — on-leash for most of the property, with dedicated off-leash zones for the full zoomies experience.",
+      "Water bowls at every turn: lobby, every trailhead, and outside the café.",
       "Poop bag stations everywhere you'd ever need one — you will never go hunting.",
-      "Pup cups at the coffee cart every single morning. You get your pour-over, they get theirs. On the house.",
+      "Free pup cups in the lobby every morning — you grab your pour-over, they grab theirs. On the house.",
     ],
   },
   {
@@ -48,7 +47,7 @@ const GROUPS = [
     title: "We treat them like family.",
     items: [
       "Staff that knows your dog's name before you arrive — and uses it. They're a regular from minute one.",
-      "24/7 vet help via our Vetster partnership — talk to a vet over video any hour, on us.",
+      "24/7 vet help via our Vetster partnership — talk to a vet over phone any hour.",
       "10–15 minutes from a daytime vet clinic and 30 minutes from a 24-hour emergency hospital. We've mapped the route already.",
       "Temperament-tested + vaccinated guests only, so every dog is safe to roam.",
     ],
@@ -60,7 +59,7 @@ const GROUPS = [
     items: [
       "DIY dog wash station included — warm water, low-tearing shampoo, blow-dry stand, leash hook. Free, all day.",
       "Prefer to skip the scrub? Drop them at the PawHaus Dog Spa for a full bath while you head to the pool or human spa next door.",
-      "Onsite human spa + heated pool open to all guests — so the whole pack gets pampered.",
+      "Onsite human spa + pool open to all guests — so the whole pack gets pampered.",
       "Spa add-on bookable at the front desk on arrival, or in advance with your reservation team.",
     ],
   },

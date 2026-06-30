@@ -57,10 +57,10 @@ export default function FounderSection() {
             <p>
               So I&apos;m building the place that fixes all of that — twelve glass-and-pine
               cabins on 30 private acres, a fenced yard at every door, designated potty
-              corners, a dog spa, a 24/7 vet partner on call, and a property that was
+              corners, a dog spa, a Vetster vet partnership, and a property that was
               designed paw-up from day one. If you book during pre-launch, you&apos;re
               not just getting 30% off. You&apos;re telling me you&apos;ve been waiting
-              for this too. I&apos;ll be there January 1st to shake your hand and meet
+              for this too. I&apos;ll be there January 1, 2027 to shake your hand and meet
               your dog. See you then.
             </p>
           </div>

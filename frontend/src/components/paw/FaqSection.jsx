@@ -30,7 +30,7 @@ const FAQ_GROUPS = [
       },
       {
         q: "Is my deposit refundable?",
-        a: "Yes. Your deposit is refundable up to 14 days before your stay, and you can reschedule up to that same window. Full terms are shown at checkout before anything is charged.",
+        a: "Yes — full refund up to 30 days before check-in. Between 30 and 14 days out, your deposit is non-refundable but you can reschedule for free (subject to availability). Inside 14 days, no refund and no free reschedule. Full terms shown at checkout before anything is charged.",
       },
       {
         q: "Why pre-book instead of waiting for public booking?",
@@ -38,7 +38,7 @@ const FAQ_GROUPS = [
       },
       {
         q: "When does PawHaus open?",
-        a: "We're opening in December 2026, and we're on pace. Pre-booking is open now so you can lock your dates and your rate ahead of the crowd.",
+        a: "We're opening January 1, 2027, and we're on pace. Pre-booking is open now so you can lock your dates and your rate ahead of the crowd.",
       },
     ],
   },
@@ -128,11 +128,11 @@ const FAQ_GROUPS = [
       },
       {
         q: "Is there food on site?",
-        a: "Yes. We'll have rotating food trucks and more for everyone, so you and your dog never have to leave to eat well. And pup cups are free in the lobby anytime we're open.",
+        a: "Yes. Continental breakfast is available in the camp store (extra charge — order at check-in or the night before). Rotating food trucks come through Wednesday through Sunday for lunch and dinner. Pup cups are free in the lobby every morning.",
       },
       {
         q: "What's here for the humans?",
-        a: "Plenty. The Fetch Club, our fitness space, an on-leash hiking trail, rotating food trucks, and 30 acres of private lakefront to explore.",
+        a: "Plenty. The Fetch Club fitness space, a pickleball court, an on-property human spa, bookable human therapy sessions, on-leash hiking trails, designated off-leash zones, rotating food trucks, and 30 acres of private lakefront to explore.",
       },
       {
         q: "Can my dog or I swim in the lake?",
