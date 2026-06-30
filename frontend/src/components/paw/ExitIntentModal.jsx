@@ -70,6 +70,11 @@ export default function ExitIntentModal() {
       }, 6000);
     };
 
+    // Time-based: auto-fire 15s after landing (whichever fires first wins)
+    const dwellTimer = setTimeout(() => {
+      trigger("dwell_15s");
+    }, 15000);
+
     document.addEventListener("mouseout", onMouseOut);
     window.addEventListener("scroll", onScroll, { passive: true });
 
@@ -77,6 +82,7 @@ export default function ExitIntentModal() {
       document.removeEventListener("mouseout", onMouseOut);
       window.removeEventListener("scroll", onScroll);
       if (idleTimer.current) clearTimeout(idleTimer.current);
+      clearTimeout(dwellTimer);
     };
 
     return () => {
