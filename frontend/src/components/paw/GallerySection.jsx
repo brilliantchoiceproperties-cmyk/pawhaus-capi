@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Camera, X } from "lucide-react";
 
 /**
@@ -98,29 +98,31 @@ const TILES = [
   },
 ];
 
-function Tile({ tile, span, onOpen, priority = false }) {
+function Tile({ tile, span, onOpen }) {
   return (
     <button
       type="button"
       onClick={() => onOpen(tile)}
       data-testid={`gallery-tile-${tile.key}`}
+      aria-label={`${tile.label}. ${tile.sub} Open larger view.`}
       className={`group relative overflow-hidden ${span} block w-full`}
       style={{ background: "var(--paw-bg-2)" }}
     >
       <img
         src={tile.src}
         alt={tile.label}
-        loading={priority ? "eager" : "lazy"}
+        loading="lazy"
         className="w-full h-full object-cover transition-transform duration-[700ms] ease-out group-hover:scale-[1.04]"
       />
       {/* gradient scrim for caption legibility */}
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/55 via-black/0 to-black/0" />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-black/0" />
       {/* caption */}
       <div className="absolute left-0 right-0 bottom-0 p-5 sm:p-6 text-left">
         <div className="font-display text-white text-lg sm:text-xl leading-tight">
           {tile.label}
         </div>
-        <div className="text-white/85 text-[12px] sm:text-[13px] leading-snug mt-1 max-w-[34ch] opacity-0 -translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
+        {/* Sub-caption: always visible on touch (no hover); fades in on hover for desktop */}
+        <div className="text-white/85 text-[12px] sm:text-[13px] leading-snug mt-1 max-w-[34ch] md:opacity-0 md:-translate-y-1 md:group-hover:opacity-100 md:group-hover:translate-y-0 md:transition-all md:duration-300">
           {tile.sub}
         </div>
       </div>
@@ -132,6 +134,16 @@ export default function GallerySection() {
   const [lightbox, setLightbox] = useState(null);
 
   const byKey = Object.fromEntries(TILES.map((t) => [t.key, t]));
+
+  // a11y: close lightbox on Escape
+  useEffect(() => {
+    if (!lightbox) return undefined;
+    const onKey = (e) => {
+      if (e.key === "Escape") setLightbox(null);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [lightbox]);
 
   return (
     <section
@@ -162,10 +174,10 @@ export default function GallerySection() {
       {/* Row 1 — hero asymmetric */}
       <div className="mt-12 grid grid-cols-1 md:grid-cols-12 gap-2 sm:gap-3">
         <div className="md:col-span-7 md:row-span-2 h-[420px] md:h-[640px]">
-          <Tile tile={byKey["signature-exterior"]} span="h-full" onOpen={setLightbox} priority />
+          <Tile tile={byKey["signature-exterior"]} span="h-full" onOpen={setLightbox} />
         </div>
         <div className="md:col-span-5 h-[260px] md:h-[316px]">
-          <Tile tile={byKey["pool-twilight"]} span="h-full" onOpen={setLightbox} priority />
+          <Tile tile={byKey["pool-twilight"]} span="h-full" onOpen={setLightbox} />
         </div>
         <div className="md:col-span-5 h-[260px] md:h-[316px]">
           <Tile tile={byKey["dog-park-2"]} span="h-full" onOpen={setLightbox} />
