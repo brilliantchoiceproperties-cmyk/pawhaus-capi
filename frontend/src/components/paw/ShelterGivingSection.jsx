@@ -15,10 +15,8 @@ import { Heart } from "lucide-react";
 const SHELTER_IMG = "/brand/dog-park.webp";
 
 const SHELTERS = [
-  "Polk County Humane Society — Livingston, TX",
-  "Houston Humane Society — Houston, TX",
-  "Citizens for Animal Protection — Houston, TX",
-  "Big Thicket Humane Society — Livingston, TX",
+  "SPCA of Polk County — Livingston, TX",
+  "Houston SPCA — Houston, TX",
 ];
 
 export default function ShelterGivingSection() {
