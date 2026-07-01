@@ -7,6 +7,7 @@ import FaqSection from "@/components/paw/FaqSection";
 import FounderSection from "@/components/paw/FounderSection";
 import DogDifferenceSection from "@/components/paw/DogDifferenceSection";
 import GallerySection from "@/components/paw/GallerySection";
+import ShelterGivingSection from "@/components/paw/ShelterGivingSection";
 import MobileStickyBar from "@/components/paw/MobileStickyBar";
 import ExitIntentModal from "@/components/paw/ExitIntentModal";
 
@@ -336,6 +337,9 @@ export default function Landing() {
           </div>
         </div>
       </section>
+
+      {/* SHELTER GIVING — a portion of every booking supports local shelters */}
+      <ShelterGivingSection />
 
       {/* FAQ */}
       <FaqSection />
