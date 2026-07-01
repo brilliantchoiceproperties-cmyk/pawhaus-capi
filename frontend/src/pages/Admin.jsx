@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { Lock, RefreshCw, DollarSign, TrendingUp, Users, MapPin, Calendar, Flame } from "lucide-react";
+import PageSeo from "@/components/seo/PageSeo";
 
 const LS_TOKEN = "pawhaus_admin_token";
 const LS_SITES = "pawhaus_admin_sites";
@@ -176,6 +177,12 @@ export default function Admin() {
   // Dashboard
   return (
     <div data-testid="admin-dashboard" className="min-h-screen px-6 sm:px-10 py-10 mx-auto max-w-[1400px]">
+      <PageSeo
+        title="Admin Dashboard"
+        description="PawHaus Resort admin dashboard"
+        path="/admin"
+        noIndex
+      />
       {/* HEADER */}
       <div className="flex items-center justify-between mb-10">
         <div>

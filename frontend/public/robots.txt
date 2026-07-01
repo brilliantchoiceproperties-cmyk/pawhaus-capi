@@ -1,0 +1,16 @@
+# robots.txt for PawHaus Resort
+# https://pawhausresort.com
+
+User-agent: *
+Allow: /
+
+# Block preview and dev environments from indexing
+Disallow: /admin
+Disallow: /booking/success
+Disallow: /booking/cancel
+
+# Slow down aggressive crawlers
+Crawl-delay: 1
+
+# Sitemap
+Sitemap: https://pawhausresort.com/sitemap.xml

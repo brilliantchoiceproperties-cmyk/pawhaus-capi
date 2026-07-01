@@ -1,0 +1,45 @@
+# PawHaus Resort
+
+> Twelve glass-and-pine cabins on 30 private acres in Goodrich, TX. The USA's first dog-first luxury nature hotel. Opening January 1, 2027.
+
+PawHaus Resort is a luxury dog-first destination where every cabin is designed paw-up: fenced yards at every door, in-cabin doggy treat bars, on-site dog spa, wood-fired hot tubs, and 30 acres of private off-leash roaming with a 24/7 vetted vet partner four minutes away.
+
+Currently in public pre-launch: 30% off all cabins, no code required. Doors open to public bookings January 1, 2027.
+
+## Cabin tiers
+
+- [Petite](https://pawhausresort.com/booking): Cozy mirrored cabin for 1-2 humans + 1-2 dogs. Doggy treat bar, private yard, dog spa access. From $195/night pre-launch.
+- [Standard](https://pawhausresort.com/booking): Signature lakefront cabin for 2-4 humans + up to 2 dogs. All Petite amenities plus expanded kitchen and living space. From $276/night pre-launch.
+- [Monolith](https://pawhausresort.com/booking): Premium cabin for 2-4 humans + up to 2 dogs. Wood-fired hot tub, outdoor fire pit, expanded lakefront views. From $417/night pre-launch.
+
+## Property amenities
+
+- 30 acres of private off-leash roaming trails
+- On-site PawHaus Dog Spa (one complimentary pick per stay)
+- DIY dog wash stations with warm water and blow-dryers
+- Nature Dog Park with splash pool
+- Indoor climate-controlled play lounge
+- Lobby coffee bar with pup cups every morning
+- Human wellness spa with massages and facials
+- Twilight pool with lake views
+- Wood-fired hot tubs (Monolith tier)
+- Vetted 24/7 vet partner 4 minutes from property
+
+## What makes PawHaus different
+
+Every touchpoint is designed for dogs, not tolerating them. No pet fees. No apologies. A dog bed in every cabin by default. A treat bar stocked to your dog's size. Fenced private yards at every door. Vet partner on speed dial.
+
+## Charitable giving
+
+A portion of every booking goes to a rotating list of East Texas and Houston-area animal shelters, currently SPCA of Polk County and Houston SPCA.
+
+## Booking
+
+- [Book a stay](https://pawhausresort.com/booking): Live booking with Stripe, Apple Pay, Google Pay. No code needed for the 30% pre-launch discount.
+
+## Company
+
+- Founder: Garrett Brown (also founder of Cameron Ranch Glamping)
+- Location: Goodrich, Texas (Polk County) — 90 minutes north of Houston
+- Launch date: January 1, 2027
+- Contact: team@pawhausresort.com

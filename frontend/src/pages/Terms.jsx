@@ -1,15 +1,20 @@
 import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
+import PageSeo from "@/components/seo/PageSeo";
 
 export default function Terms() {
   useEffect(() => {
-    document.title = "Terms of Service · PawHaus Resort";
     window.scrollTo(0, 0);
   }, []);
 
   return (
     <div style={{ background: "var(--paw-bg)", minHeight: "100vh" }}>
+      <PageSeo
+        title="Terms of Service"
+        description="PawHaus Resort terms of service — bookings, cancellations, refunds, pet policies, house rules, and payment terms."
+        path="/terms"
+      />
       <div className="mx-auto max-w-3xl px-6 sm:px-10 pt-16 pb-20">
         <Link
           to="/"

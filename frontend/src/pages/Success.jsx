@@ -4,6 +4,7 @@ import { CheckCircle2, ArrowRight, Gift } from "lucide-react";
 import { getPaymentStatus } from "@/lib/paw-api";
 import { useBooking } from "@/context/BookingContext";
 import { track, roomEventProps } from "@/lib/analytics";
+import PageSeo from "@/components/seo/PageSeo";
 
 const POLL_INTERVAL = 2500;
 const MAX_ATTEMPTS = 8;
@@ -70,6 +71,12 @@ export default function Success() {
 
   return (
     <div data-testid="success-page" className="mx-auto max-w-[900px] px-6 sm:px-10 py-24 text-center">
+      <PageSeo
+        title="Booking confirmed"
+        description="Your PawHaus stay is confirmed. See you in the woods."
+        path="/booking/success"
+        noIndex
+      />
       {status === "checking" && (
         <div data-testid="success-checking">
           <p className="overline" style={{ color: "var(--paw-muted)" }}>

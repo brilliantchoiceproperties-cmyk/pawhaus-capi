@@ -1,15 +1,20 @@
 import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
+import PageSeo from "@/components/seo/PageSeo";
 
 export default function Privacy() {
   useEffect(() => {
-    document.title = "Privacy Policy · PawHaus Resort";
     window.scrollTo(0, 0);
   }, []);
 
   return (
     <div style={{ background: "var(--paw-bg)", minHeight: "100vh" }}>
+      <PageSeo
+        title="Privacy Policy"
+        description="How PawHaus Resort collects, uses, and protects your personal information — including A2P SMS consent, booking data, and analytics."
+        path="/privacy"
+      />
       <div className="mx-auto max-w-3xl px-6 sm:px-10 pt-16 pb-20">
         <Link
           to="/"

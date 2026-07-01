@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import "@/App.css";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { HelmetProvider } from "react-helmet-async";
 import { BookingProvider } from "@/context/BookingContext";
 import Header from "@/components/paw/Header";
 import Footer from "@/components/paw/Footer";
@@ -32,22 +33,24 @@ function App() {
 
   return (
     <div className="App">
-      <BrowserRouter>
-        <BookingProvider>
-          <RouteTracker />
-          <Header />
-          <Routes>
-            <Route path="/" element={<Landing />} />
-            <Route path="/booking" element={<Booking />} />
-            <Route path="/booking/success" element={<Success />} />
-            <Route path="/booking/cancel" element={<Cancel />} />
-            <Route path="/admin" element={<Admin />} />
-            <Route path="/privacy" element={<Privacy />} />
-            <Route path="/terms" element={<Terms />} />
-          </Routes>
-          <Footer />
-        </BookingProvider>
-      </BrowserRouter>
+      <HelmetProvider>
+        <BrowserRouter>
+          <BookingProvider>
+            <RouteTracker />
+            <Header />
+            <Routes>
+              <Route path="/" element={<Landing />} />
+              <Route path="/booking" element={<Booking />} />
+              <Route path="/booking/success" element={<Success />} />
+              <Route path="/booking/cancel" element={<Cancel />} />
+              <Route path="/admin" element={<Admin />} />
+              <Route path="/privacy" element={<Privacy />} />
+              <Route path="/terms" element={<Terms />} />
+            </Routes>
+            <Footer />
+          </BookingProvider>
+        </BrowserRouter>
+      </HelmetProvider>
     </div>
   );
 }

@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { track } from "@/lib/analytics";
 import EmailCTA from "@/components/paw/EmailCTA";
+import PageSeo from "@/components/seo/PageSeo";
 
 export default function Cancel() {
   const navigate = useNavigate();
@@ -10,6 +11,12 @@ export default function Cancel() {
   }, []);
   return (
     <div data-testid="cancel-page" className="mx-auto max-w-[900px] px-6 sm:px-10 py-24 text-center">
+      <PageSeo
+        title="Booking cancelled"
+        description="Your booking was cancelled. Your selections are saved — resume anytime."
+        path="/booking/cancel"
+        noIndex
+      />
       <div className="overline" style={{ color: "var(--paw-muted)" }}>
         Payment cancelled
       </div>

@@ -10,6 +10,7 @@ import SummaryCard from "@/components/paw/SummaryCard";
 import EmailCTA from "@/components/paw/EmailCTA";
 import ScarcityTicker from "@/components/paw/ScarcityTicker";
 import TrustStrip from "@/components/paw/TrustStrip";
+import PageSeo from "@/components/seo/PageSeo";
 
 // Date constraints
 const MIN_CHECKIN = "2027-01-01"; // doors open Jan 1, 2027
@@ -116,6 +117,11 @@ export default function Booking() {
 
   return (
     <div data-testid="booking-page" className="mx-auto max-w-[1400px] px-6 sm:px-10 py-12">
+      <PageSeo
+        title="Book your PawHaus stay — 30% off pre-launch"
+        description="Pick your cabin and dates. Live pricing, Apple Pay & Google Pay checkout. 30% off every booking pre-launch — no code needed."
+        path="/booking"
+      />
       {/* SCARCITY BANNER */}
       <div
         className="mb-6 border px-5 py-3 text-xs leading-relaxed"
