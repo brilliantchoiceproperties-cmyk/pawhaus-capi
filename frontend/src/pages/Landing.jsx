@@ -7,6 +7,7 @@ import FaqSection from "@/components/paw/FaqSection";
 import FounderSection from "@/components/paw/FounderSection";
 import DogDifferenceSection from "@/components/paw/DogDifferenceSection";
 import GallerySection from "@/components/paw/GallerySection";
+import ConstructionTourVideo from "@/components/paw/ConstructionTourVideo";
 import ShelterGivingSection from "@/components/paw/ShelterGivingSection";
 import PageSeo from "@/components/seo/PageSeo";
 import ResortSchema from "@/components/seo/ResortSchema";
@@ -201,6 +202,9 @@ export default function Landing() {
 
       {/* GALLERY — editorial photo walk-through of the property */}
       <GallerySection />
+
+      {/* CONSTRUCTION TOUR — YouTube video showing real progress */}
+      <ConstructionTourVideo />
 
       {/* INSIDE THE CABIN — bedroom shot */}
       <section className="mx-auto max-w-[1400px] px-6 sm:px-10 pt-32">
