@@ -9,6 +9,7 @@ import DogDifferenceSection from "@/components/paw/DogDifferenceSection";
 import GallerySection from "@/components/paw/GallerySection";
 import ShelterGivingSection from "@/components/paw/ShelterGivingSection";
 import PageSeo from "@/components/seo/PageSeo";
+import ResortSchema from "@/components/seo/ResortSchema";
 import MobileStickyBar from "@/components/paw/MobileStickyBar";
 import ExitIntentModal from "@/components/paw/ExitIntentModal";
 
@@ -38,6 +39,7 @@ export default function Landing() {
         description="12 glass-and-pine cabins on 30 private acres. Wood-fired hot tubs, on-site dog spa, private yard at every door. 30% off pre-launch bookings — opens Jan 1, 2027."
         path="/"
       />
+      <ResortSchema />
       {/* TOP BANNER */}
       <div
         data-testid="prelaunch-banner"
